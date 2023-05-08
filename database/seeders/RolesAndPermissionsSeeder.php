@@ -23,9 +23,6 @@ class RolesAndPermissionsSeeder extends Seeder
         // reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Misc
-        $miscPermission = Permission::create(['name' => 'N/A']);
-
         // User Model
         $userPermission1 = Permission::create(['name' => 'user: create']);
         $userPermission2 = Permission::create(['name' => 'user: read']);
@@ -49,9 +46,6 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminPermission2 = Permission::create(['name' => 'admin: update']);
 
         // Create Roles
-        $userRole = Role::create(['name' => 'user'])->syncPermissions([
-            $miscPermission,
-        ]);
         $superAdminRole = Role::create(['name' => 'super-admin'])->syncPermissions([
             $userPermission1,
             $userPermission2,
@@ -96,7 +90,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
         User::create([
             'name' => 'Super Admin',
-            'is_admin' => 1,
             'email' => 'super@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -104,7 +97,6 @@ class RolesAndPermissionsSeeder extends Seeder
         ])->assignRole($superAdminRole);
         User::create([
             'name' => 'Admin',
-            'is_admin' => 1,
             'email' => 'admin@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -112,7 +104,6 @@ class RolesAndPermissionsSeeder extends Seeder
         ])->assignRole($adminRole);
         User::create([
             'name' => 'Moderator',
-            'is_admin' => 1,
             'email' => 'moderator@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
@@ -120,22 +111,11 @@ class RolesAndPermissionsSeeder extends Seeder
         ])->assignRole($moderatorRole);
         User::create([
             'name' => 'Developer',
-            'is_admin' => 1,
             'email' => 'developer@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
         ])->assignRole($developerRole);
 
-        for ($i=1; $i < 20; $i++) {
-            User::create([
-                'name' => 'User ' . $i,
-                'is_admin' => 0,
-                'email' => 'test' . $i . '@test.com',
-                'email_verified_at' => now(),
-                'password' => Hash::make('password'),
-                'remember_token' => Str::random(10),
-            ])->assignRole($userRole);    
-        }
     }
 }

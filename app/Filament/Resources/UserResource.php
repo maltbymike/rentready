@@ -21,8 +21,6 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Filament\Resources\UserResource\RelationManagers\RolesRelationManager;
 
 class UserResource extends Resource
 {
@@ -61,12 +59,16 @@ class UserResource extends Resource
                             ]),
                         Tabs\Tab::make('Permissions')
                             ->schema([
-                                Forms\Components\Toggle::make('is_admin')
-                                    ->required(),
                                 CheckboxList::make('roles')
                                     ->relationship('roles', 'name')
-                                    ->columns(2)
-                                    ->helperText('Only Choose One')
+                                    ->columns([
+                                        'default' => 2,
+                                        'sm' => 3,
+                                        'md' => 4,
+                                        'lg' => 3,
+                                        'xl' => 4,
+                                        '2xl' => 5,
+                                    ])
                                     ->required(),
                                 
                             ]),
@@ -114,7 +116,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RolesRelationManager::class,
+            // RolesRelationManager::class,
         ];
     }
     
