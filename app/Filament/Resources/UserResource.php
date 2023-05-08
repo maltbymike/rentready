@@ -10,6 +10,7 @@ use Filament\Resources\Table;
 use Filament\Resources\Resource;
 use Filament\Resources\Pages\Page;
 use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Tabs;
 use Illuminate\Support\Facades\Hash;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\IconColumn;
@@ -35,41 +36,45 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Card::make()
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Toggle::make('is_admin')
-                            ->required(),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->maxLength(255),
-                        CheckboxList::make('roles')
-                            ->relationship('roles', 'name')
-                            ->columns(2)
-                            ->helperText('Only Choose One')
-                            ->required(),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            // ->dehydrateStateUsing(static fn(null|string $state): 
-                            //     null|string => 
-                            //         filled($state)
-                            //             ? Hash::make($state)
-                            //             : null,
-                            // )
-                            ->dehydrateStateUsing(static fn (null|string $state):
-                                null|string => Hash::make($state))
-                            ->dehydrated(static fn (null|string $state):
-                                bool => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create')
-                            ->maxLength(255)
-                            ->label(static fn(Page $livewire): string =>
-                                ($livewire instanceOf EditUser) ? "New Password" : "Password"
-                            ),
-                    ])
-            ]);
+                Tabs::make('User Information')
+                    ->tabs([
+                        Tabs\Tab::make('General')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('email')
+                                    ->email()
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('password')
+                                    ->password()
+                                    ->dehydrateStateUsing(static fn (null|string $state):
+                                        null|string => Hash::make($state))
+                                    ->dehydrated(static fn (null|string $state):
+                                        bool => filled($state))
+                                    ->required(fn (string $context): bool => $context === 'create')
+                                    ->maxLength(255)
+                                    ->label(static fn(Page $livewire): string =>
+                                        ($livewire instanceOf EditUser) ? "New Password" : "Password"
+                                    ),
+                            ]),
+                        Tabs\Tab::make('Permissions')
+                            ->schema([
+                                Forms\Components\Toggle::make('is_admin')
+                                    ->required(),
+                                CheckboxList::make('roles')
+                                    ->relationship('roles', 'name')
+                                    ->columns(2)
+                                    ->helperText('Only Choose One')
+                                    ->required(),
+                                
+                            ]),
+                        
+                    ]),
+
+            ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table

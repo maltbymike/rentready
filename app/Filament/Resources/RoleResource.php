@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Tables;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
@@ -34,11 +35,17 @@ class RoleResource extends Resource
                         TextInput::make('name')
                             ->unique(ignoreRecord: true)
                             ->required(),
-                        Select::make('permissions')
-                            ->multiple()
+                        CheckboxList::make('permissions')
                             ->relationship('permissions', 'name')
-                            ->preload()
                             ->required()
+                            ->columns([
+                                'default' => 2,
+                                'sm' => 3,
+                                'md' => 4,
+                                'lg' => 3,
+                                'xl' => 4,
+                                '2xl' => 5,
+                            ]),
                     ])
             ]);
     }
