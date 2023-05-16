@@ -57,7 +57,7 @@ class UserResource extends Resource
                                         ($livewire instanceOf EditUser) ? "New Password" : "Password"
                                     ),
                             ]),
-                        Tabs\Tab::make('Permissions')
+                        Tabs\Tab::make('Roles')
                             ->schema([
                                 CheckboxList::make('roles')
                                     ->relationship('roles', 'name')
@@ -69,7 +69,6 @@ class UserResource extends Resource
                                         'xl' => 4,
                                         '2xl' => 5,
                                     ])
-                                    ->required(),
                                 
                             ]),
                         
@@ -84,10 +83,6 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name'),
-                Tables\Columns\IconColumn::make('is_admin')
-                    ->sortable()
-                    ->searchable()
-                    ->boolean(),
                 Tables\Columns\TextColumn::make('roles.name')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->sortable()

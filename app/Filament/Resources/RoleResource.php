@@ -3,18 +3,18 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
-use Filament\Forms\Components\CheckboxList;
+use App\Models\Role;
 use Filament\Tables;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use Filament\Resources\Resource;
-use Spatie\Permission\Models\Role;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\MultiSelect;
+use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\RoleResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
@@ -37,7 +37,6 @@ class RoleResource extends Resource
                             ->required(),
                         CheckboxList::make('permissions')
                             ->relationship('permissions', 'name')
-                            ->required()
                             ->columns([
                                 'default' => 2,
                                 'sm' => 3,

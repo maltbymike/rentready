@@ -23,78 +23,24 @@ class RolesAndPermissionsSeeder extends Seeder
         // reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // User Model
-        $userPermission1 = Permission::create(['name' => 'user: create']);
-        $userPermission2 = Permission::create(['name' => 'user: read']);
-        $userPermission3 = Permission::create(['name' => 'user: update']);
-        $userPermission4 = Permission::create(['name' => 'user: delete']);
-
-        // Role Model
-        $rolePermission1 = Permission::create(['name' => 'role: create']);
-        $rolePermission2 = Permission::create(['name' => 'role: read']);
-        $rolePermission3 = Permission::create(['name' => 'role: update']);
-        $rolePermission4 = Permission::create(['name' => 'role: delete']);
-
-        // Permission Model
-        $permission1 = Permission::create(['name' => 'permission: create']);
-        $permission2 = Permission::create(['name' => 'permission: read']);
-        $permission3 = Permission::create(['name' => 'permission: update']);
-        $permission4 = Permission::create(['name' => 'permission: delete']);
-
-        // Admins
-        $adminPermission1 = Permission::create(['name' => 'admin: read']);
-        $adminPermission2 = Permission::create(['name' => 'admin: update']);
-
+        // Permissions
+        $accessAdminPanel = Permission::create(['name' => 'Access Admin Panel']);
+        $manageUsers = Permission::create(['name' => 'Manage Users']);
+        $manageRoles = Permission::create(['name' => 'Manage Roles']);
+        
         // Create Roles
-        $superAdminRole = Role::create(['name' => 'super-admin'])->syncPermissions([
-            $userPermission1,
-            $userPermission2,
-            $userPermission3,
-            $userPermission4,
-            $rolePermission1,
-            $rolePermission2,
-            $rolePermission3,
-            $rolePermission4,
-            $permission1,
-            $permission2,
-            $permission3,
-            $permission4,
-            $adminPermission1,
-            $adminPermission2,
+        $adminRole = Role::create(['name' => 'Administrator'])->syncPermissions([
+            $accessAdminPanel,
         ]);
-        $adminRole = Role::create(['name' => 'admin'])->syncPermissions([
-            $userPermission1,
-            $userPermission2,
-            $userPermission3,
-            $userPermission4,
-            $rolePermission1,
-            $rolePermission2,
-            $rolePermission3,
-            $rolePermission4,
-            $permission1,
-            $permission2,
-            $permission3,
-            $permission4,
-            $adminPermission1,
-            $adminPermission2,
+        $employeeRole = Role::create(['name' => 'Employee'])->syncPermissions([
+            $accessAdminPanel,
         ]);
-        $moderatorRole = Role::create(['name' => 'moderator'])->syncPermissions([
-            $userPermission2,
-            $rolePermission2,
-            $permission2,
-            $adminPermission1,
-        ]);
-        $developerRole = Role::create(['name' => 'developer'])->syncPermissions([
-            $adminPermission1,
+        $managerRole = Role::create(['name' => 'Manager'])->syncPermissions([
+            $accessAdminPanel,
+            $manageUsers,
+            $manageRoles,
         ]);
 
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'super@admin.com',
-            'email_verified_at' => now(),
-            'password' => Hash::make('password'),
-            'remember_token' => Str::random(10),
-        ])->assignRole($superAdminRole);
         User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
@@ -103,19 +49,29 @@ class RolesAndPermissionsSeeder extends Seeder
             'remember_token' => Str::random(10),
         ])->assignRole($adminRole);
         User::create([
-            'name' => 'Moderator',
-            'email' => 'moderator@admin.com',
+            'name' => 'Manager',
+            'email' => 'manager@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-        ])->assignRole($moderatorRole);
+        ])->assignRole([
+            $employeeRole,
+            $managerRole,
+        ]);
         User::create([
-            'name' => 'Developer',
-            'email' => 'developer@admin.com',
+            'name' => 'Employee',
+            'email' => 'employee@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
-        ])->assignRole($developerRole);
+        ])->assignRole($employeeRole);
+        User::create([
+            'name' => 'Unprivileged User',
+            'email' => 'unprivileged@admin.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'remember_token' => Str::random(10),
+        ]);
 
     }
 }
