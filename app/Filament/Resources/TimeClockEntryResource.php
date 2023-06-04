@@ -2,16 +2,16 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TimeClockEntryResource\Pages;
-use App\Filament\Resources\TimeClockEntryResource\RelationManagers;
-use App\Models\TimeClockEntry;
 use Filament\Forms;
-use Filament\Resources\Form;
-use Filament\Resources\Resource;
-use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Resources\Form;
+use Filament\Resources\Table;
+use App\Models\TimeClockEntry;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\TimeClockEntryResource\Pages;
+use App\Filament\Resources\TimeClockEntryResource\RelationManagers;
 
 class TimeClockEntryResource extends Resource
 {
@@ -56,7 +56,9 @@ class TimeClockEntryResource extends Resource
                 Tables\Columns\TextColumn::make('approved_at')->dateTime(),
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('onlyOwnRecords')
+                ->query(fn (Builder $query): Builder => $query->where('user_id', auth()->user()->id))
+                ->default()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -66,6 +68,15 @@ class TimeClockEntryResource extends Resource
             ]);
     }
     
+    public static function getEloquentQuery(): Builder
+    {
+        if (! auth()->user()->can('Manage Timeclock Entries')) {
+            return parent::getEloquentQuery()->where('user_id', auth()->user()->id);   
+        }
+
+        return parent::getEloquentQuery();
+    }
+
     public static function getRelations(): array
     {
         return [
@@ -81,4 +92,5 @@ class TimeClockEntryResource extends Resource
             'edit' => Pages\EditTimeClockEntry::route('/{record}/edit'),
         ];
     }    
+
 }

@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
-use Filament\Models\Contracts\FilamentUser;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\LogOptions;
 use Laravel\Jetstream\HasProfilePhoto;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -22,6 +25,7 @@ class User extends Authenticatable implements FilamentUser
     use Notifiable;
     use SoftDeletes;
     use TwoFactorAuthenticatable;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -77,5 +81,57 @@ class User extends Authenticatable implements FilamentUser
 
         return false;
 
+    }
+
+    public function clockIn() {
+
+        if (! $this->isClockedIn()) {
+
+            $now = $this->freshTimestamp();
+
+            return $this->timeClockEntries()
+                ->create([
+                    'clock_in_at' => $now->format('Y-m-d H:i:s'),
+                ]);
+
+        }
+
+    }
+
+    public function clockOut() {
+        $now = $this->freshTimestamp();
+
+        return $this->timeClockEntries()
+            ->whereNull('clock_out_at')
+            ->firstOrFail()
+            ->update([
+                'clock_out_at' => $now->format('Y-m-d H:i:s'),
+            ]);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+        ->logOnly(['*']);
+    }
+
+    public function isClockedIn() : bool {
+        $lastTimeClock = $this->timeClockEntries()->latest()->firstOrNew();
+
+        // User has no timeclock entries
+        if (! $lastTimeClock->exists) {
+            return false;
+        }
+
+        // The users last timeclock entry has a clock_out_at value
+        if ($lastTimeClock->clock_out_at !== null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function timeClockEntries() : HasMany {
+        return $this->hasMany(TimeClockEntry::class);
     }
 }

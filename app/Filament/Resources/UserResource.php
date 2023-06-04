@@ -45,17 +45,24 @@ class UserResource extends Resource
                                     ->email()
                                     ->required()
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('password')
-                                    ->password()
-                                    ->dehydrateStateUsing(static fn (null|string $state):
-                                        null|string => Hash::make($state))
-                                    ->dehydrated(static fn (null|string $state):
-                                        bool => filled($state))
-                                    ->required(fn (string $context): bool => $context === 'create')
-                                    ->maxLength(255)
-                                    ->label(static fn(Page $livewire): string =>
-                                        ($livewire instanceOf EditUser) ? "New Password" : "Password"
-                                    ),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('password')
+                                            ->password()
+                                            ->dehydrateStateUsing(static fn (null|string $state):
+                                                null|string => Hash::make($state))
+                                            ->dehydrated(static fn (null|string $state):
+                                                bool => filled($state))
+                                            ->required(fn (string $context): bool => $context === 'create')
+                                            ->maxLength(255)
+                                            ->label(static fn(Page $livewire): string =>
+                                                ($livewire instanceOf EditUser) ? "New Password" : "Password"
+                                            ),
+                                        Forms\Components\TextInput::make('pin')
+                                            ->required()
+                                            ->minLength('4')
+                                            ->maxLength('10'),
+                                    ]),
                             ]),
                         Tabs\Tab::make('Roles')
                             ->schema([

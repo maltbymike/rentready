@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\TimeClockEntryResource\Pages;
 
-use App\Filament\Resources\TimeClockEntryResource;
 use Filament\Pages\Actions;
+use App\Models\TimeClockEntry;
+use Filament\Tables\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\TimeClockEntryResource;
 
 class ListTimeClockEntries extends ListRecords
 {
@@ -13,7 +15,9 @@ class ListTimeClockEntries extends ListRecords
     protected function getActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('New Time Clock Entry'),
         ];
     }
+
 }

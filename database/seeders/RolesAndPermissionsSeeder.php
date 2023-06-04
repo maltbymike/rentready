@@ -25,8 +25,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Permissions
         $accessAdminPanel = Permission::create(['name' => 'Access Admin Panel']);
+
         $manageUsers = Permission::create(['name' => 'Manage Users']);
         $manageRoles = Permission::create(['name' => 'Manage Roles']);
+
+        $manageTimeclockEntries = Permission::create(['name' => 'Manage Timeclock Entries']);
         
         // Create Roles
         $adminRole = Role::create(['name' => 'Administrator'])->syncPermissions([
@@ -38,14 +41,16 @@ class RolesAndPermissionsSeeder extends Seeder
         $managerRole = Role::create(['name' => 'Manager'])->syncPermissions([
             $accessAdminPanel,
             $manageUsers,
-            $manageRoles,
+            $manageTimeclockEntries,
         ]);
+        $timeclockUserRole = Role::create(['name' => 'Timeclock User']);
 
         User::create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'pin' => '1234',
             'remember_token' => Str::random(10),
         ])->assignRole($adminRole);
         User::create([
@@ -53,23 +58,30 @@ class RolesAndPermissionsSeeder extends Seeder
             'email' => 'manager@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'pin' => '1234',
             'remember_token' => Str::random(10),
         ])->assignRole([
             $employeeRole,
             $managerRole,
+            $timeclockUserRole,
         ]);
         User::create([
             'name' => 'Employee',
             'email' => 'employee@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'pin' => '1234',
             'remember_token' => Str::random(10),
-        ])->assignRole($employeeRole);
+        ])->assignRole([
+            $employeeRole,
+            $timeclockUserRole,
+        ]);
         User::create([
             'name' => 'Unprivileged User',
             'email' => 'unprivileged@admin.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'),
+            'pin' => '1234',
             'remember_token' => Str::random(10),
         ]);
 
