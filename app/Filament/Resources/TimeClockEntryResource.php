@@ -57,8 +57,15 @@ class TimeClockEntryResource extends Resource
             ])
             ->filters([
                 Tables\Filters\Filter::make('onlyOwnRecords')
-                ->query(fn (Builder $query): Builder => $query->where('user_id', auth()->user()->id))
-                ->default()
+                    ->label('Only My Records')
+                    ->query(fn (Builder $query): Builder => $query->where('user_id', auth()->user()->id))
+                    ->default(),
+                Tables\Filters\TernaryFilter::make('status')
+                    ->attribute('approved_at')
+                    ->trueLabel('Approved')
+                    ->falseLabel('Unapproved')
+                    ->default(false)
+                    ->nullable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -67,7 +74,7 @@ class TimeClockEntryResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getEloquentQuery(): Builder
     {
         if (! auth()->user()->can('Manage Timeclock Entries')) {
