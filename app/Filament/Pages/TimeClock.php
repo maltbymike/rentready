@@ -59,6 +59,7 @@ class TimeClock extends Page implements HasTable
                 ->visible(fn (User $record) : bool => $record->isClockedIn() === false)
                 ->form([
                     Forms\Components\TextInput::make('pin')
+                        ->autofocus()
                         ->required()
                         ->disableAutocomplete()
                         ->exists(table: User::class, column: 'pin', callback: function (Exists $rule, User $record) {
@@ -71,6 +72,7 @@ class TimeClock extends Page implements HasTable
                 ->visible(fn (User $record) : bool => $record->isClockedIn() === true)
                 ->form([
                     Forms\Components\TextInput::make('pin')
+                        ->autofocus()
                         ->required()
                         ->disableAutocomplete()
                         ->exists(table: User::class, column: 'pin', callback: function (Exists $rule, User $record) {

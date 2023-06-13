@@ -7,8 +7,10 @@ use Filament\Tables;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use App\Models\TimeClockEntry;
+use App\Models\TimeClockStatus;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimeClockEntryResource\Pages;
 use App\Filament\Resources\TimeClockEntryResource\RelationManagers;
@@ -27,20 +29,14 @@ class TimeClockEntryResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name'),
+                Forms\Components\Select::make('status')
+                    ->relationship('status', 'name'),
                 Forms\Components\DateTimePicker::make('clock_in_at')
                     ->label(__('Clock In'))
                     ->weekStartsOnSunday()
                     ->withoutSeconds(),
                 Forms\Components\DateTimePicker::make('clock_out_at')
                     ->label(__('Clock Out'))
-                    ->weekStartsOnSunday()
-                    ->withoutSeconds(),
-                Forms\Components\Select::make('approved_by')
-                    ->label(__('Approved By'))
-                    ->relationship('user', 'name')
-                    ->default(auth()->user()->id),
-                Forms\Components\DateTimePicker::make('approved_at')
-                    ->label(__('Approved At'))
                     ->weekStartsOnSunday()
                     ->withoutSeconds(),
             ]);
@@ -50,28 +46,72 @@ class TimeClockEntryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('clock_in_at')->dateTime(),
-                Tables\Columns\TextColumn::make('clock_out_at')->dateTime(),
-                Tables\Columns\TextColumn::make('approved_at')->dateTime(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('clock_in_at')
+                    ->dateTime(),
+                Tables\Columns\TextColumn::make('clock_out_at')
+                    ->dateTime(),
+                Tables\Columns\TextColumn::make('hours')
+                    ->getStateUsing(function (TimeClockEntry $record) {
+                        return number_format($record->hours(), 2);
+                    })
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('status.name'),
             ])
             ->filters([
                 Tables\Filters\Filter::make('onlyOwnRecords')
                     ->label('Only My Records')
                     ->query(fn (Builder $query): Builder => $query->where('user_id', auth()->user()->id))
                     ->default(),
-                Tables\Filters\TernaryFilter::make('status')
-                    ->attribute('approved_at')
-                    ->trueLabel('Approved')
-                    ->falseLabel('Unapproved')
-                    ->default(false)
-                    ->nullable(),
+                Tables\Filters\SelectFilter::make('status')
+                    ->relationship('status', 'name')
+                    ->multiple(),
+                Tables\Filters\SelectFilter::make('employee')
+                    ->relationship('user', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('approve')
+                        ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'))
+                        ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
+                    Tables\Actions\Action::make('reject')
+                        ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'))
+                        ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
+                    Tables\Actions\ReplicateAction::make()
+                        ->label('Request Change')
+                        ->modalHeading('Request Change to Time Clock Entry')
+                        ->modalButton('Make Request')
+                        ->form([
+                            Forms\Components\DateTimePicker::make('clock_in_at')
+                                ->label(__('Clock In'))
+                                ->weekStartsOnSunday()
+                                ->withoutSeconds(),
+                            Forms\Components\DateTimePicker::make('clock_out_at')
+                                ->label(__('Clock Out'))
+                                ->weekStartsOnSunday()
+                                ->withoutSeconds(),
+                        ])
+                        ->beforeReplicaSaved(function (TimeClockEntry $replica, array $data): void {
+                            $replica->fill($data);
+                        })
+                ]),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkAction::make('approve')
+                    ->action(function (Collection $records) {
+                        $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'));
+                    })
+                    ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
+                    ->deselectRecordsAfterCompletion(),
+                Tables\Actions\BulkAction::make('reject')
+                    ->action(function (Collection $records) {
+                        $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'));
+                    })
+                    ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
+                    ->deselectRecordsAfterCompletion(),
             ]);
     }
 

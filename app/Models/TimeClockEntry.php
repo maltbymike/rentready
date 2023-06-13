@@ -2,16 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
+use SebastianBergmann\Type\VoidType;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class TimeClockEntry extends Model
 {
     use HasFactory;
     use LogsActivity;
+    use SoftDeletes;
+
+    protected $casts = [
+        'clock_in_at' => 'datetime',
+        'clock_out_at' => 'datetime',
+        'approved_at' => 'datetime',
+    ];
 
     protected $fillable = [
         'user_id',
@@ -21,12 +32,36 @@ class TimeClockEntry extends Model
         'approved_at',
     ];
 
+    public ?Array $statuses;
+
+    public function alternates(): BelongsToMany
+    {
+        return $this->belongsToMany(TimeClockEntry::class, 'time_clock_entry_alternates', 'time_clock_entry_id', 'alternate_id');
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
         ->logOnly(['*']);
     }
 
+    public function hours(): string
+    {
+        $clock_out_at = $this->clock_out_at ?? $this->freshTimestamp();
+        return round($clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+    }
+
+    public function setEntryStatus(String $statusName): void
+    {
+        $this->statuses[$statusName] = $this->statuses[$statusName] ?? TimeClockStatus::firstWhere('name', $statusName);
+        $this->status()->associate($this->statuses[$statusName]);
+        $this->save();
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(TimeClockStatus::class);
+    }
 
     public function user(): BelongsTo
     {
