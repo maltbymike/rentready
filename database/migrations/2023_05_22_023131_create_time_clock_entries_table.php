@@ -24,6 +24,7 @@ return new class extends Migration
                 ->default($defaultStatus)
                 ->nullable()
                 ->constrained(table: 'time_clock_statuses');
+            $table->date('payment_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

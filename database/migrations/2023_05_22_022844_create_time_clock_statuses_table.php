@@ -19,16 +19,16 @@ return new class extends Migration
         });
 
         TimeClockStatus::create([
-            'name' => 'Created'
+            'name' => 'Requested',
+        ]);
+        TimeClockStatus::create([
+            'name' => 'Created',
         ]);
         TimeClockStatus::create([
             'name' => 'Approved',
         ]);
         TimeClockStatus::create([
             'name' => 'Rejected',
-        ]);
-        TimeClockStatus::create([
-            'name' => 'Paid',
         ]);
     }
 

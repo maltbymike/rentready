@@ -116,7 +116,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     public function isClockedIn() : bool {
-        $lastTimeClock = $this->timeClockEntries()->latest()->firstOrNew();
+        $lastTimeClock = $this->timeClockEntries()->orderBy('clock_in_at', 'desc')->firstOrNew();
 
         // User has no timeclock entries
         if (! $lastTimeClock->exists) {

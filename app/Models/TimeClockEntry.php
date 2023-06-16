@@ -19,9 +19,9 @@ class TimeClockEntry extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'clock_in_at' => 'datetime',
-        'clock_out_at' => 'datetime',
-        'approved_at' => 'datetime',
+        'clock_in_at' => 'datetime:Y-m-d H:i:s',
+        'clock_out_at' => 'datetime:Y-m-d H:i:s',
+        'payment_date' => 'date:Y-m-d H:i:s',
     ];
 
     protected $fillable = [
@@ -51,11 +51,14 @@ class TimeClockEntry extends Model
         return round($clock_out_at->floatDiffInHours($this->clock_in_at), 2);
     }
 
-    public function setEntryStatus(String $statusName): void
+    public function setEntryStatus(String $statusName, bool $save = true): void
     {
         $this->statuses[$statusName] = $this->statuses[$statusName] ?? TimeClockStatus::firstWhere('name', $statusName);
         $this->status()->associate($this->statuses[$statusName]);
-        $this->save();
+
+        if ($save) {
+            $this->save();
+        }
     }
 
     public function status(): BelongsTo

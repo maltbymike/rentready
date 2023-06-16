@@ -46,19 +46,34 @@ class TimeClockEntryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('clock_in_at')
-                    ->dateTime(),
-                Tables\Columns\TextColumn::make('clock_out_at')
-                    ->dateTime(),
-                Tables\Columns\TextColumn::make('hours')
-                    ->getStateUsing(function (TimeClockEntry $record) {
-                        return number_format($record->hours(), 2);
-                    })
-                    ->alignCenter(),
-                Tables\Columns\TextColumn::make('status.name'),
+                Tables\Columns\Layout\Split::make([
+                    Tables\Columns\TextColumn::make('user.name')
+                        ->sortable()
+                        ->searchable(),
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('clock_in_at')
+                            ->alignCenter()
+                            ->dateTime('D Y-m-d'),
+                        Tables\Columns\TextColumn::make('clock_in_at')
+                            ->alignCenter()
+                            ->dateTime('h:i:s A'),
+                    ]),
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('clock_out_at')
+                            ->alignCenter()
+                            ->dateTime('D Y-m-d'),
+                        Tables\Columns\TextColumn::make('clock_out_at')
+                            ->alignCenter()
+                            ->dateTime('h:i:s A'),
+                    ]),
+                    Tables\Columns\TextColumn::make('hours')
+                        ->getStateUsing(function (TimeClockEntry $record) {
+                            return number_format($record->hours(), 2);
+                        })
+                        ->alignCenter(),
+                    Tables\Columns\TextColumn::make('status.name')
+                        ->alignCenter(),
+                ])
             ])
             ->filters([
                 Tables\Filters\Filter::make('onlyOwnRecords')
@@ -94,8 +109,12 @@ class TimeClockEntryResource extends Resource
                                 ->weekStartsOnSunday()
                                 ->withoutSeconds(),
                         ])
-                        ->beforeReplicaSaved(function (TimeClockEntry $replica, array $data): void {
+                        ->beforeReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record, array $data): void {
                             $replica->fill($data);
+                            $replica->setEntryStatus('Requested', false);
+                        })
+                        ->afterReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record): void {
+                            $record->alternates()->attach($replica);
                         })
                 ]),
             ])
@@ -117,11 +136,16 @@ class TimeClockEntryResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+
+        $query = parent::getEloquentQuery()
+            ->orderBy('user_id')
+            ->orderBy('clock_in_at');
+
         if (! auth()->user()->can('Manage Timeclock Entries')) {
-            return parent::getEloquentQuery()->where('user_id', auth()->user()->id);   
+            $query = $query->where('user_id', auth()->user()->id);
         }
 
-        return parent::getEloquentQuery();
+        return $query;
     }
 
     public static function getRelations(): array
