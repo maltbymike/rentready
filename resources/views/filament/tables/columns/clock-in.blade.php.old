@@ -1,0 +1,40 @@
+@php
+    $bgClass = '';
+    if ($getRecord()->clock_in_requested) $bgClass = 'bg-warning-500';
+
+    if ($)
+@endphp
+
+<span class="flex gap-3 {{ $bgClass }} rounded-full px-3">
+
+    <span>{{ $getRecord()->clock_in_at->format("D Y-m-d") }}</span>
+    <span>{{ $getRecord()->clock_in_at->format("h:i:s A") }}</span>
+
+</span>
+<!-- <table class="{{ $bgClass }}" style="border-collapse: separate; border-spacing: 0.75rem 0;">
+
+    @if($getRecord()->clock_in_at)
+    <tr class="bg-slate-200">
+        <th class="text-left">Clocked</th>
+        <td>{{ $getRecord()->clock_in_at->format("D Y-m-d") }}</td>
+        <td>{{ $getRecord()->clock_in_at->format("h:i:s A") }}</td>
+    </tr>
+    @endif
+
+    @if($getRecord()->clock_in_requested)
+    <tr>
+        <th class="text-left">Requested</th>
+        <td>{{ $getRecord()->clock_in_requested->format("D Y-m-d") }}</td>
+        <td>{{ $getRecord()->clock_in_requested->format("h:i:s A") }}</td>
+    </tr>
+    @endif
+
+    @if($getRecord()->clock_in_approved)
+    <tr>
+        <th class="text-left">Approved</th>
+        <td>{{ $getRecord()->clock_in_approved->format("D Y-m-d") }}</td>
+        <td>{{ $getRecord()->clock_in_approved->format("h:i:s A") }}</td>
+    </tr>
+    @endif
+
+</table> -->

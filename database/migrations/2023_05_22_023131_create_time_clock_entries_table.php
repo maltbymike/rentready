@@ -19,7 +19,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->timestamp('clock_in_at')->nullable();
+            $table->timestamp('clock_in_requested')->nullable();
+            $table->timestamp('clock_in_approved')->nullable();
             $table->timestamp('clock_out_at')->nullable();
+            $table->timestamp('clock_out_requested')->nullable();
+            $table->timestamp('clock_out_approved')->nullable();
+            $table->foreignId('approved_by_id')
+                ->nullable()
+                ->constrained(table: 'users');
             $table->foreignId('status_id')
                 ->default($defaultStatus)
                 ->nullable()

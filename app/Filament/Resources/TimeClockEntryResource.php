@@ -9,6 +9,7 @@ use Filament\Resources\Table;
 use App\Models\TimeClockEntry;
 use App\Models\TimeClockStatus;
 use Filament\Resources\Resource;
+use App\Filament\Tables\Columns\ClockIn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -31,14 +32,40 @@ class TimeClockEntryResource extends Resource
                     ->relationship('user', 'name'),
                 Forms\Components\Select::make('status')
                     ->relationship('status', 'name'),
-                Forms\Components\DateTimePicker::make('clock_in_at')
-                    ->label(__('Clock In'))
-                    ->weekStartsOnSunday()
-                    ->withoutSeconds(),
-                Forms\Components\DateTimePicker::make('clock_out_at')
-                    ->label(__('Clock Out'))
-                    ->weekStartsOnSunday()
-                    ->withoutSeconds(),
+                Forms\Components\Fieldset::make('Time In')
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('clock_in_at')
+                            ->label(__('Clock In'))
+                            ->disabled(),
+                        Forms\Components\DateTimePicker::make('clock_in_requested')
+                            ->label(__('Clock In Requested'))
+                            ->format('Y-m-d H:i:s')
+                            ->weekStartsOnSunday()
+                            ->withoutSeconds(),
+                        Forms\Components\DateTimePicker::make('clock_in_approved')
+                            ->label(__('Clock In Approved'))
+                            ->format('Y-m-d H:i:s')
+                            ->weekStartsOnSunday()
+                            ->withoutSeconds(),            
+                    ])
+                    ->columns(1)
+                    ->columnSpan(1),
+                Forms\Components\Fieldset::make('Time Out')
+                    ->schema([
+                        Forms\Components\DateTimePicker::make('clock_out_at')
+                            ->label(__('Clock Out'))
+                            ->disabled(),
+                        Forms\Components\DateTimePicker::make('clock_out_requested')
+                            ->label(__('Clock Out Requested'))
+                            ->weekStartsOnSunday()
+                            ->withoutSeconds(),
+                        Forms\Components\DateTimePicker::make('clock_out_approved')
+                            ->label(__('Clock Out Approved'))
+                            ->weekStartsOnSunday()
+                            ->withoutSeconds(),
+                    ])
+                    ->columns(1)
+                    ->columnSpan(1),
             ]);
     }
 
@@ -46,26 +73,12 @@ class TimeClockEntryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\Layout\Split::make([
+                // Tables\Columns\Layout\Split::make([
                     Tables\Columns\TextColumn::make('user.name')
                         ->sortable()
                         ->searchable(),
-                    Tables\Columns\Layout\Stack::make([
-                        Tables\Columns\TextColumn::make('clock_in_at')
-                            ->alignCenter()
-                            ->dateTime('D Y-m-d'),
-                        Tables\Columns\TextColumn::make('clock_in_at')
-                            ->alignCenter()
-                            ->dateTime('h:i:s A'),
-                    ]),
-                    Tables\Columns\Layout\Stack::make([
-                        Tables\Columns\TextColumn::make('clock_out_at')
-                            ->alignCenter()
-                            ->dateTime('D Y-m-d'),
-                        Tables\Columns\TextColumn::make('clock_out_at')
-                            ->alignCenter()
-                            ->dateTime('h:i:s A'),
-                    ]),
+                    ClockIn::make('clock_in_at'),
+                    ClockIn::make('clock_out_at'),
                     Tables\Columns\TextColumn::make('hours')
                         ->getStateUsing(function (TimeClockEntry $record) {
                             return number_format($record->hours(), 2);
@@ -73,18 +86,15 @@ class TimeClockEntryResource extends Resource
                         ->alignCenter(),
                     Tables\Columns\TextColumn::make('status.name')
                         ->alignCenter(),
-                ])
             ])
             ->filters([
-                Tables\Filters\Filter::make('onlyOwnRecords')
-                    ->label('Only My Records')
-                    ->query(fn (Builder $query): Builder => $query->where('user_id', auth()->user()->id))
-                    ->default(),
+                Tables\Filters\SelectFilter::make('Employee')
+                    ->multiple()
+                    ->relationship('user', 'name')
+                    ->default([auth()->user()->id]),
                 Tables\Filters\SelectFilter::make('status')
                     ->relationship('status', 'name')
                     ->multiple(),
-                Tables\Filters\SelectFilter::make('employee')
-                    ->relationship('user', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -95,27 +105,27 @@ class TimeClockEntryResource extends Resource
                     Tables\Actions\Action::make('reject')
                         ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'))
                         ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
-                    Tables\Actions\ReplicateAction::make()
-                        ->label('Request Change')
-                        ->modalHeading('Request Change to Time Clock Entry')
-                        ->modalButton('Make Request')
-                        ->form([
-                            Forms\Components\DateTimePicker::make('clock_in_at')
-                                ->label(__('Clock In'))
-                                ->weekStartsOnSunday()
-                                ->withoutSeconds(),
-                            Forms\Components\DateTimePicker::make('clock_out_at')
-                                ->label(__('Clock Out'))
-                                ->weekStartsOnSunday()
-                                ->withoutSeconds(),
-                        ])
-                        ->beforeReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record, array $data): void {
-                            $replica->fill($data);
-                            $replica->setEntryStatus('Requested', false);
-                        })
-                        ->afterReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record): void {
-                            $record->alternates()->attach($replica);
-                        })
+                    // Tables\Actions\ReplicateAction::make()
+                    //     ->label('Request Change')
+                    //     ->modalHeading('Request Change to Time Clock Entry')
+                    //     ->modalButton('Make Request')
+                    //     ->form([
+                    //         Forms\Components\DateTimePicker::make('clock_in_at')
+                    //             ->label(__('Clock In'))
+                    //             ->weekStartsOnSunday()
+                    //             ->withoutSeconds(),
+                    //         Forms\Components\DateTimePicker::make('clock_out_at')
+                    //             ->label(__('Clock Out'))
+                    //             ->weekStartsOnSunday()
+                    //             ->withoutSeconds(),
+                    //     ])
+                    //     ->beforeReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record, array $data): void {
+                    //         $replica->fill($data);
+                    //         $replica->setEntryStatus('Requested', false);
+                    //     })
+                    //     ->afterReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record): void {
+                    //         $record->alternates()->attach($replica);
+                    //     })
                 ]),
             ])
             ->bulkActions([

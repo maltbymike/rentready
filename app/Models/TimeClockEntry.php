@@ -21,6 +21,10 @@ class TimeClockEntry extends Model
     protected $casts = [
         'clock_in_at' => 'datetime:Y-m-d H:i:s',
         'clock_out_at' => 'datetime:Y-m-d H:i:s',
+        'clock_in_requested' => 'datetime:Y-m-d H:i:s',
+        'clock_out_requested' => 'datetime:Y-m-d H:i:s',
+        'clock_in_approved' => 'datetime:Y-m-d H:i:s',
+        'clock_out_approved' => 'datetime:Y-m-d H:i:s',
         'payment_date' => 'date:Y-m-d H:i:s',
     ];
 
@@ -28,16 +32,15 @@ class TimeClockEntry extends Model
         'user_id',
         'clock_in_at',
         'clock_out_at',
+        'clock_in_requested',
+        'clock_out_requested',
+        'clock_in_approved',
+        'clock_out_approved',
         'approved_by',
         'approved_at',
     ];
 
     public ?Array $statuses;
-
-    public function alternates(): BelongsToMany
-    {
-        return $this->belongsToMany(TimeClockEntry::class, 'time_clock_entry_alternates', 'time_clock_entry_id', 'alternate_id');
-    }
 
     public function getActivitylogOptions(): LogOptions
     {
