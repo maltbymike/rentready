@@ -40,8 +40,6 @@ class TimeClockEntry extends Model
         'approved_at',
     ];
 
-    public ?Array $statuses;
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -52,21 +50,6 @@ class TimeClockEntry extends Model
     {
         $clock_out_at = $this->clock_out_at ?? $this->freshTimestamp();
         return round($clock_out_at->floatDiffInHours($this->clock_in_at), 2);
-    }
-
-    public function setEntryStatus(String $statusName, bool $save = true): void
-    {
-        $this->statuses[$statusName] = $this->statuses[$statusName] ?? TimeClockStatus::firstWhere('name', $statusName);
-        $this->status()->associate($this->statuses[$statusName]);
-
-        if ($save) {
-            $this->save();
-        }
-    }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(TimeClockStatus::class);
     }
 
     public function user(): BelongsTo

@@ -43,6 +43,8 @@
 
 <div x-data="{ tooltip: '{{ $tooltipText }}' }">
     <button x-tooltip="tooltip" class="px-3 {{ $bgColor }} rounded-full">
-        {{ $displayTime->format('D Y-m-d h:i:s A') }}
+        @if ($displayTime)
+            {{ $displayTime->format('D Y-m-d h:i:s A') }}        
+        @endif
     </button>
 </div>

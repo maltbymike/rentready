@@ -7,7 +7,6 @@ use Filament\Tables;
 use Filament\Resources\Form;
 use Filament\Resources\Table;
 use App\Models\TimeClockEntry;
-use App\Models\TimeClockStatus;
 use Filament\Resources\Resource;
 use App\Filament\Tables\Columns\ClockIn;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,9 +28,8 @@ class TimeClockEntryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->relationship('user', 'name'),
-                Forms\Components\Select::make('status')
-                    ->relationship('status', 'name'),
+                    ->relationship('user', 'name')
+                    ->columnSpan(2),
                 Forms\Components\Fieldset::make('Time In')
                     ->schema([
                         Forms\Components\DateTimePicker::make('clock_in_at')
@@ -84,63 +82,37 @@ class TimeClockEntryResource extends Resource
                             return number_format($record->hours(), 2);
                         })
                         ->alignCenter(),
-                    Tables\Columns\TextColumn::make('status.name')
-                        ->alignCenter(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
                     ->multiple()
                     ->relationship('user', 'name')
                     ->default([auth()->user()->id]),
-                Tables\Filters\SelectFilter::make('status')
-                    ->relationship('status', 'name')
-                    ->multiple(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\Action::make('approve')
-                        ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'))
-                        ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
-                    Tables\Actions\Action::make('reject')
-                        ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'))
-                        ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
-                    // Tables\Actions\ReplicateAction::make()
-                    //     ->label('Request Change')
-                    //     ->modalHeading('Request Change to Time Clock Entry')
-                    //     ->modalButton('Make Request')
-                    //     ->form([
-                    //         Forms\Components\DateTimePicker::make('clock_in_at')
-                    //             ->label(__('Clock In'))
-                    //             ->weekStartsOnSunday()
-                    //             ->withoutSeconds(),
-                    //         Forms\Components\DateTimePicker::make('clock_out_at')
-                    //             ->label(__('Clock Out'))
-                    //             ->weekStartsOnSunday()
-                    //             ->withoutSeconds(),
-                    //     ])
-                    //     ->beforeReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record, array $data): void {
-                    //         $replica->fill($data);
-                    //         $replica->setEntryStatus('Requested', false);
-                    //     })
-                    //     ->afterReplicaSaved(function (TimeClockEntry $replica, TimeClockEntry $record): void {
-                    //         $record->alternates()->attach($replica);
-                    //     })
+                    // Tables\Actions\Action::make('approve')
+                    //     ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'))
+                    //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
+                    // Tables\Actions\Action::make('reject')
+                    //     ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'))
+                    //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
                 ]),
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('approve')
-                    ->action(function (Collection $records) {
-                        $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'));
-                    })
-                    ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
-                    ->deselectRecordsAfterCompletion(),
-                Tables\Actions\BulkAction::make('reject')
-                    ->action(function (Collection $records) {
-                        $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'));
-                    })
-                    ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
-                    ->deselectRecordsAfterCompletion(),
+                // Tables\Actions\BulkAction::make('approve')
+                //     ->action(function (Collection $records) {
+                //         $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'));
+                //     })
+                //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
+                //     ->deselectRecordsAfterCompletion(),
+                // Tables\Actions\BulkAction::make('reject')
+                //     ->action(function (Collection $records) {
+                //         $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'));
+                //     })
+                //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
+                //     ->deselectRecordsAfterCompletion(),
             ]);
     }
 

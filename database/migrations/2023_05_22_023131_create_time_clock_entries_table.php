@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\TimeClockStatus;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,9 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $defaultStatus = TimeClockStatus::firstWhere('name', 'Created')->id;
-
-        Schema::create('time_clock_entries', function (Blueprint $table) use ($defaultStatus) {
+        Schema::create('time_clock_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->timestamp('clock_in_at')->nullable();
@@ -27,10 +24,6 @@ return new class extends Migration
             $table->foreignId('approved_by_id')
                 ->nullable()
                 ->constrained(table: 'users');
-            $table->foreignId('status_id')
-                ->default($defaultStatus)
-                ->nullable()
-                ->constrained(table: 'time_clock_statuses');
             $table->date('payment_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
