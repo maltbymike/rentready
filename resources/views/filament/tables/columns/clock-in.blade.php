@@ -8,10 +8,10 @@
             $tooltipText = "Manually Entered";
         }
 
-        if ($getRecord()->clock_in_approved) {
+        if ($getRecord()->approved_by_id && $getRecord()->clock_in_approved) {
             $displayTime = $getRecord()->clock_in_approved;
             $bgColor = 'bg-success-500';
-        } else if ($getRecord()->clock_in_requested) {
+        } else if ($getRecord()->hasClockInChangeRequest()) {
             $displayTime = $getRecord()->clock_in_requested;
             $bgColor = 'bg-warning-500';
         } else {
@@ -27,10 +27,10 @@
             $tooltipText = "Manually Entered";
         }
 
-        if ($getRecord()->clock_out_approved) {
+        if ($getRecord()->approved_by_id && $getRecord()->clock_out_approved) {
             $displayTime = $getRecord()->clock_out_approved;
             $bgColor = 'bg-success-500';
-        } else if ($getRecord()->clock_out_requested) {
+        } else if ($getRecord()->hasClockOutChangeRequest()) {
             $displayTime = $getRecord()->clock_out_requested;
             $bgColor = 'bg-warning-500';
         } else {
@@ -44,7 +44,7 @@
 <div x-data="{ tooltip: '{{ $tooltipText }}' }">
     <button x-tooltip="tooltip" class="px-3 {{ $bgColor }} rounded-full">
         @if ($displayTime)
-            {{ $displayTime->format('D Y-m-d h:i:s A') }}        
+            {{ $displayTime->format('D Y-m-d h:i A') }}
         @endif
     </button>
 </div>

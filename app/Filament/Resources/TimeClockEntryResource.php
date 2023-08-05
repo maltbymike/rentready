@@ -8,6 +8,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Table;
 use App\Models\TimeClockEntry;
 use Filament\Resources\Resource;
+use Filament\Tables\Actions\Action;
 use App\Filament\Tables\Columns\ClockIn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,65 +30,104 @@ class TimeClockEntryResource extends Resource
             ->schema([
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
-                    ->columnSpan(2),
+                    ->disabled()
+                    ->columnSpan(12),
                 Forms\Components\Fieldset::make('Time In')
                     ->schema([
+                        Forms\Components\Radio::make('approve_clock_in')
+                            ->label('Approve')
+                            ->options([
+                                'clock' => 'Clock Time',
+                                'requested' => 'Requested Time',
+                                'other' => 'Alternate Time',
+                            ])
+                            ->inline()
+                            ->extraAttributes(['class' => 'pl-6'])
+                            ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_at')
                             ->label(__('Clock In'))
-                            ->disabled(),
+                            ->displayFormat('D Y-m-d h:i A')
+                            ->withoutSeconds()
+                            ->disabled()
+                            ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_requested')
                             ->label(__('Clock In Requested'))
                             ->format('Y-m-d H:i:s')
+                            ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
-                            ->withoutSeconds(),
+                            ->withoutSeconds()
+                            ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_approved')
                             ->label(__('Clock In Approved'))
                             ->format('Y-m-d H:i:s')
+                            ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
-                            ->withoutSeconds(),            
+                            ->withoutSeconds()
+                            ->columnSpan(6),            
                     ])
-                    ->columns(1)
-                    ->columnSpan(1),
+                    ->columns(6)
+                    ->columnSpan(6),
                 Forms\Components\Fieldset::make('Time Out')
                     ->schema([
+                        Forms\Components\Radio::make('approve_clock_out')
+                        ->label('Approve')
+                        ->options([
+                            'clock' => 'Clock Time',
+                            'requested' => 'Requested Time',
+                            'other' => 'Alternate Time',
+                        ])
+                        ->inline()
+                        ->extraAttributes(['class' => 'pl-6'])
+                        ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_at')
                             ->label(__('Clock Out'))
-                            ->disabled(),
+                            ->displayFormat('D Y-m-d h:i A')
+                            ->withoutSeconds()
+                            ->disabled()
+                            ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_requested')
                             ->label(__('Clock Out Requested'))
+                            ->format('Y-m-d H:i:s')
+                            ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
-                            ->withoutSeconds(),
+                            ->withoutSeconds()
+                            ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_approved')
                             ->label(__('Clock Out Approved'))
+                            ->format('Y-m-d H:i:s')
+                            ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
-                            ->withoutSeconds(),
+                            ->withoutSeconds()
+                            ->columnSpan(6),
                     ])
-                    ->columns(1)
-                    ->columnSpan(1),
-            ]);
+                    ->columns(6)
+                    ->columnSpan(6),
+            ])
+            ->columns(12);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                // Tables\Columns\Layout\Split::make([
-                    Tables\Columns\TextColumn::make('user.name')
-                        ->sortable()
-                        ->searchable(),
-                    ClockIn::make('clock_in_at'),
-                    ClockIn::make('clock_out_at'),
-                    Tables\Columns\TextColumn::make('hours')
-                        ->getStateUsing(function (TimeClockEntry $record) {
-                            return number_format($record->hours(), 2);
-                        })
-                        ->alignCenter(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable()
+                    ->searchable(),
+                ClockIn::make('clock_in_at')
+                    ->alignCenter(),
+                ClockIn::make('clock_out_at')
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('hours')
+                    ->getStateUsing(function (TimeClockEntry $record) {
+                        return number_format($record->hours(), 2);
+                    })
+                    ->alignRight(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
                     ->multiple()
-                    ->relationship('user', 'name')
-                    ->default([auth()->user()->id]),
+                    ->relationship('user', 'name'),
+                    // ->default([auth()->user()->id]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -91,7 +91,7 @@ class User extends Authenticatable implements FilamentUser
 
             return $this->timeClockEntries()
                 ->create([
-                    'clock_in_at' => $now->format('Y-m-d H:i:s'),
+                    'clock_in_at' => $now->format('Y-m-d H:i'),
                 ]);
 
         }
@@ -105,7 +105,7 @@ class User extends Authenticatable implements FilamentUser
             ->whereNull('clock_out_at')
             ->firstOrFail()
             ->update([
-                'clock_out_at' => $now->format('Y-m-d H:i:s'),
+                'clock_out_at' => $now->format('Y-m-d H:i'),
             ]);
     }
 
