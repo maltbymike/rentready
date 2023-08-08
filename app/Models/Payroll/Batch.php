@@ -30,4 +30,10 @@ class Batch extends Model
     {
         return 'payroll_batch_id';
     }
+
+    public function users(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Details::class, 'payroll_batch_id', 'id', 'id', 'user_id')
+            ->distinct();
+    }
 }
