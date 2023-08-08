@@ -131,6 +131,11 @@ class User extends Authenticatable implements FilamentUser
         return true;
     }
 
+    public function payrollDetails(): HasMany
+    {
+        return $this->hasMany(Payroll\Details::class);
+    }
+
     public function timeClockEntries() : HasMany {
         return $this->hasMany(TimeClockEntry::class);
     }
