@@ -21,15 +21,14 @@ class DetailsRelationManager extends RelationManager
 
     // protected function getTableQuery(): Builder
     // {
-    //     return Details::query()
-    //         ->select([
-    //             'user_id',
-    //             'payroll_pay_type_id',
-    //             DB::raw('SUM(value) as total_value'),
-    //         ])
-    //         ->where('payroll_batch_id', $this->resource->getModel()->getKey())
-    //         ->groupBy(['user_id', 'payroll_pay_type_id']);
-        
+        // return Details::query()
+        //     ->select([
+        //         'user_id',
+        //         'payroll_pay_type_id',
+        //         DB::raw('SUM(value) as total_value'),
+        //     ])
+        //     ->where('payroll_batch_id', $this->resource->getModel()->getKey())
+        //     ->groupBy(['user_id', 'payroll_pay_type_id']);
     // }
 
     public static function form(Form $form): Form
@@ -47,13 +46,15 @@ class DetailsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id'),
-                Tables\Columns\TextColumn::make('user.name'),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable(['user_id', 'payroll_pay_type_id']),
                 Tables\Columns\TextColumn::make('payType.name'),
                 Tables\Columns\TextColumn::make('records'),
                 Tables\Columns\TextColumn::make('value'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('user')
+                    ->relationship('user', 'name'),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make(),
@@ -67,4 +68,13 @@ class DetailsRelationManager extends RelationManager
             ]);
     }    
 
+    protected function getDefaultTableSortColumn(): ?string
+    {
+        return 'user.name';
+    }
+ 
+    protected function getDefaultTableSortDirection(): ?string
+    {
+        return 'asc';
+    }
 }
