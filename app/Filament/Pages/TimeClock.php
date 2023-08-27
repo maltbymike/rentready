@@ -54,7 +54,7 @@ class TimeClock extends Page implements HasTable
     {
         return [
             Action::make('Clock In')
-                ->icon('heroicon-o-login')
+                ->icon('heroicon-o-arrow-left-on-rectangle')
                 ->action(fn (User $record) => $record->clockIn())
                 ->visible(fn (User $record) : bool => $record->isClockedIn() === false)
                 ->form([
@@ -62,12 +62,13 @@ class TimeClock extends Page implements HasTable
                         ->autofocus()
                         ->required()
                         ->disableAutocomplete()
-                        ->exists(table: User::class, column: 'pin', callback: function (Exists $rule, User $record) {
+                        ->exists(table: User::class, column: 'pin', modifyRuleUsing: function (Exists $rule, User $record) {
                             return $rule->where('id', $record->id);
                         })
+
                 ]),
             Action::make('Clock Out')
-                ->icon('heroicon-o-logout')
+                ->icon('heroicon-o-arrow-right-on-rectangle')
                 ->action(fn (User $record) => $record->clockOut())
                 ->visible(fn (User $record) : bool => $record->isClockedIn() === true)
                 ->form([
@@ -75,7 +76,7 @@ class TimeClock extends Page implements HasTable
                         ->autofocus()
                         ->required()
                         ->disableAutocomplete()
-                        ->exists(table: User::class, column: 'pin', callback: function (Exists $rule, User $record) {
+                        ->exists(table: User::class, column: 'pin', modifyRuleUsing: function (Exists $rule, User $record) {
                             return $rule->where('id', $record->id);
                         })
                 ]),

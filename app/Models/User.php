@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -69,7 +70,7 @@ class User extends Authenticatable implements FilamentUser
         'profile_photo_url',
     ];
 
-    public function canAccessFilament(): bool {
+    public function canAccessPanel(Panel $panel): bool {
 
         if ($this->hasRole('Administrator')) {
             return true;

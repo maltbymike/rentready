@@ -6,9 +6,9 @@ use App\Filament\Resources\Payroll\BatchResource\Pages;
 use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 use App\Models\Payroll\Batch;
 use Filament\Forms;
-use Filament\Resources\Form;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Resources\Table;
+use Filament\Tables\Table;
 use Filament\Tables;
 use Filament\Tables\Columns;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +18,7 @@ class BatchResource extends Resource
 {
     protected static ?string $model = Batch::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Payroll Details';
 
