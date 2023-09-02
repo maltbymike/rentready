@@ -3,8 +3,10 @@
 namespace App\Models\Payroll;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,9 +18,25 @@ class Batch extends Model
 
     protected $table = 'payroll_batches';
 
+    protected $casts = [
+        'period_ending' => 'datetime:Y-m-d',
+        'payment_date' => 'datetime:Y-m-d',
+        'approved_at' => 'datetime:Y-m-d',
+    ];
+
+    protected $fillable = [
+        'period_ending',
+        'payment_date',
+    ];
+
     public function approvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function batchUsers(): HasMany
+    {
+        return $this->hasMany(BatchUser::class);
     }
 
     public function details(): HasMany
@@ -26,14 +44,33 @@ class Batch extends Model
         return $this->hasMany(Details::class);
     }
 
+    public function getLastPayrollEndingDate(): Carbon
+    {
+        return Batch::select('period_ending')
+            ->orderBy('period_ending')
+            ->limit(1)
+            ->get()
+            ->pluck('period_ending')
+            ->first();
+    }
+
+    public function getNextPayrollEndingDate(): Carbon
+    {
+        return $this->getLastPayrollEndingDate()->next('Saturday');
+    }
+
+    public function getNextPayrollPaymentDate(): Carbon
+    {
+        return $this->getNextPayrollEndingDate()->next('Monday');
+    }
+
     public function getForeignKey()
     {
         return 'payroll_batch_id';
     }
 
-    public function users(): HasManyThrough
+    public function users(): BelongsToMany
     {
-        return $this->hasManyThrough(User::class, Details::class, 'payroll_batch_id', 'id', 'id', 'user_id')
-            ->distinct();
+        return $this->belongsToMany(User::class, 'payroll_batch_user', 'payroll_batch_id', 'user_id');
     }
 }

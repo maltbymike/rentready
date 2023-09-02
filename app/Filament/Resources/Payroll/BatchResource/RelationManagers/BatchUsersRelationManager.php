@@ -10,9 +10,9 @@ use Filament\Tables;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class UsersRelationManager extends RelationManager
+class BatchUsersRelationManager extends RelationManager
 {
-    protected static string $relationship = 'users';
+    protected static string $relationship = 'batchUsers';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -24,6 +24,7 @@ class UsersRelationManager extends RelationManager
                     ->required()
                     ->maxLength(255)
                     ->disabled(),
+                Forms\Components\Repeater::make('')
             ]);
     }
 
@@ -31,13 +32,15 @@ class UsersRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
-                
+                Tables\Columns\TextColumn::make('user_id'),
+                Tables\Columns\TextColumn::make('user.email'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
+                Tables\Actions\AttachAction::make()
+                    ->preloadRecordSelect(),
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
@@ -46,6 +49,7 @@ class UsersRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])
+            ->inverseRelationship('payrollBatches');
     }    
 }

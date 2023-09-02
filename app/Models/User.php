@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -130,6 +131,11 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return true;
+    }
+
+    public function payrollBatches(): BelongsToMany
+    {
+        return $this->belongsToMany(Payroll\Batch::class, 'payroll_batch_user', 'user_id', 'payroll_batch_id');
     }
 
     public function payrollDetails(): HasMany

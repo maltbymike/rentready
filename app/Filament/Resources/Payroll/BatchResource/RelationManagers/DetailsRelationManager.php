@@ -10,6 +10,7 @@ use App\Models\Payroll\Details;
 use App\Models\Payroll\PayType;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
 
@@ -45,18 +46,21 @@ class DetailsRelationManager extends RelationManager
     {
         return $table
             ->groups([
-                Tables\Grouping\Group::make('user.name')
-                    ->collapsible(),
+                'user.name',
                 'payType.name',
             ])
             ->defaultGroup('user.name')
+            // ->groupsOnly()
             ->columns([
                 Tables\Columns\TextColumn::make('id'),
                 Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('payType.name')
                     ->sortable(['payType.name']),
-                Tables\Columns\TextColumn::make('records'),
-                Tables\Columns\TextColumn::make('value'),
+                Tables\Columns\TextColumn::make('value')
+                    ->summarize([
+                        Sum::make()->label('Regular Hours'),
+                        Sum::make()->label('Overtime Hours'),
+                    ]),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('user')

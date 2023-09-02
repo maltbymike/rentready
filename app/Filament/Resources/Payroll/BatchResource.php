@@ -20,12 +20,14 @@ class BatchResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationLabel = 'Payroll Details';
+    protected static ?string $navigationLabel = 'Payroll Batches';
 
     protected static ?string $navigationGroup = 'Payroll';
 
     public static function form(Form $form): Form
     {
+        $batch = new Batch;
+
         return $form
             ->schema([
                 Forms\Components\Grid::make(4)
@@ -33,18 +35,20 @@ class BatchResource extends Resource
                         Forms\Components\DatePicker::make('period_ending')
                             ->label(__('Period Ending'))
                             ->displayFormat('Y-m-d')
-                            ->disabled(),
+                            ->default(fn () => $batch->getNextPayrollEndingDate())
+                            ->disabledOn('edit'),
                         Forms\Components\DatePicker::make('payment_date')
                             ->label(__('Payment Date'))
                             ->displayFormat('Y-m-d')
-                            ->disabled(),
+                            ->default(fn () => $batch->getNextPayrollPaymentDate())
+                            ->disabledOn('edit'),
                         Forms\Components\Select::make('approved_by')
                             ->relationship('approvedBy', 'name')
-                            ->disabled(),
+                            ->disabledOn('create'),
                         Forms\Components\DatePicker::make('approved_at')
                             ->label(__('Approved At'))
                             ->displayFormat('Y-m-d')
-                            ->disabled(),
+                            ->disabledOn('create'),
                     ])
             ]);
     }
@@ -80,7 +84,7 @@ class BatchResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\UsersRelationManager::class,
+            RelationManagers\BatchUsersRelationManager::class,
             RelationManagers\DetailsRelationManager::class,
         ];
     }
