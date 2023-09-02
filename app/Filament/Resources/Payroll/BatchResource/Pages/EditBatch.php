@@ -10,7 +10,7 @@ class EditBatch extends EditRecord
 {
     protected static string $resource = BatchResource::class;
 
-    protected function getActions(): array
+    protected function getHeaderActions(): array
     {
         return [
             Actions\DeleteAction::make(),

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -69,7 +71,7 @@ class User extends Authenticatable implements FilamentUser
         'profile_photo_url',
     ];
 
-    public function canAccessFilament(): bool {
+    public function canAccessPanel(Panel $panel): bool {
 
         if ($this->hasRole('Administrator')) {
             return true;
@@ -129,6 +131,11 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return true;
+    }
+
+    public function payrollBatches(): BelongsToMany
+    {
+        return $this->belongsToMany(Payroll\Batch::class, 'payroll_batch_user', 'user_id', 'payroll_batch_id');
     }
 
     public function payrollDetails(): HasMany

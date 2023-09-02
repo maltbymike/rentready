@@ -1,7 +1,9 @@
+const { defaultsDeep } = require('lodash');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+    darkMode: 'class',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './vendor/laravel/jetstream/**/*.blade.php',
@@ -9,7 +11,6 @@ module.exports = {
         './resources/views/**/*.blade.php',
         './vendor/filament/**/*.blade.php', 
     ],
-
     theme: {
         extend: {
             fontFamily: {
@@ -20,3 +21,5 @@ module.exports = {
 
     plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
+
+console.log
