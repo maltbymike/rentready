@@ -2,17 +2,20 @@
 
 namespace App\Filament\Resources\Payroll;
 
-use App\Filament\Resources\Payroll\BatchResource\Pages;
-use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
-use App\Models\Payroll\Batch;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables\Table;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
+use Filament\Tables\Table;
 use Filament\Tables\Columns;
+use App\Models\Payroll\Batch;
+use App\Models\Payroll\PayType;
+use Filament\Resources\Resource;
+use App\Models\Payroll\BatchUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Payroll\BatchResource\Pages;
+use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
 class BatchResource extends Resource
 {
@@ -27,7 +30,7 @@ class BatchResource extends Resource
     public static function form(Form $form): Form
     {
         $batch = new Batch;
-
+        
         return $form
             ->schema([
                 Forms\Components\Grid::make(4)
@@ -49,6 +52,51 @@ class BatchResource extends Resource
                             ->label(__('Approved At'))
                             ->displayFormat('Y-m-d')
                             ->disabledOn('create'),
+                        Forms\Components\Repeater::make('batchUsers')
+                            ->columnSpanFull()
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Grid::make(4)
+                                    ->schema(function () {
+                                        $users = User::all()->pluck('name', 'id');
+                                        $payTypes = PayType::all()->pluck('name', 'id');
+
+                                        $returnUsersFields = [];
+
+                                        $users->each(function (string $userName, int $userKey) use (&$returnUsersFields, $payTypes) {
+
+                                            array_push(
+                                                $returnUsersFields, 
+                                                    Forms\Components\Select::make($userKey. '.user')
+                                                        ->relationship('user', 'name')
+                                                        ->disabledOn('edit')
+                                                        ->default($userKey),
+                                                    Forms\Components\Repeater::make('payTypes')
+                                                        ->relationship()
+                                                        ->schema(function () use ($payTypes, $userKey) {
+
+                                                            $returnPayTypesFields = [];
+
+                                                            $payTypes->each(function (string $payTypeValue, int $payTypeKey) use (&$returnPayTypesFields, $userKey) {
+                                                                
+                                                                array_push(
+                                                                    $returnPayTypesFields,
+                                                                    Forms\Components\Select::make($userKey . '.' . $payTypeKey . '.payType')
+                                                                        ->options(PayType::all()->pluck('name', 'id')->toArray())
+                                                                        ->default($payTypeKey),        
+                                                                    Forms\Components\TextInput::make('value'),
+                                                                );
+                                                            });
+
+                                                            return $returnPayTypesFields;
+                                                        })
+                                            );
+                                            
+                                        });
+
+                                        return $returnUsersFields;
+                                    }),
+                            ])
                     ])
             ]);
     }
@@ -85,7 +133,6 @@ class BatchResource extends Resource
     {
         return [
             RelationManagers\BatchUsersRelationManager::class,
-            RelationManagers\DetailsRelationManager::class,
         ];
     }
     

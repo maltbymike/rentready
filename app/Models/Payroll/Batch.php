@@ -39,11 +39,6 @@ class Batch extends Model
         return $this->hasMany(BatchUser::class);
     }
 
-    public function details(): HasMany
-    {
-        return $this->hasMany(Details::class);
-    }
-
     public function getLastPayrollEndingDate(): Carbon
     {
         return Batch::select('period_ending')

@@ -12,10 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payroll_details', function (Blueprint $table) {
+        Schema::create('payroll_batch_user_pay_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Payroll\Batch::class)->nullable()->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('payroll_batch_user_id');
+            $table->foreign('payroll_batch_user_id')->references('id')->on('payroll_batch_user');
             $table->foreignIdFor(Payroll\PayType::class)->constrained();
             $table->decimal('value', 6, 2);
             $table->timestamps();
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_details');
+        Schema::dropIfExists('payroll_batch_user_pay_types');
     }
 };
