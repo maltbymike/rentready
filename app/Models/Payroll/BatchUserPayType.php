@@ -10,7 +10,7 @@ class BatchUserPayType extends Model
 {
     use HasFactory;
 
-    protected $table = 'payroll_batch_user_pay_types';
+    protected $table = 'payroll_batch_user_pay_type';
 
     public function payTypes(): BelongsTo
     {

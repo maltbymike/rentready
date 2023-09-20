@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('payroll_batch_user_pay_types', function (Blueprint $table) {
+        Schema::create('payroll_batch_user_pay_type', function (Blueprint $table) {
             $table->id();
             $table->foreignId('payroll_batch_user_id');
             $table->foreign('payroll_batch_user_id')->references('id')->on('payroll_batch_user');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_batch_user_pay_types');
+        Schema::dropIfExists('payroll_batch_user_pay_type');
     }
 };

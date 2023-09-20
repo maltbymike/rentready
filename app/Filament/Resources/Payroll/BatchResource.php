@@ -12,7 +12,13 @@ use App\Models\Payroll\Batch;
 use App\Models\Payroll\PayType;
 use Filament\Resources\Resource;
 use App\Models\Payroll\BatchUser;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Forms\Components\CheckboxList;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Payroll\BatchResource\Pages;
 use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
@@ -28,6 +34,55 @@ class BatchResource extends Resource
     protected static ?string $navigationGroup = 'Payroll';
 
     public static function form(Form $form): Form
+    {
+        $batch = new Batch;
+        
+        $batchFormComponents = [
+            Grid::make(4)
+                ->schema([
+                    DatePicker::make('period_ending')
+                        ->label(__('Period Ending'))
+                        ->displayFormat('Y-m-d')
+                        ->default(fn () => $batch->getNextPayrollEndingDate())
+                        ->disabledOn('edit'),
+                    DatePicker::make('payment_date')
+                        ->label(__('Payment Date'))
+                        ->displayFormat('Y-m-d')
+                        ->default(fn () => $batch->getNextPayrollPaymentDate())
+                        ->disabledOn('edit'),
+                    Select::make('approved_by')
+                        ->relationship('approvedBy', 'name')
+                        ->disabledOn('create'),
+                    DatePicker::make('approved_at')
+                        ->label(__('Approved At'))
+                        ->displayFormat('Y-m-d')
+                        ->disabledOn('create'),
+                    CheckboxList::make('users')
+                        ->label('Employees To Pay')
+                        ->hiddenOn('edit')
+                        ->bulkToggleable()
+                        ->relationship(
+                            'Users', 
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn (Builder $query) => 
+                                $query->whereHas('roles', 
+                                    function(Builder $query) {
+                                        return $query->where('name', 'Employee');
+                                    }
+                                )
+                        ),                    
+                ])
+        ];
+
+        return $form
+            ->schema(
+                array_merge(
+                    $batchFormComponents,
+                )
+            );
+    }
+
+    public static function form_old(Form $form): Form
     {
         $batch = new Batch;
         
@@ -118,8 +173,12 @@ class BatchResource extends Resource
                     ->boolean()
                     ->sortable(),
             ])
+            ->recordClasses(fn (Model $record) => match ($record->deleted_at) {
+                null => null,
+                default => 'bg-red-100',
+            })
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
