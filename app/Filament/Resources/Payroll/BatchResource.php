@@ -175,7 +175,7 @@ class BatchResource extends Resource
             ])
             ->recordClasses(fn (Model $record) => match ($record->deleted_at) {
                 null => null,
-                default => 'bg-red-100',
+                default => 'bg-danger-100 hover:bg-danger-200',
             })
             ->filters([
                 TrashedFilter::make(),

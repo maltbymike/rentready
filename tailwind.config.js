@@ -1,26 +1,10 @@
-const { defaultsDeep } = require('lodash');
-const defaultTheme = require('tailwindcss/defaultTheme');
-
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-    darkMode: 'class',
+import preset from './vendor/filament/support/tailwind.config.preset'
+ 
+export default {
+    presets: [preset],
     content: [
         './app/Filament/**/*.php',
-        './resources/views/**/*.blade.php',
-        './storage/framework/views/*.php',
+        './resources/views/filament/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
-        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
-        './vendor/laravel/jetstream/**/*.blade.php',
     ],
-    theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Nunito', ...defaultTheme.fontFamily.sans],
-            },
-        },
-    },
-
-    plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
-};
-
-console.log
+}

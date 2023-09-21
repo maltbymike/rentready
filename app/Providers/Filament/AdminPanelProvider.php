@@ -30,10 +30,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->colors([
-                'primary' => Color::Amber,
-                'success' => Color::Emerald,
-            ])
+            // ->colors([
+            //     'danger' => Color::Rose,
+            //     'gray' => Color::Gray,
+            //     'info' => Color::Blue,
+            //     'primary' => Color::Amber,
+            //     'success' => Color::Emerald,
+            //     'warning' => Color::Orange,
+            // ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
@@ -60,9 +64,10 @@ class AdminPanelProvider extends PanelProvider
             ]);
     }
 
-    public function register()
+    public function register(): void
     {
         parent::register();
+ 
         FilamentView::registerRenderHook('panels::body.end', fn(): string => Blade::render("@vite('resources/js/app.js')"));
         FilamentView::registerRenderHook('panels::head.end', fn(): string => Blade::render("@vite('resources/css/app.css')"));
     }

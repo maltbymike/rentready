@@ -43,12 +43,14 @@ class Batch extends Model
 
     public function getLastPayrollEndingDate(): Carbon
     {
-        return Batch::select('period_ending')
-            ->orderBy('period_ending')
-            ->limit(1)
-            ->get()
-            ->pluck('period_ending')
-            ->first();
+        return 
+            Batch::select('period_ending')
+                ->orderBy('period_ending')
+                ->limit(1)
+                ->get()
+                ->pluck('period_ending')
+                ->first()
+            ?? Carbon::parse('last Saturday');
     }
 
     public function getNextPayrollEndingDate(): Carbon
