@@ -12,6 +12,11 @@ class BatchUserPayType extends Model
 
     protected $table = 'payroll_batch_user_pay_type';
 
+    protected $fillable = [
+        'payroll_pay_type_id',
+        'value',
+    ];
+
     public function payTypes(): BelongsTo
     {
         return $this->belongsTo(PayType::class);

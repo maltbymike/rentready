@@ -3,6 +3,7 @@
 namespace App\Models\Payroll;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,13 +25,19 @@ class BatchUser extends Pivot
         return 'payroll_batch_user_id';
     }
 
+    public function batchUserPayTypes(): HasMany
+    {
+        return $this->hasMany(BatchUserPayType::class);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function payTypes(): HasMany
+    public function payTypes(): BelongsToMany
     {
-        return $this->hasMany(BatchUserPayType::class);
+        return $this->belongsToMany(PayType::class, 'payroll_batch_user_pay_type')
+            ->withPivot('value');
     }
 }
