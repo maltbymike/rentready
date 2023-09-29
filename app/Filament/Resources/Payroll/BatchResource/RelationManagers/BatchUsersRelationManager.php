@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
+use App\Enums\Payroll\PayTypeEnum;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
@@ -22,10 +23,28 @@ class BatchUsersRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        $types = PayType::all()->map(function (PayType $type) {
-            return TextInput::make('payTypes.' . $type->id)
-                ->label($type->name);
-        })->all();
+        $types = PayType::all();
+        
+        $earnings = $types->where('type', PayTypeEnum::Earning)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.' . $type->id)
+                    ->label($type->name)
+                    ->hiddenOn('create');
+            })->all();
+
+        $benefits = $types->where('type', PayTypeEnum::Benefit)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.' . $type->id)
+                    ->label($type->name)
+                    ->hiddenOn('create');
+            })->all();
+
+        $deductions = $types->where('type', PayTypeEnum::Deduction)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.' . $type->id)
+                    ->label($type->name)
+                    ->hiddenOn('create');
+            })->all();
 
         return $form
             ->schema(
@@ -34,8 +53,33 @@ class BatchUsersRelationManager extends RelationManager
                         ->relationship('user', 'name')
                         ->label('Employee')
                         ->disabledOn('edit'),
+                    Forms\Components\Section::make('Timeclock Entries')
+                        ->collapsible()
+                        ->hiddenOn('create')
+                        ->schema([
+                            Forms\Components\Repeater::make('timeClockEntries')
+                                ->relationship(),
+                        ]),
+                    Forms\Components\Section::make('Earnings')
+                        ->extraAttributes(['class' => 'items-end-grid'])
+                        ->columns(6)
+                        ->hiddenOn('create')
+                        ->collapsible()
+                        ->schema($earnings),
+                    Forms\Components\Section::make('Benefits')
+                        ->extraAttributes(['class' => 'items-end-grid'])
+                        ->columns(6)
+                        ->hiddenOn('create')
+                        ->collapsible()
+                        ->schema($benefits),
+                    Forms\Components\Section::make('Deductions')
+                        ->extraAttributes(['class' => 'items-end-grid'])
+                        ->columns(6)
+                        ->hiddenOn('create')
+                        ->collapsible()
+                        ->schema($deductions),
                 ],
-                $types
+                // $types
             ));
     }
 
@@ -45,14 +89,13 @@ class BatchUsersRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query) => $query->with('payTypes'))
             ->columns([
                 Tables\Columns\TextColumn::make('user_id'),
+                Tables\Columns\TextColumn::make('user.name'),
                 Tables\Columns\TextColumn::make('user.email'),
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make()
-                    ->preloadRecordSelect(),
                 Tables\Actions\CreateAction::make(),
             ])
             ->actions([
@@ -67,12 +110,12 @@ class BatchUsersRelationManager extends RelationManager
                     ->using(function (Model $record, array $data): Model {
                         return $this->syncPayTypes($record, $data['payTypes']);
                     }),
-                Tables\Actions\DeleteAction::make(),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ])
-            ->inverseRelationship('payrollBatches');
+            ->inverseRelationship('payrollBatch');
     }
 
     protected function syncPayTypes (Model $record, array $payTypes): Model {

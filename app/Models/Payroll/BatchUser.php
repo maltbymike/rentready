@@ -2,6 +2,7 @@
 
 namespace App\Models\Payroll;
 
+use App\Models\TimeClockEntry;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,14 +16,11 @@ class BatchUser extends Pivot
 
     protected $table = 'payroll_batch_user';
 
+    public $timestamps = false;
+
     public function batch(): BelongsTo
     {
         return $this->belongsTo(Batch::class);
-    }
-
-    public function getForeignKey()
-    {
-        return 'payroll_batch_user_id';
     }
 
     public function batchUserPayTypes(): HasMany
@@ -30,9 +28,15 @@ class BatchUser extends Pivot
         return $this->hasMany(BatchUserPayType::class);
     }
 
-    public function user(): BelongsTo
+    public function getForeignKey()
     {
-        return $this->belongsTo(User::class);
+        return 'payroll_batch_user_id';
+    }
+
+ 
+    public function payrollBatch(): BelongsTo
+    {
+        return $this->belongsTo(Batch::class, 'payroll_batch_id');
     }
 
     public function payTypes(): BelongsToMany
@@ -40,4 +44,14 @@ class BatchUser extends Pivot
         return $this->belongsToMany(PayType::class, 'payroll_batch_user_pay_type')
             ->withPivot('value');
     }
+
+    public function timeClockEntries(): HasMany
+    {
+        return $this->hasMany(TimeClockEntry::class);
+    }
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

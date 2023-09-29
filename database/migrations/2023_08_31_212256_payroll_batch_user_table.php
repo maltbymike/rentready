@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('payroll_batch_id');
+        Schema::dropIfExists('payroll_batch_user');
     }
 };

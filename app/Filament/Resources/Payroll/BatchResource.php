@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Payroll;
 
 use Filament\Forms;
 use App\Models\User;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -15,7 +14,10 @@ use Filament\Resources\Resource;
 use App\Models\Payroll\BatchUser;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
@@ -38,6 +40,39 @@ class BatchResource extends Resource
     {
         $batch = new Batch;
         
+        $batchUsers = User::whereHas('roles', 
+            function(Builder $query) {
+                return $query->where('name', 'Employee');
+            }
+        )
+        ->get();
+
+        $payTypes = PayType::all();
+
+        $batchUserFields = $batchUsers->map(
+            function (User $user) use ($payTypes) {
+                return Fieldset::make($user->name)
+                    ->hiddenOn('create')
+                    ->schema(
+                        $payTypes->map(
+                            function (PayType $type) use ($user) 
+                            {
+                                return TextInput::make('user.' . $user->id . '.payTypes.' . $type->id)
+                                    ->label($type->name);
+                            }
+                        )->all()
+                    )
+                    ->columns([
+                        'xs' => 1,
+                        'sm' => 3,
+                        'md' => 4,
+                        'lg' => 3,
+                        'xl' => 5,
+                    ]);
+                    
+            }
+        )->all();
+
         $batchFormComponents = [
             Grid::make(4)
                 ->schema([
@@ -58,20 +93,24 @@ class BatchResource extends Resource
                         ->label(__('Approved At'))
                         ->displayFormat('Y-m-d')
                         ->disabledOn('create'),
-                    CheckboxList::make('users')
-                        ->label('Employees To Pay')
-                        ->hiddenOn('edit')
-                        ->bulkToggleable()
-                        ->relationship(
-                            'Users', 
-                            titleAttribute: 'name',
-                            modifyQueryUsing: fn (Builder $query) => 
-                                $query->whereHas('roles', 
-                                    function(Builder $query) {
-                                        return $query->where('name', 'Employee');
-                                    }
-                                )
-                        ),                    
+                    // CheckboxList::make('users')
+                    //     ->label('Employees To Pay')
+                    //     ->hiddenOn('edit')
+                    //     ->bulkToggleable()
+                    //     ->relationship(
+                    //         'Users', 
+                    //         titleAttribute: 'name',
+                    //         modifyQueryUsing: fn (Builder $query) => 
+                    //             $query->whereHas('roles', 
+                    //                 function(Builder $query) {
+                    //                     return $query->where('name', 'Employee');
+                    //                 }                                )
+                    //     ),
+                    Section::make('Active Employees')
+                        ->hiddenOn('create')
+                        ->collapsible()
+                        ->schema($batchUserFields),
+    
                 ])
         ];
 
@@ -79,82 +118,9 @@ class BatchResource extends Resource
             ->schema(
                 array_merge(
                     $batchFormComponents,
+                    // $batchUserFields,
                 )
             );
-    }
-
-    public static function form_old(Form $form): Form
-    {
-        $batch = new Batch;
-        
-        return $form
-            ->schema([
-                Forms\Components\Grid::make(4)
-                    ->schema([
-                        Forms\Components\DatePicker::make('period_ending')
-                            ->label(__('Period Ending'))
-                            ->displayFormat('Y-m-d')
-                            ->default(fn () => $batch->getNextPayrollEndingDate())
-                            ->disabledOn('edit'),
-                        Forms\Components\DatePicker::make('payment_date')
-                            ->label(__('Payment Date'))
-                            ->displayFormat('Y-m-d')
-                            ->default(fn () => $batch->getNextPayrollPaymentDate())
-                            ->disabledOn('edit'),
-                        Forms\Components\Select::make('approved_by')
-                            ->relationship('approvedBy', 'name')
-                            ->disabledOn('create'),
-                        Forms\Components\DatePicker::make('approved_at')
-                            ->label(__('Approved At'))
-                            ->displayFormat('Y-m-d')
-                            ->disabledOn('create'),
-                        Forms\Components\Repeater::make('batchUsers')
-                            ->columnSpanFull()
-                            ->relationship()
-                            ->schema([
-                                Forms\Components\Grid::make(4)
-                                    ->schema(function () {
-                                        $users = User::all()->pluck('name', 'id');
-                                        $payTypes = PayType::all()->pluck('name', 'id');
-
-                                        $returnUsersFields = [];
-
-                                        $users->each(function (string $userName, int $userKey) use (&$returnUsersFields, $payTypes) {
-
-                                            array_push(
-                                                $returnUsersFields, 
-                                                    Forms\Components\Select::make($userKey. '.user')
-                                                        ->relationship('user', 'name')
-                                                        ->disabledOn('edit')
-                                                        ->default($userKey),
-                                                    Forms\Components\Repeater::make('payTypes')
-                                                        ->relationship()
-                                                        ->schema(function () use ($payTypes, $userKey) {
-
-                                                            $returnPayTypesFields = [];
-
-                                                            $payTypes->each(function (string $payTypeValue, int $payTypeKey) use (&$returnPayTypesFields, $userKey) {
-                                                                
-                                                                array_push(
-                                                                    $returnPayTypesFields,
-                                                                    Forms\Components\Select::make($userKey . '.' . $payTypeKey . '.payType')
-                                                                        ->options(PayType::all()->pluck('name', 'id')->toArray())
-                                                                        ->default($payTypeKey),        
-                                                                    Forms\Components\TextInput::make('value'),
-                                                                );
-                                                            });
-
-                                                            return $returnPayTypesFields;
-                                                        })
-                                            );
-                                            
-                                        });
-
-                                        return $returnUsersFields;
-                                    }),
-                            ])
-                    ])
-            ]);
     }
 
     public static function table(Table $table): Table
@@ -203,5 +169,6 @@ class BatchResource extends Resource
             'create' => Pages\CreateBatch::route('/create'),
             'edit' => Pages\EditBatch::route('/{record}/edit'),
         ];
-    }    
+    }
+    
 }

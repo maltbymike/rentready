@@ -2,6 +2,7 @@
 
 namespace App\Models\Payroll;
 
+use App\Enums\Payroll\PayTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +14,12 @@ class PayType extends Model
 
     protected $fillable = [
         'name',
+        'type',
         'is_used_for_stat_pay',
+    ];
+
+    protected $casts = [
+        'type' => PayTypeEnum::class,
     ];
 
     public function getForeignKey()

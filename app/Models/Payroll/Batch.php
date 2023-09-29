@@ -46,7 +46,7 @@ class Batch extends Model
     {
         return 
             Batch::select('period_ending')
-                ->orderBy('period_ending')
+                ->orderByDesc('period_ending')
                 ->limit(1)
                 ->get()
                 ->pluck('period_ending')

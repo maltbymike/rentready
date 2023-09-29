@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Payroll\BatchUser;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
@@ -59,6 +60,10 @@ class TimeClockEntry extends Model
     //             => $this->setTimestampOrFallback($value, $attributes['clock_out_at'])
     //     );
     // }
+
+    public function batchUser(): BelongsTo {
+        return $this->belongsTo(BatchUser::class);
+    }
 
     protected function clockInRequested(): Attribute {
         return Attribute::make(

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('approved_by')->references('id')->on('users');
             $table->dateTime('approved_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
