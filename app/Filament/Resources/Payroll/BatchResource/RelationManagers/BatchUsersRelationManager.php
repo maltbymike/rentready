@@ -2,12 +2,16 @@
 
 namespace App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
-use App\Enums\Payroll\PayTypeEnum;
+use App\Models\Payroll\BatchUser;
+use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\TimeClockEntry;
 use App\Models\Payroll\PayType;
+use App\Enums\Payroll\PayTypeEnum;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +21,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 
 class BatchUsersRelationManager extends RelationManager
 {
+    use SyncPayTypesToBatchUserTrait;
     protected static string $relationship = 'batchUsers';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -24,27 +29,41 @@ class BatchUsersRelationManager extends RelationManager
     public function form(Form $form): Form
     {
         $types = PayType::all();
-        
-        $earnings = $types->where('type', PayTypeEnum::Earning)
-            ->map(function (PayType $type) {
-                return TextInput::make('payTypes.' . $type->id)
-                    ->label($type->name)
-                    ->hiddenOn('create');
-            })->all();
 
-        $benefits = $types->where('type', PayTypeEnum::Benefit)
-            ->map(function (PayType $type) {
-                return TextInput::make('payTypes.' . $type->id)
-                    ->label($type->name)
-                    ->hiddenOn('create');
-            })->all();
+        $earnings = $types
+                        ->where('type', PayTypeEnum::Earning)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
 
-        $deductions = $types->where('type', PayTypeEnum::Deduction)
-            ->map(function (PayType $type) {
-                return TextInput::make('payTypes.' . $type->id)
-                    ->label($type->name)
-                    ->hiddenOn('create');
-            })->all();
+        $benefits = $types
+                        ->where('type', PayTypeEnum::Benefit)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
+
+        $deductions = $types
+                        ->where('type', PayTypeEnum::Deduction)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
+
+        $timeClockSchema = [
+            Forms\Components\DateTimePicker::make('clock_in_at')
+                ->readonly()
+                ->columnSpan(2),
+            Forms\Components\DateTimePicker::make('clock_out_at')
+                ->readonly()
+                ->columnSpan(2),
+            Forms\Components\TextInput::make('clocked_hours')
+                ->readonly(),
+        ];
 
         return $form
             ->schema(
@@ -57,8 +76,30 @@ class BatchUsersRelationManager extends RelationManager
                         ->collapsible()
                         ->hiddenOn('create')
                         ->schema([
+                            Forms\Components\Repeater::make('unassignedTimeClockEntries')
+                                ->relationship()
+                                ->columns(6)
+                                ->deletable(false)
+                                ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
+                                    $clock_in_at = Carbon::parse($data['clock_in_at']);
+                                    $clock_out_at = Carbon::parse($data['clock_out_at']);
+                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at), 2);
+                                    
+                                    return $data;
+                                })
+                                ->schema($timeClockSchema),
                             Forms\Components\Repeater::make('timeClockEntries')
-                                ->relationship(),
+                                ->relationship()
+                                ->columns(6)
+                                ->deletable(false)
+                                ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
+                                    $clock_in_at = Carbon::parse($data['clock_in_at']);
+                                    $clock_out_at = Carbon::parse($data['clock_out_at']);
+                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at), 2);
+                                    
+                                    return $data;
+                                })
+                                ->schema($timeClockSchema),
                         ]),
                     Forms\Components\Section::make('Earnings')
                         ->extraAttributes(['class' => 'items-end-grid'])
@@ -100,33 +141,20 @@ class BatchUsersRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->mutateRecordDataUsing(function (Model $record, array $data): array {
+                    ->mutateRecordDataUsing(function (BatchUser $record, array $data): array {
                         foreach ($record->payTypes as $payType) {
                             $data['payTypes'][$payType->id] = $payType->pivot->value;
                         }
 
                         return $data;
                     })
-                    ->using(function (Model $record, array $data): Model {
+                    ->using(function (BatchUser $record, array $data): Model {
                         return $this->syncPayTypes($record, $data['payTypes']);
                     }),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ])
             ->inverseRelationship('payrollBatch');
     }
-
-    protected function syncPayTypes (Model $record, array $payTypes): Model {
-        $payTypes = collect($payTypes)
-                    ->filter()
-                    ->map(function ($value, $key) {
-                        return ['value' => $value];
-                    })
-                    ->toArray();
-        $record->payTypes()->sync($payTypes);
-        return $record;
-    }
-
 }

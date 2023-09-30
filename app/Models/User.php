@@ -146,4 +146,9 @@ class User extends Authenticatable implements FilamentUser
     public function timeClockEntries() : HasMany {
         return $this->hasMany(TimeClockEntry::class);
     }
+
+    public function unassignedTimeClockEntries(): HasMany {
+        return $this->hasMany(TimeClockEntry::class)
+            ->where('payroll_batch_user_id', NULL);
+    }
 }
