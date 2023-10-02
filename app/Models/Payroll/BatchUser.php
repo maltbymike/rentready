@@ -2,15 +2,16 @@
 
 namespace App\Models\Payroll;
 
-use App\Models\TimeClockEntry;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\TimeClockEntry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class BatchUser extends Pivot
 {
@@ -57,7 +58,10 @@ class BatchUser extends Pivot
         $period_ending = Batch::find($this->payroll_batch_id)->pluck('period_ending')->first();
         
         return User::find($this->user_id)->HasMany(TimeClockEntry::class)
-            ->where('payroll_batch_user_id', NULL)
+            ->where(function (Builder $query) {
+                $query->where('payroll_batch_user_id', $this->id)
+                    ->orWhereNull('payroll_batch_user_id');
+            })
             ->where('clock_out_at', '!=', NULL)
             ->where('clock_out_at', '<=', $period_ending->addDay());
     }

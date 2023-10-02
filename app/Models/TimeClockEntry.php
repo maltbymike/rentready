@@ -33,6 +33,7 @@ class TimeClockEntry extends Model
 
     protected $fillable = [
         'user_id',
+        'payroll_batch_user_id',
         'clock_in_at',
         'clock_out_at',
         'clock_in_requested',
