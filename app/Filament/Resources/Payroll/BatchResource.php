@@ -104,22 +104,45 @@ class BatchResource extends Resource
                                     function(Builder $query) {
                                         return $query->where('name', 'Employee');
                                     }                                )
-                        ),
-                    // Section::make('Active Employees')
-                    //     ->hiddenOn('create')
-                    //     ->collapsible()
-                    //     ->schema($batchUserFields),
-    
+                        ),    
                 ])
         ];
 
         return $form
-            ->schema(
-                array_merge(
-                    $batchFormComponents,
-                    // $batchUserFields,
-                )
-            );
+            ->schema([
+                Grid::make(4)
+                    ->schema([
+                        DatePicker::make('period_ending')
+                            ->label(__('Period Ending'))
+                            ->displayFormat('Y-m-d')
+                            ->default(fn () => $batch->getNextPayrollEndingDate())
+                            ->disabledOn('edit'),
+                        DatePicker::make('payment_date')
+                            ->label(__('Payment Date'))
+                            ->displayFormat('Y-m-d')
+                            ->default(fn () => $batch->getNextPayrollPaymentDate())
+                            ->disabledOn('edit'),
+                        Select::make('approved_by')
+                            ->relationship('approvedBy', 'name')
+                            ->disabledOn('create'),
+                        DatePicker::make('approved_at')
+                            ->label(__('Approved At'))
+                            ->displayFormat('Y-m-d')
+                            ->disabledOn('create'),
+                        CheckboxList::make('users')
+                            ->label('Employees To Pay')
+                            ->bulkToggleable()
+                            ->relationship(
+                                'Users', 
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn (Builder $query) => 
+                                    $query->whereHas('roles', 
+                                        function(Builder $query) {
+                                            return $query->where('name', 'Employee');
+                                        }                                )
+                            ),    
+                    ])
+            ]);
     }
 
     public static function table(Table $table): Table
