@@ -84,6 +84,7 @@ class BatchUsersRelationManager extends RelationManager
                             Forms\Components\Repeater::make('unassignedTimeClockEntries')
                                 ->relationship()
                                 ->columns(6)
+                                ->addable(false)
                                 ->deletable(false)
                                 ->mutateRelationshipDataBeforeFillUsing(function (array $data, $get): array {
                                     $clock_in_at = Carbon::parse($data['clock_in_at']);
@@ -98,19 +99,18 @@ class BatchUsersRelationManager extends RelationManager
                                     $data['payroll_batch_user_id'] = $data['pay_this_period'] == TRUE ? $get('id') : NULL;
                                     return $data;
                                 })
-                                ->schema($timeClockSchema),
-                            Forms\Components\Repeater::make('timeClockEntries')
-                                ->relationship()
-                                ->columns(6)
-                                ->deletable(false)
-                                ->mutateRelationshipDataBeforeFillUsing(function (array $data): array {
-                                    $clock_in_at = Carbon::parse($data['clock_in_at']);
-                                    $clock_out_at = Carbon::parse($data['clock_out_at']);
-                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at), 2);
-
-                                    return $data;
-                                })
-                                ->schema($timeClockSchema),
+                                ->schema([
+                                    Forms\Components\Checkbox::make('pay_this_period')
+                                        ->inline(false),
+                                    Forms\Components\DateTimePicker::make('clock_in_at')
+                                        ->readonly()
+                                        ->columnSpan(2),
+                                    Forms\Components\DateTimePicker::make('clock_out_at')
+                                        ->readonly()
+                                        ->columnSpan(2),
+                                    Forms\Components\TextInput::make('clocked_hours')
+                                        ->readonly(),
+                                ]),
                         ]),
                     Forms\Components\Section::make('Earnings')
                         ->extraAttributes(['class' => 'items-end-grid'])

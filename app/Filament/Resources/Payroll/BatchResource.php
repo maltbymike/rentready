@@ -93,23 +93,22 @@ class BatchResource extends Resource
                         ->label(__('Approved At'))
                         ->displayFormat('Y-m-d')
                         ->disabledOn('create'),
-                    // CheckboxList::make('users')
-                    //     ->label('Employees To Pay')
-                    //     ->hiddenOn('edit')
-                    //     ->bulkToggleable()
-                    //     ->relationship(
-                    //         'Users', 
-                    //         titleAttribute: 'name',
-                    //         modifyQueryUsing: fn (Builder $query) => 
-                    //             $query->whereHas('roles', 
-                    //                 function(Builder $query) {
-                    //                     return $query->where('name', 'Employee');
-                    //                 }                                )
-                    //     ),
-                    Section::make('Active Employees')
-                        ->hiddenOn('create')
-                        ->collapsible()
-                        ->schema($batchUserFields),
+                    CheckboxList::make('users')
+                        ->label('Employees To Pay')
+                        ->bulkToggleable()
+                        ->relationship(
+                            'Users', 
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn (Builder $query) => 
+                                $query->whereHas('roles', 
+                                    function(Builder $query) {
+                                        return $query->where('name', 'Employee');
+                                    }                                )
+                        ),
+                    // Section::make('Active Employees')
+                    //     ->hiddenOn('create')
+                    //     ->collapsible()
+                    //     ->schema($batchUserFields),
     
                 ])
         ];

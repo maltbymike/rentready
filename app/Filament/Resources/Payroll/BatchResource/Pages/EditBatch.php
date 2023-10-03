@@ -22,18 +22,24 @@ class EditBatch extends EditRecord
         ];
     }
 
-    protected function handleRecordUpdate(Model $record, array $data): Model
+    protected function getRedirectUrl(): string
     {
-        $record->update($data);
-
-        $record->users()->sync(array_keys($data['user']));
-
-        foreach ($record->batchUsers as $batchUser) {
-            $this->syncPayTypes($batchUser, $data['user'][$batchUser->user_id]['payTypes']);
-        }
-    
-        return $record;
+        return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
     }
+
+    // protected function handleRecordUpdate(Model $record, array $data): Model
+    // {
+    //     dd ($record, $data);
+    //     $record->update($data);
+
+    //     $record->users()->sync(array_keys($data['user']));
+
+    //     foreach ($record->batchUsers as $batchUser) {
+    //         $this->syncPayTypes($batchUser, $data['user'][$batchUser->user_id]['payTypes']);
+    //     }
+    
+    //     return $record;
+    // }
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
