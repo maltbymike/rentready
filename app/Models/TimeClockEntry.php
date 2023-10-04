@@ -84,6 +84,10 @@ class TimeClockEntry extends Model
         );
     }
 
+    protected function getClockedHoursAttribute(): Float {
+        return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
