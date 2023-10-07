@@ -42,7 +42,7 @@ class Batch extends Model
         return $this->hasMany(BatchUser::class);
     }
 
-    public function getLastPayrollEndingDate(): Carbon
+    public static function getLastPayrollEndingDate(): Carbon
     {
         return 
             Batch::select('period_ending')
@@ -54,9 +54,9 @@ class Batch extends Model
             ?? Carbon::parse('last Saturday');
     }
 
-    public function getNextPayrollEndingDate(): Carbon
+    public static function getNextPayrollEndingDate(): Carbon
     {
-        return $this->getLastPayrollEndingDate()->next('Saturday');
+        return Batch::getLastPayrollEndingDate()->next('Saturday');
     }
 
     public function getNextPayrollPaymentDate(): Carbon

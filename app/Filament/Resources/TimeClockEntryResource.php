@@ -2,14 +2,18 @@
 
 namespace App\Filament\Resources;
 
+use App\Models\Payroll\Batch;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Columns;
 use App\Models\TimeClockEntry;
+use Filament\Forms\Components;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use App\Filament\Tables\Columns\ClockIn;
+use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -109,7 +113,18 @@ class TimeClockEntryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            // ->defaultGroup('payrollBatch.period_ending')
+            ->defaultGroup('user.name')
+            ->groups([
+                Tables\Grouping\Group::make('payrollBatch.period_ending')
+                    ->label('Period Ending'),
+                Tables\Grouping\Group::make('user.name'),
+            ])
             ->columns([
+                Columns\TextColumn::make('payrollBatch.period_ending')
+                    ->label('Period Ending')
+                    ->sortable()
+                    ->date(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->sortable()
                     ->searchable(),
@@ -127,41 +142,51 @@ class TimeClockEntryResource extends Resource
                 Tables\Filters\SelectFilter::make('Employee')
                     ->multiple()
                     ->relationship('user', 'name'),
-                    // ->default([auth()->user()->id]),
+                Tables\Filters\SelectFilter::make('Period Ending')
+                    ->relationship('payrollBatch', 'period_ending'),
+                Tables\Filters\TernaryFilter::make('pending')
+                    ->nullable()
+                    ->attribute('payroll_batch_user_id')
+                    ->placeholder('Show All')
+                    ->trueLabel('No')
+                    ->falseLabel('Yes')
+                    ->default(false),
+                Tables\Filters\Filter::make('cutoff_date')
+                    ->form([
+                        DatePicker::make('cutoff_date')
+                            ->default(Batch::getNextPayrollEndingDate()),
+                    ])
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['cutoff_date']) {
+                            return null;
+                        }
+
+                        return 'Cutoff Date: ' . $data['cutoff_date'];
+                    })
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['cutoff_date'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('clock_out_at', '<=', $date),
+                            );
+                    })
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
-                    // Tables\Actions\Action::make('approve')
-                    //     ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'))
-                    //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
-                    // Tables\Actions\Action::make('reject')
-                    //     ->action(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'))
-                    //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record)),
                 ]),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkAction::make('approve')
-                //     ->action(function (Collection $records) {
-                //         $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Approved'));
-                //     })
-                //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
-                //     ->deselectRecordsAfterCompletion(),
-                // Tables\Actions\BulkAction::make('reject')
-                //     ->action(function (Collection $records) {
-                //         $records->each(fn (TimeClockEntry $record) => $record->setEntryStatus('Rejected'));
-                //     })
-                //     ->visible(fn (TimeClockEntry $record): bool => auth()->user()->can('update', $record))
-                //     ->deselectRecordsAfterCompletion(),
+                //
             ]);
     }
 
     public static function getEloquentQuery(): Builder
     {
 
-        $query = parent::getEloquentQuery()
-            ->orderBy('user_id')
-            ->orderBy('clock_in_at');
+        $query = parent::getEloquentQuery();
+            // ->orderBy('user_id')
+            // ->orderBy('clock_in_at');
 
         if (! auth()->user()->can('Manage Timeclock Entries')) {
             $query = $query->where('user_id', auth()->user()->id);

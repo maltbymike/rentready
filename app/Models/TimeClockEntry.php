@@ -2,24 +2,29 @@
 
 namespace App\Models;
 
-use App\Models\Payroll\BatchUser;
+use App\Models\Payroll\Batch;
 use Illuminate\Support\Carbon;
+use App\Models\Payroll\BatchUser;
 use Illuminate\Support\Collection;
 use Spatie\Activitylog\LogOptions;
 use SebastianBergmann\Type\VoidType;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Znck\Eloquent\Relations\BelongsToThrough;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class TimeClockEntry extends Model
 {
     use HasFactory;
     use LogsActivity;
     use SoftDeletes;
+    use \Znck\Eloquent\Traits\BelongsToThrough;
 
     protected $casts = [
         'clock_in_at' => 'datetime:Y-m-d H:i:s',
@@ -61,6 +66,13 @@ class TimeClockEntry extends Model
     //             => $this->setTimestampOrFallback($value, $attributes['clock_out_at'])
     //     );
     // }
+
+    public function payrollBatch(): BelongsToThrough {
+        return $this->belongsToThrough(
+            Batch::class, 
+            BatchUser::class, 
+        );
+    }
 
     public function batchUser(): BelongsTo {
         return $this->belongsTo(BatchUser::class);
