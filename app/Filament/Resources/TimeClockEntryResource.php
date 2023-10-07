@@ -136,7 +136,9 @@ class TimeClockEntryResource extends Resource
                 Tables\Columns\TextColumn::make('hours_clocked')
                     ->label('Hours')
                     ->alignRight()
-                    ->summarize(Sum::make()),
+                    ->summarize(Sum::make()
+                        ->label(false)
+                    ),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
