@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Payroll\Batch;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
+use App\Models\Payroll\Batch;
 use App\Models\TimeClockEntry;
 use Filament\Forms\Components;
 use Filament\Resources\Resource;
@@ -15,7 +15,9 @@ use Filament\Tables\Actions\Action;
 use App\Filament\Tables\Columns\ClockIn;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Illuminate\Database\Eloquent\Collection;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TimeClockEntryResource\Pages;
 use App\Filament\Resources\TimeClockEntryResource\RelationManagers;
@@ -113,7 +115,6 @@ class TimeClockEntryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            // ->defaultGroup('payrollBatch.period_ending')
             ->defaultGroup('user.name')
             ->groups([
                 Tables\Grouping\Group::make('payrollBatch.period_ending')
@@ -132,11 +133,10 @@ class TimeClockEntryResource extends Resource
                     ->alignCenter(),
                 ClockIn::make('clock_out_at')
                     ->alignCenter(),
-                Tables\Columns\TextColumn::make('hours')
-                    ->getStateUsing(function (TimeClockEntry $record) {
-                        return number_format($record->hours(), 2);
-                    })
-                    ->alignRight(),
+                Tables\Columns\TextColumn::make('hours_clocked')
+                    ->label('Hours')
+                    ->alignRight()
+                    ->summarize(Sum::make()),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
@@ -185,12 +185,12 @@ class TimeClockEntryResource extends Resource
     {
 
         $query = parent::getEloquentQuery();
-            // ->orderBy('user_id')
-            // ->orderBy('clock_in_at');
 
         if (! auth()->user()->can('Manage Timeclock Entries')) {
             $query = $query->where('user_id', auth()->user()->id);
         }
+
+        $query = $query->select(['*', \DB::raw(TimeClockEntry::getClockedHoursAsRawSqlString())]);
 
         return $query;
     }

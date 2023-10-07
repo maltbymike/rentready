@@ -26,6 +26,10 @@ class TimeClockEntry extends Model
     use SoftDeletes;
     use \Znck\Eloquent\Traits\BelongsToThrough;
 
+    protected $appends = [
+        'clocked_hours',
+    ];
+
     protected $casts = [
         'clock_in_at' => 'datetime:Y-m-d H:i:s',
         'clock_out_at' => 'datetime:Y-m-d H:i:s',
@@ -67,13 +71,6 @@ class TimeClockEntry extends Model
     //     );
     // }
 
-    public function payrollBatch(): BelongsToThrough {
-        return $this->belongsToThrough(
-            Batch::class, 
-            BatchUser::class, 
-        );
-    }
-
     public function batchUser(): BelongsTo {
         return $this->belongsTo(BatchUser::class);
     }
@@ -98,6 +95,10 @@ class TimeClockEntry extends Model
 
     protected function getClockedHoursAttribute(): Float {
         return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+    }
+
+    public static function getClockedHoursAsRawSqlString(): String {
+        return 'cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) AS DECIMAL(10, 2)) AS hours_clocked';
     }
 
     public function getActivitylogOptions(): LogOptions
@@ -129,6 +130,13 @@ class TimeClockEntry extends Model
     {
         $clock_out_at = $this->clock_out_at ?? $this->freshTimestamp();
         return round($clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+    }
+
+    public function payrollBatch(): BelongsToThrough {
+        return $this->belongsToThrough(
+            Batch::class, 
+            BatchUser::class, 
+        );
     }
 
     protected function setTimestampOrFallback(Mixed $value, ?String $fallback) {
