@@ -55,8 +55,8 @@ class BatchUser extends Pivot
 
     public function unassignedTimeClockEntries(): HasMany
     {
-        $period_ending = Batch::find($this->payroll_batch_id)->pluck('period_ending')->first();
-        
+        $period_ending = Batch::find($this->payroll_batch_id)->period_ending;
+
         return User::find($this->user_id)->HasMany(TimeClockEntry::class)
             ->where(function (Builder $query) {
                 $query->where('payroll_batch_user_id', $this->id)

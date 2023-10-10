@@ -2,6 +2,7 @@
 
 namespace App\Models\Payroll;
 
+use App\Models\TimeClockEntry;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -59,9 +60,9 @@ class Batch extends Model
         return Batch::getLastPayrollEndingDate()->next('Saturday');
     }
 
-    public function getNextPayrollPaymentDate(): Carbon
+    public static function getNextPayrollPaymentDate(): Carbon
     {
-        return $this->getNextPayrollEndingDate()->next('Monday');
+        return Batch::getNextPayrollEndingDate()->next('Thursday');
     }
 
     public function getForeignKey()
@@ -69,8 +70,14 @@ class Batch extends Model
         return 'payroll_batch_id';
     }
 
+    public function timeClockEntries(): BelongsToMany
+    {
+        return $this->belongsToMany(TimeClockEntry::class);
+    }
+
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'payroll_batch_user', 'payroll_batch_id', 'user_id');
+        return $this->belongsToMany(User::class, 'payroll_batch_user', 'payroll_batch_id', 'user_id')
+            ->withPivot('id');
     }
 }

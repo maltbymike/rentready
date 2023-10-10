@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -179,7 +180,39 @@ class TimeClockEntryResource extends Resource
                 ]),
             ])
             ->bulkActions([
-                //
+                Tables\Actions\BulkAction::make('assignToPayrollBatch')
+                    ->form([
+                        Select::make('periodEnding')
+                            ->options(function () {
+                                return Batch::query()
+                                    ->get()
+                                    ->mapWithKeys(function ($batch, $key) {
+                                        $dateString = $batch->period_ending->toDateString();
+                                        return [$dateString => $batch->period_ending->toDateString()];
+                                    })
+                                    ->reverse()
+                                    ->toArray();
+                            })
+                            ->placeholder('Create New: ' . Batch::getNextPayrollEndingDate()->toDateString())
+                            ->rules(['dateformat:Y-m-d']),
+                    ])
+                    ->action(function (array $data, Collection $records): void {
+                        
+                        $batch = Batch::firstOrCreate(
+                            ['period_ending' => $data['periodEnding'] ?? Batch::getNextPayrollEndingDate()],
+                            ['payment_date' => Batch::getNextPayrollPaymentDate()]
+                        );
+
+                        $batch->users()->syncWithoutDetaching($records->pluck('user_id')->unique()->toArray());
+
+                        $batch->load('users');
+
+                        $records->each(function (TimeClockEntry $record) use (&$batch) {
+                            $record->batchUser()->associate($batch->users->find($record->user_id)->pivot->id);
+                            $record->save();
+                        });
+                        
+                    }),
             ]);
     }
 

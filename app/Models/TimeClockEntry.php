@@ -72,7 +72,7 @@ class TimeClockEntry extends Model
     // }
 
     public function batchUser(): BelongsTo {
-        return $this->belongsTo(BatchUser::class);
+        return $this->belongsTo(BatchUser::class, 'payroll_batch_user_id');
     }
 
     protected function clockInRequested(): Attribute {
@@ -135,7 +135,7 @@ class TimeClockEntry extends Model
     public function payrollBatch(): BelongsToThrough {
         return $this->belongsToThrough(
             Batch::class, 
-            BatchUser::class, 
+            BatchUser::class,
         );
     }
 
