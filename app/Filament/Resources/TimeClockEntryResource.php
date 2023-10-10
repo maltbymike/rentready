@@ -209,6 +209,8 @@ class TimeClockEntryResource extends Resource
                             $record->save();
                         });
 
+                        redirect()->route('filament.admin.resources.payroll.batches.edit', ['record' => $batch]);
+
                     }),
             ]);
     }
