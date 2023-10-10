@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -13,7 +12,9 @@ use App\Models\TimeClockEntry;
 use Filament\Forms\Components;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 use App\Filament\Tables\Columns\ClockIn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\Summarizers\Sum;
@@ -123,8 +124,7 @@ class TimeClockEntryResource extends Resource
                     ->sortable()
                     ->date(),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->sortable()
-                    ->searchable(),
+                    ->sortable(),
                 ClockIn::make('clock_in_at')
                     ->alignCenter(),
                 ClockIn::make('clock_out_at')
@@ -168,7 +168,9 @@ class TimeClockEntryResource extends Resource
                                 fn (Builder $query, $date): Builder => $query->whereDate('clock_out_at', '<=', $date),
                             );
                     })
-            ])
+            ], 
+            layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ActionGroup::make([
