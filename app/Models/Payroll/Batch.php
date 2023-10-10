@@ -3,6 +3,7 @@
 namespace App\Models\Payroll;
 
 use App\Models\TimeClockEntry;
+use App\Settings\PayrollSettings;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -52,17 +53,20 @@ class Batch extends Model
                 ->get()
                 ->pluck('period_ending')
                 ->first()
-            ?? Carbon::parse('last Saturday');
+            ?? Carbon::parse('last ' . app(PayrollSettings::class)->period_ends_on_day);
     }
 
     public static function getNextPayrollEndingDate(): Carbon
     {
-        return Batch::getLastPayrollEndingDate()->next('Saturday');
+        return Batch::getLastPayrollEndingDate()
+            ->next(
+                app(PayrollSettings::class)->period_ends_on_day
+            );
     }
 
     public static function getNextPayrollPaymentDate(): Carbon
     {
-        return Batch::getNextPayrollEndingDate()->next('Thursday');
+        return Batch::getNextPayrollEndingDate()->next(app(PayrollSettings::class)->period_paid_on_day);
     }
 
     public function getForeignKey()
