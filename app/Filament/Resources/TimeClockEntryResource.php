@@ -117,11 +117,6 @@ class TimeClockEntryResource extends Resource
     {
         return $table
             ->defaultGroup('user.name')
-            ->groups([
-                Tables\Grouping\Group::make('payrollBatch.period_ending')
-                    ->label('Period Ending'),
-                Tables\Grouping\Group::make('user.name'),
-            ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
                     ->label('Period Ending')
@@ -211,7 +206,7 @@ class TimeClockEntryResource extends Resource
                             $record->batchUser()->associate($batch->users->find($record->user_id)->pivot->id);
                             $record->save();
                         });
-                        
+
                     }),
             ]);
     }
