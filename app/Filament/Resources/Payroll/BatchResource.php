@@ -38,75 +38,75 @@ class BatchResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $batch = new Batch;
+        // $batch = new Batch;
         
-        $batchUsers = User::whereHas('roles', 
-            function(Builder $query) {
-                return $query->where('name', 'Employee');
-            }
-        )
-        ->get();
+        // $batchUsers = User::whereHas('roles', 
+        //     function(Builder $query) {
+        //         return $query->where('name', 'Employee');
+        //     }
+        // )
+        // ->get();
 
-        $payTypes = PayType::all();
+        // $payTypes = PayType::all();
 
-        $batchUserFields = $batchUsers->map(
-            function (User $user) use ($payTypes) {
-                return Fieldset::make($user->name)
-                    ->hiddenOn('create')
-                    ->schema(
-                        $payTypes->map(
-                            function (PayType $type) use ($user) 
-                            {
-                                return TextInput::make('user.' . $user->id . '.payTypes.' . $type->id)
-                                    ->label($type->name);
-                            }
-                        )->all()
-                    )
-                    ->columns([
-                        'xs' => 1,
-                        'sm' => 3,
-                        'md' => 4,
-                        'lg' => 3,
-                        'xl' => 5,
-                    ]);
+        // $batchUserFields = $batchUsers->map(
+        //     function (User $user) use ($payTypes) {
+        //         return Fieldset::make($user->name)
+        //             ->hiddenOn('create')
+        //             ->schema(
+        //                 $payTypes->map(
+        //                     function (PayType $type) use ($user) 
+        //                     {
+        //                         return TextInput::make('user.' . $user->id . '.payTypes.' . $type->id)
+        //                             ->label($type->name);
+        //                     }
+        //                 )->all()
+        //             )
+        //             ->columns([
+        //                 'xs' => 1,
+        //                 'sm' => 3,
+        //                 'md' => 4,
+        //                 'lg' => 3,
+        //                 'xl' => 5,
+        //             ]);
                     
-            }
-        )->all();
+        //     }
+        // )->all();
 
-        $batchFormComponents = [
-            Grid::make(4)
-                ->schema([
-                    DatePicker::make('period_ending')
-                        ->label(__('Period Ending'))
-                        ->displayFormat('Y-m-d')
-                        ->default(fn () => $batch->getNextPayrollEndingDate())
-                        ->disabledOn('edit'),
-                    DatePicker::make('payment_date')
-                        ->label(__('Payment Date'))
-                        ->displayFormat('Y-m-d')
-                        ->default(fn () => $batch->getNextPayrollPaymentDate())
-                        ->disabledOn('edit'),
-                    Select::make('approved_by')
-                        ->relationship('approvedBy', 'name')
-                        ->disabledOn('create'),
-                    DatePicker::make('approved_at')
-                        ->label(__('Approved At'))
-                        ->displayFormat('Y-m-d')
-                        ->disabledOn('create'),
-                    CheckboxList::make('users')
-                        ->label('Employees To Pay')
-                        ->bulkToggleable()
-                        ->relationship(
-                            'Users', 
-                            titleAttribute: 'name',
-                            modifyQueryUsing: fn (Builder $query) => 
-                                $query->whereHas('roles', 
-                                    function(Builder $query) {
-                                        return $query->where('name', 'Employee');
-                                    }                                )
-                        ),    
-                ])
-        ];
+        // $batchFormComponents = [
+        //     Grid::make(4)
+        //         ->schema([
+        //             DatePicker::make('period_ending')
+        //                 ->label(__('Period Ending'))
+        //                 ->displayFormat('Y-m-d')
+        //                 ->default(fn () => $batch->getNextPayrollEndingDate())
+        //                 ->disabledOn('edit'),
+        //             DatePicker::make('payment_date')
+        //                 ->label(__('Payment Date'))
+        //                 ->displayFormat('Y-m-d')
+        //                 ->default(fn () => $batch->getNextPayrollPaymentDate())
+        //                 ->disabledOn('edit'),
+        //             Select::make('approved_by')
+        //                 ->relationship('approvedBy', 'name')
+        //                 ->disabledOn('create'),
+        //             DatePicker::make('approved_at')
+        //                 ->label(__('Approved At'))
+        //                 ->displayFormat('Y-m-d')
+        //                 ->disabledOn('create'),
+        //             CheckboxList::make('users')
+        //                 ->label('Employees To Pay')
+        //                 ->bulkToggleable()
+        //                 ->relationship(
+        //                     'Users', 
+        //                     titleAttribute: 'name',
+        //                     modifyQueryUsing: fn (Builder $query) => 
+        //                         $query->whereHas('roles', 
+        //                             function(Builder $query) {
+        //                                 return $query->where('name', 'Employee');
+        //                             }                                )
+        //                 ),    
+        //         ])
+        // ];
 
         return $form
             ->schema([
@@ -115,12 +115,12 @@ class BatchResource extends Resource
                         DatePicker::make('period_ending')
                             ->label(__('Period Ending'))
                             ->displayFormat('Y-m-d')
-                            ->default(fn () => $batch->getNextPayrollEndingDate())
+                            ->default(fn () => Batch::getNextPayrollEndingDate())
                             ->disabledOn('edit'),
                         DatePicker::make('payment_date')
                             ->label(__('Payment Date'))
                             ->displayFormat('Y-m-d')
-                            ->default(fn () => $batch->getNextPayrollPaymentDate())
+                            ->default(fn () => Batch::getNextPayrollPaymentDate())
                             ->disabledOn('edit'),
                         Select::make('approved_by')
                             ->relationship('approvedBy', 'name')
@@ -162,6 +162,7 @@ class BatchResource extends Resource
                     ->boolean()
                     ->sortable(),
             ])
+            ->defaultSort('period_ending', 'desc')
             ->recordClasses(fn (Model $record) => match ($record->deleted_at) {
                 null => null,
                 default => 'bg-danger-100 hover:bg-danger-200',
