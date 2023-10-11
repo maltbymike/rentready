@@ -90,12 +90,12 @@ class BatchUsersRelationManager extends RelationManager
                                 Action::make('Select All')
                                     ->icon('heroicon-m-check')
                                     ->action(function (Get $get, Set $set) {
-                                        foreach ($get('unassignedTimeClockEntries') as $key => $value) {
-                                            $set('unassignedTimeClockEntries.' . $key . '.pay_this_period', true);
+                                        foreach ($get('timeClockEntriesWithUnassigned') as $key => $value) {
+                                            $set('timeClockEntriesWithUnassigned.' . $key . '.pay_this_period', true);
                                         }
                                     }),
                             ]),
-                            Forms\Components\Repeater::make('unassignedTimeClockEntries')
+                            Forms\Components\Repeater::make('timeClockEntriesWithUnassigned')
                                 ->label(false)
                                 ->relationship()
                                 ->columns(6)
@@ -144,7 +144,7 @@ class BatchUsersRelationManager extends RelationManager
 
                                         $hours = 0;
 
-                                        foreach ($get('unassignedTimeClockEntries') as $entry) {
+                                        foreach ($get('timeClockEntriesWithUnassigned') as $entry) {
                                             if ($entry['pay_this_period'] === true) {
                                                 $hours += $entry['clocked_hours'];
                                             }
