@@ -93,8 +93,13 @@ class TimeClockEntry extends Model
         );
     }
 
-    protected function getClockedHoursAttribute(): Float {
-        return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+    protected function getClockedHoursAttribute(): Float|Null {
+        
+        if ($this->clock_out_at) {
+            return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+        }
+
+        return null;
     }
 
     public static function getClockedHoursAsRawSqlString(): String {
