@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
+use App\Settings\PayrollSettings;
 use Closure;
 use Carbon\Carbon;
 use Filament\Forms;
@@ -139,7 +140,7 @@ class BatchUsersRelationManager extends RelationManager
                                     ->extraAttributes([
                                         'class' => 'py-1.5 ps-3 pe-3 rounded-lg ring-1 sm:text-sm sm:leading-6 shadow-sm ring-1 bg-white dark:bg-white/5 ring-gray-950/10 dark:ring-white/20 overflow-hidden',
                                     ])
-                                    ->content(function (Get $get) {
+                                    ->content(function (Get $get, Set $set, PayrollSettings $settings) {
 
                                         $hours = 0;
 
@@ -148,6 +149,23 @@ class BatchUsersRelationManager extends RelationManager
                                                 $hours += $entry['clocked_hours'];
                                             }
                                         }
+
+                                        if ($hours <= $settings->hours_before_overtime) {
+                                            $regularHours = $hours;
+                                            $overtimeHours = 0;
+                                        } else {
+                                            $regularHours = $settings->hours_before_overtime;
+                                            $overtimeHours = $hours - $settings->hours_before_overtime;
+                                        }
+
+                                        $set(
+                                            'payTypes.' . $settings->regular_hours_pay_type, 
+                                            number_format($regularHours, 2)
+                                        );
+                                        $set(
+                                            'payTypes.' . $settings->overtime_hours_pay_type, 
+                                            number_format($overtimeHours, 2)
+                                        );
 
                                         return $hours;
 
