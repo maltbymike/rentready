@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Payroll\PayType;
 use App\Settings\PayrollSettings;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
@@ -44,9 +45,22 @@ class ManagePayroll extends SettingsPage
                     ])
                     ->required(),
                 TextInput::make('hours_before_overtime')
+                    ->columnStart(1)
                     ->label('Hours Before Overtime Applies')
                     ->numeric()
                     ->required(),
+                Select::make('regular_hours_pay_type')
+                    ->label('Regular Hours Pay Type')
+                    ->options(PayType::all()->pluck('name', 'id'))
+                    ->required(),
+                Select::make('overtime_hours_pay_type')
+                    ->label('Overtime Hours Pay Type')
+                    ->options(PayType::all()->pluck('name', 'id'))
+                    ->required(),
+            ])
+            ->columns([
+                'sm' => 3,
+                '2xl' => 5,
             ]);
     }
 }

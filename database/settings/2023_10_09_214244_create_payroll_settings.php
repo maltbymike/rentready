@@ -8,6 +8,8 @@ return new class extends SettingsMigration
     {
         $this->migrator->add('payroll.period_ends_on_day', 'Saturday');
         $this->migrator->add('payroll.period_paid_on_day', 'Thursday');
-        $this->migrator->add('payroll.hours_before_overtime', 40);
+        $this->migrator->add('payroll.hours_before_overtime', 44);
+        $this->migrator->add('payroll.regular_hours_pay_type', 1);
+        $this->migrator->add('payroll.overtime_hours_pay_type', 2);
     }
 };
