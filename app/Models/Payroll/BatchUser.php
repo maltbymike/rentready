@@ -53,8 +53,13 @@ class BatchUser extends Pivot
         return $this->hasMany(TimeClockEntry::class);
     }
 
-    public function timeClockEntriesWithUnassigned(): HasMany
+    public function timeClockEntriesWithUnassigned(): HasMany|Null
     {
+
+        if (! $this->payroll_batch_id) { 
+            return null;
+        }
+
         $period_ending = Batch::find($this->payroll_batch_id)->period_ending;
 
         return User::find($this->user_id)->HasMany(TimeClockEntry::class)
