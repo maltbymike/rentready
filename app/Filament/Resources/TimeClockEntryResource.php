@@ -123,7 +123,11 @@ class TimeClockEntryResource extends Resource
                 'user.name',
                 Group::make('clock_out_at')
                     ->label('Date')
-                    ->date(),
+                    ->getTitleFromRecordUsing(
+                        function (TimeClockEntry $record): string {
+                            return $record->clock_out_at->format('D n/j');
+                        }
+                    ),
             ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
@@ -215,7 +219,8 @@ class TimeClockEntryResource extends Resource
                             $record->batchUser()->associate($batch->users->find($record->user_id)->pivot->id);
                             $record->save();
                         });
-                    }),
+                    })
+                    ->visible(auth()->user()->can('Manage Timeclock Entries')),
                 Tables\Actions\BulkAction::make('removeFromPayrollBatch')
                     ->action(function (array $data, Collection $records): void {                        
                         $records->each(function (TimeClockEntry $record) {
@@ -223,6 +228,7 @@ class TimeClockEntryResource extends Resource
                             $record->save();
                         });
                     })
+                    ->visible(auth()->user()->can('Manage Timeclock Entries'))
                     ->requiresConfirmation(),
             ]);
     }
