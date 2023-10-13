@@ -146,7 +146,8 @@ class TimeClockEntryResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
                     ->multiple()
-                    ->relationship('user', 'name'),
+                    ->relationship('user', 'name')
+                    ->preload(),
                 Tables\Filters\SelectFilter::make('Period Ending')
                     ->relationship('payrollBatch', 'period_ending'),
                 Tables\Filters\TernaryFilter::make('pending')
@@ -201,7 +202,6 @@ class TimeClockEntryResource extends Resource
                             ->rules(['dateformat:Y-m-d']),
                     ])
                     ->action(function (array $data, Collection $records): void {                        
-                        
                         $batch = Batch::firstOrCreate(
                             ['period_ending' => $data['periodEnding'] ?? Batch::getNextPayrollEndingDate()],
                             ['payment_date' => Batch::getNextPayrollPaymentDate()]
@@ -215,13 +215,15 @@ class TimeClockEntryResource extends Resource
                             $record->batchUser()->associate($batch->users->find($record->user_id)->pivot->id);
                             $record->save();
                         });
-
-                        redirect()->route('filament.admin.resources.time-clock-entries.index', [
-                            'tableFilters[Period Ending][value]' => $batch->id,
-                            'tableFilters[pending][value]' => 1,
-                            'tableGrouping' => 'clock_out_at',
-                        ]);
                     }),
+                Tables\Actions\BulkAction::make('removeFromPayrollBatch')
+                    ->action(function (array $data, Collection $records): void {                        
+                        $records->each(function (TimeClockEntry $record) {
+                            $record->batchUser()->disassociate();
+                            $record->save();
+                        });
+                    })
+                    ->requiresConfirmation(),
             ]);
     }
 
