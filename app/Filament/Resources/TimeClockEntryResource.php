@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
@@ -118,6 +119,12 @@ class TimeClockEntryResource extends Resource
     {
         return $table
             ->defaultGroup('user.name')
+            ->groups([
+                'user.name',
+                Group::make('clock_out_at')
+                    ->label('Date')
+                    ->date(),
+            ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
                     ->label('Period Ending')
@@ -193,7 +200,7 @@ class TimeClockEntryResource extends Resource
                             ->placeholder('Create New: ' . Batch::getNextPayrollEndingDate()->toDateString())
                             ->rules(['dateformat:Y-m-d']),
                     ])
-                    ->action(function (array $data, Collection $records): void {
+                    ->action(function (array $data, Collection $records): void {                        
                         
                         $batch = Batch::firstOrCreate(
                             ['period_ending' => $data['periodEnding'] ?? Batch::getNextPayrollEndingDate()],
@@ -209,8 +216,11 @@ class TimeClockEntryResource extends Resource
                             $record->save();
                         });
 
-                        redirect()->route('filament.admin.resources.payroll.batches.edit', ['record' => $batch]);
-
+                        redirect()->route('filament.admin.resources.time-clock-entries.index', [
+                            'tableFilters[Period Ending][value]' => $batch->id,
+                            'tableFilters[pending][value]' => 1,
+                            'tableGrouping' => 'clock_out_at',
+                        ]);
                     }),
             ]);
     }
