@@ -85,11 +85,15 @@ class TimeClock extends Page implements HasTable
 
     protected function getTableFilters(): array
     {
-        return [
-            Filter::make('onlyOwnRecords')
-                ->query(fn (Builder $query): Builder => $query->where('id', auth()->user()->id))
-                ->default()
-        ];
+        if (auth()->user()->can('Manage Timeclock Entries')) {
+            return [
+                Filter::make('onlyOwnRecords')
+                    ->query(fn (Builder $query): Builder => $query->where('id', auth()->user()->id))
+                    ->default(! auth()->user()->can('Manage Timeclock Entries'))
+            ];
+        }
+
+        return [];
     }
     
 }
