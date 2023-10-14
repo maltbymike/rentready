@@ -49,6 +49,8 @@ class TimeClockEntry extends Model
         'clock_out_requested',
         'clock_in_approved',
         'clock_out_approved',
+        'minutes_deducted',
+        'deduction_reason',
         'approved_by',
         'approved_at',
     ];
@@ -96,14 +98,14 @@ class TimeClockEntry extends Model
     protected function getClockedHoursAttribute(): Float|Null {
         
         if ($this->clock_out_at) {
-            return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+            return round($this->clock_out_at->floatDiffInHours($this->clock_in_at) - ($this->minutes_deducted / 60), 2);
         }
 
         return null;
     }
 
     public static function getClockedHoursAsRawSqlString(): String {
-        return 'cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) AS DECIMAL(10, 2)) AS hours_clocked';
+        return 'cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) - (minutes_deducted / 60) AS DECIMAL(10, 2)) AS hours_clocked';
     }
 
     public function getActivitylogOptions(): LogOptions

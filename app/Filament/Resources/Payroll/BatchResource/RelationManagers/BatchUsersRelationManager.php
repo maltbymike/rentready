@@ -126,6 +126,11 @@ class BatchUsersRelationManager extends RelationManager
                                         ->columnSpan(2),
                                     Forms\Components\TextInput::make('clocked_hours')
                                         ->readonly(),
+                                    Forms\Components\TextInput::make('minutes_deducted')
+                                        ->numeric(),
+                                    Forms\Components\TextInput::make('deduction_reason')
+                                        ->string()
+                                        ->maxLength(255),
                                 ]),
                         ]),
                     Forms\Components\Section::make('Earnings')

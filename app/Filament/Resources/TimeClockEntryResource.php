@@ -43,16 +43,16 @@ class TimeClockEntryResource extends Resource
                     ->columnSpan(12),
                 Forms\Components\Fieldset::make('Time In')
                     ->schema([
-                        Forms\Components\Radio::make('approve_clock_in')
-                            ->label('Approve')
-                            ->options([
-                                'clock' => 'Clock Time',
-                                'requested' => 'Requested Time',
-                                'other' => 'Alternate Time',
-                            ])
-                            ->inline()
-                            ->extraAttributes(['class' => 'pl-6'])
-                            ->columnSpan(6),
+                        // Forms\Components\Radio::make('approve_clock_in')
+                        //     ->label('Approve')
+                        //     ->options([
+                        //         'clock' => 'Clock Time',
+                        //         'requested' => 'Requested Time',
+                        //         'other' => 'Alternate Time',
+                        //     ])
+                        //     ->inline()
+                        //     ->extraAttributes(['class' => 'pl-6'])
+                        //     ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_at')
                             ->label(__('Clock In'))
                             ->displayFormat('D Y-m-d h:i A')
@@ -75,19 +75,19 @@ class TimeClockEntryResource extends Resource
                             ->columnSpan(6),            
                     ])
                     ->columns(6)
-                    ->columnSpan(6),
+                    ->columnSpan(4),
                 Forms\Components\Fieldset::make('Time Out')
                     ->schema([
-                        Forms\Components\Radio::make('approve_clock_out')
-                        ->label('Approve')
-                        ->options([
-                            'clock' => 'Clock Time',
-                            'requested' => 'Requested Time',
-                            'other' => 'Alternate Time',
-                        ])
-                        ->inline()
-                        ->extraAttributes(['class' => 'pl-6'])
-                        ->columnSpan(6),
+                        // Forms\Components\Radio::make('approve_clock_out')
+                        //     ->label('Approve')
+                        //     ->options([
+                        //         'clock' => 'Clock Time',
+                        //         'requested' => 'Requested Time',
+                        //         'other' => 'Alternate Time',
+                        //     ])
+                        //     ->inline()
+                        //     ->extraAttributes(['class' => 'pl-6'])
+                        //     ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_at')
                             ->label(__('Clock Out'))
                             ->displayFormat('D Y-m-d h:i A')
@@ -110,7 +110,16 @@ class TimeClockEntryResource extends Resource
                             ->columnSpan(6),
                     ])
                     ->columns(6)
-                    ->columnSpan(6),
+                    ->columnSpan(4),
+                Forms\Components\Fieldset::make('Deductions')
+                    ->schema([
+                        Forms\Components\TextInput::make('minutes_deducted')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('deduction_reason')
+                            ->string()
+                            ->maxLength(255),
+                    ])
+                    ->columnSpan(4),
             ])
             ->columns(12);
     }
@@ -140,6 +149,12 @@ class TimeClockEntryResource extends Resource
                     ->alignCenter(),
                 ClockIn::make('clock_out_at')
                     ->alignCenter(),
+                Tables\Columns\TextInputColumn::make('minutes_deducted')
+                    ->alignCenter()
+                    ->inputMode('numeric')
+                    ->rules(['integer', 'required']),
+                Tables\Columns\TextInputColumn::make('deduction_reason')
+                    ->rules(['string', 'nullable', 'max:255']),
                 Tables\Columns\TextColumn::make('hours_clocked')
                     ->label('Hours')
                     ->alignRight()
@@ -184,9 +199,7 @@ class TimeClockEntryResource extends Resource
             layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(4)
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\ActionGroup::make([
-                ]),
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkAction::make('assignToPayrollBatch')
