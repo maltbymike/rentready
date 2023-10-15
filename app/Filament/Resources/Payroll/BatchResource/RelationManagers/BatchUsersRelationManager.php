@@ -104,7 +104,7 @@ class BatchUsersRelationManager extends RelationManager
                                 ->mutateRelationshipDataBeforeFillUsing(function (array $data, $get): array {
                                     $clock_in_at = Carbon::parse($data['clock_in_at']);
                                     $clock_out_at = Carbon::parse($data['clock_out_at']);
-                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at), 2);
+                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at) - ($get['minutes_deducted'] / 60), 2);
                                     
                                     $data['pay_this_period'] = $data['payroll_batch_user_id'] == NULL ? FALSE : TRUE;
 
@@ -127,6 +127,7 @@ class BatchUsersRelationManager extends RelationManager
                                     Forms\Components\TextInput::make('clocked_hours')
                                         ->readonly(),
                                     Forms\Components\TextInput::make('minutes_deducted')
+                                        ->live()
                                         ->numeric(),
                                     Forms\Components\TextInput::make('deduction_reason')
                                         ->string()

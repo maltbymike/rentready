@@ -255,7 +255,7 @@ class TimeClockEntryResource extends Resource
             $query = $query->where('user_id', auth()->user()->id);
         }
 
-        $query = $query->select(['*', \DB::raw(TimeClockEntry::getClockedHoursAsRawSqlString())]);
+        $query = $query->select(['*', \DB::raw(TimeClockEntry::getClockedHoursAsRawSqlString(true))]);
 
         return $query;
     }

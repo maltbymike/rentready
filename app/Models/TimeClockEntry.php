@@ -96,16 +96,16 @@ class TimeClockEntry extends Model
     }
 
     protected function getClockedHoursAttribute(): Float|Null {
-        
         if ($this->clock_out_at) {
-            return round($this->clock_out_at->floatDiffInHours($this->clock_in_at) - ($this->minutes_deducted / 60), 2);
+            return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
         }
 
         return null;
     }
 
-    public static function getClockedHoursAsRawSqlString(): String {
-        return 'cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) - (minutes_deducted / 60) AS DECIMAL(10, 2)) AS hours_clocked';
+    public static function getClockedHoursAsRawSqlString(Bool $withDeductions = false): String {        
+        $deductionString = $withDeductions ? '- (minutes_deducted / 60)' : '';
+        return "cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) $deductionString AS DECIMAL(10, 2)) AS hours_clocked";
     }
 
     public function getActivitylogOptions(): LogOptions
