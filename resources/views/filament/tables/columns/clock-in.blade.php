@@ -1,4 +1,4 @@
-@php
+<?php
 
     if ($getRecord()->clock_in_at == $getState()) {
 
@@ -8,10 +8,13 @@
             $tooltipText = "Manually Entered";
         }
 
-        if ($getRecord()->approved_by_id && $getRecord()->clock_in_approved) {
-            $displayTime = $getRecord()->clock_in_approved;
+        if ($getRecord()->hasClockInChangeRequest('approved')) {
+            $displayTime = $getRecord()->clock_in_requested;
             $bgColor = 'bg-success-500';
-        } else if ($getRecord()->hasClockInChangeRequest()) {
+        } else if ($getRecord()->hasClockInChangeRequest('rejected')) {
+            $displayTime = $getRecord()->clock_in_requested;
+            $bgColor = 'bg-danger-500';
+        } else if ($getRecord()->hasClockInChangeRequest('unapproved')) {
             $displayTime = $getRecord()->clock_in_requested;
             $bgColor = 'bg-warning-500';
         } else {
@@ -27,10 +30,13 @@
             $tooltipText = "Manually Entered";
         }
 
-        if ($getRecord()->approved_by_id && $getRecord()->clock_out_approved) {
-            $displayTime = $getRecord()->clock_out_approved;
+        if ($getRecord()->hasClockOutChangeRequest('approved')) {
+            $displayTime = $getRecord()->clock_out_requested;
             $bgColor = 'bg-success-500';
-        } else if ($getRecord()->hasClockOutChangeRequest()) {
+        } else if ($getRecord()->hasClockOutChangeRequest('rejected')) {
+            $displayTime = $getRecord()->clock_out_requested;
+            $bgColor = 'bg-danger-500';
+        } else if ($getRecord()->hasClockOutChangeRequest('unapproved')) {
             $displayTime = $getRecord()->clock_out_requested;
             $bgColor = 'bg-warning-500';
         } else {
@@ -39,7 +45,7 @@
             $tooltipText = 'Clocked';
         }
     }
-@endphp
+?>
 
 <div x-data="{ tooltip: '{{ $tooltipText }}' }">
     <button x-tooltip="tooltip" class="px-3 {{ $bgColor }} rounded-full">

@@ -4,8 +4,8 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
-use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
@@ -13,7 +13,9 @@ use App\Models\TimeClockEntry;
 use Filament\Forms\Components;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Grouping\Group;
 use Filament\Forms\Components\Select;
+use Filament\Support\Enums\Alignment;
 use App\Filament\Tables\Columns\ClockIn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
@@ -33,8 +35,7 @@ class TimeClockEntryResource extends Resource
 
     protected static ?string $navigationGroup = 'Payroll';
 
-    public static function form(Form $form): Form
-    {
+    public static function form(Form $form): Form {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
@@ -43,16 +44,6 @@ class TimeClockEntryResource extends Resource
                     ->columnSpan(12),
                 Forms\Components\Fieldset::make('Time In')
                     ->schema([
-                        // Forms\Components\Radio::make('approve_clock_in')
-                        //     ->label('Approve')
-                        //     ->options([
-                        //         'clock' => 'Clock Time',
-                        //         'requested' => 'Requested Time',
-                        //         'other' => 'Alternate Time',
-                        //     ])
-                        //     ->inline()
-                        //     ->extraAttributes(['class' => 'pl-6'])
-                        //     ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_at')
                             ->label(__('Clock In'))
                             ->displayFormat('D Y-m-d h:i A')
@@ -65,29 +56,24 @@ class TimeClockEntryResource extends Resource
                             ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
                             ->withoutSeconds()
-                            ->columnSpan(6),
-                        Forms\Components\DateTimePicker::make('clock_in_approved')
-                            ->label(__('Clock In Approved'))
-                            ->format('Y-m-d H:i:s')
-                            ->displayFormat('D Y-m-d h:i A')
-                            ->weekStartsOnSunday()
-                            ->withoutSeconds()
-                            ->columnSpan(6),            
+                            ->columnSpan(4),
+                        Forms\Components\Select::make('approve_requested_clock_in')
+                            ->options(['1' => 'Approve', '0' => 'Reject'])
+                            ->label(__('Approve'))
+                            ->placeholder('')
+                            ->hidden(function (Get $get) {
+                                if (! auth()->user()->can('Manage Timeclock Entries')) {
+                                    return true;
+                                }
+
+                                return $get('clock_in_at') === $get('clock_in_requested');
+                            })
+                            ->columnSpan(2),
                     ])
                     ->columns(6)
                     ->columnSpan(4),
                 Forms\Components\Fieldset::make('Time Out')
                     ->schema([
-                        // Forms\Components\Radio::make('approve_clock_out')
-                        //     ->label('Approve')
-                        //     ->options([
-                        //         'clock' => 'Clock Time',
-                        //         'requested' => 'Requested Time',
-                        //         'other' => 'Alternate Time',
-                        //     ])
-                        //     ->inline()
-                        //     ->extraAttributes(['class' => 'pl-6'])
-                        //     ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_at')
                             ->label(__('Clock Out'))
                             ->displayFormat('D Y-m-d h:i A')
@@ -100,14 +86,13 @@ class TimeClockEntryResource extends Resource
                             ->displayFormat('D Y-m-d h:i A')
                             ->weekStartsOnSunday()
                             ->withoutSeconds()
-                            ->columnSpan(6),
-                        Forms\Components\DateTimePicker::make('clock_out_approved')
-                            ->label(__('Clock Out Approved'))
-                            ->format('Y-m-d H:i:s')
-                            ->displayFormat('D Y-m-d h:i A')
-                            ->weekStartsOnSunday()
-                            ->withoutSeconds()
-                            ->columnSpan(6),
+                            ->columnSpan(4),
+                        Forms\Components\Select::make('approve_requested_clock_out')
+                            ->options(['1' => 'Approve', '0' => 'Reject'])
+                            ->label(__('Approve'))
+                            ->placeholder('')
+                            ->hidden(fn (Get $get) => $get('clock_out_at') === $get('clock_out_requested'))
+                            ->columnSpan(2),
                     ])
                     ->columns(6)
                     ->columnSpan(4),
@@ -124,8 +109,7 @@ class TimeClockEntryResource extends Resource
             ->columns(12);
     }
 
-    public static function table(Table $table): Table
-    {
+    public static function table(Table $table): Table {
         return $table
             ->defaultGroup('user.name')
             ->groups([
@@ -155,7 +139,7 @@ class TimeClockEntryResource extends Resource
                     ->rules(['integer', 'required']),
                 Tables\Columns\TextInputColumn::make('deduction_reason')
                     ->rules(['string', 'nullable', 'max:255']),
-                Tables\Columns\TextColumn::make('hours_clocked')
+                Tables\Columns\TextColumn::make('hours_clocked_with_deduction')
                     ->label('Hours')
                     ->alignRight()
                     ->summarize(Sum::make()
@@ -246,8 +230,7 @@ class TimeClockEntryResource extends Resource
             ]);
     }
 
-    public static function getEloquentQuery(): Builder
-    {
+    public static function getEloquentQuery(): Builder {
 
         $query = parent::getEloquentQuery();
 
@@ -255,20 +238,18 @@ class TimeClockEntryResource extends Resource
             $query = $query->where('user_id', auth()->user()->id);
         }
 
-        $query = $query->select(['*', \DB::raw(TimeClockEntry::getClockedHoursAsRawSqlString(true))]);
+        $query = $query->select(['*', \DB::raw(TimeClockEntry::getClockedOrApprovedHoursWithDeductionAsRawSqlString())]);
 
         return $query;
     }
 
-    public static function getRelations(): array
-    {
+    public static function getRelations(): array {
         return [
             //
         ];
     }
     
-    public static function getPages(): array
-    {
+    public static function getPages(): array {
         return [
             'index' => Pages\ListTimeClockEntries::route('/'),
             'create' => Pages\CreateTimeClockEntry::route('/create'),

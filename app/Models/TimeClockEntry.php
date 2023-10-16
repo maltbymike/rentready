@@ -47,31 +47,13 @@ class TimeClockEntry extends Model
         'clock_out_at',
         'clock_in_requested',
         'clock_out_requested',
-        'clock_in_approved',
-        'clock_out_approved',
+        'approve_requested_clock_in',
+        'approve_requested_clock_out',
         'minutes_deducted',
         'deduction_reason',
         'approved_by',
         'approved_at',
     ];
-
-    // protected function clockInApproved(): Attribute {
-    //     return Attribute::make(
-    //         get: fn(Mixed $value)
-    //             => $this->getTimestampOrFallback($value, $this->clock_in_requested),
-    //         set: fn (Mixed $value, Array $attributes)
-    //             => $this->setTimestampOrFallback($value, $attributes['clock_in_at'])
-    //     );
-    // }
-
-    // protected function clockOutApproved(): Attribute {
-    //     return Attribute::make(
-    //         get: fn (Mixed $value) 
-    //             => $this->getTimestampOrFallback($value, $this->clock_out_requested),
-    //         set: fn (Mixed $value, Array $attributes) 
-    //             => $this->setTimestampOrFallback($value, $attributes['clock_out_at'])
-    //     );
-    // }
 
     public function batchUser(): BelongsTo {
         return $this->belongsTo(BatchUser::class, 'payroll_batch_user_id');
@@ -103,6 +85,10 @@ class TimeClockEntry extends Model
         return null;
     }
 
+    protected static function getClockedOrApprovedHoursWithDeductionAsRawSqlString(): String {
+        return "cast(TIMESTAMPDIFF(SECOND, clocked_or_approved_time_in, clocked_or_approved_time_out) / (60 * 60) - (minutes_deducted / 60) AS DECIMAL(10, 2)) AS hours_clocked_with_deduction";
+    }
+
     public static function getClockedHoursAsRawSqlString(Bool $withDeductions = false): String {        
         $deductionString = $withDeductions ? '- (minutes_deducted / 60)' : '';
         return "cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) $deductionString AS DECIMAL(10, 2)) AS hours_clocked";
@@ -122,14 +108,31 @@ class TimeClockEntry extends Model
         }
     }
 
-
-    public function hasClockInChangeRequest(): bool
+    public function hasClockInChangeRequest(string $status = null): bool
     {
+        switch ($status) {
+            case 'approved':
+                return $this->approve_requested_clock_in === 1 && $this->clock_in_requested !== null ? true : false;
+            case 'rejected':
+                return $this->approve_requested_clock_in === 0 && $this->clock_in_requested !== null ? true : false;
+            case 'unapproved':
+                return $this->approve_requested_clock_in === null && $this->clock_in_requested != $this->clock_in_at ? true : false;
+        }
+
         return $this->clock_in_at != $this->clock_in_requested;
     }
 
-    public function hasClockOutChangeRequest(): bool
+    public function hasClockOutChangeRequest(string $status = null): bool
     {
+        switch ($status) {
+            case 'approved':
+                return $this->approve_requested_clock_out === 1 && $this->clock_out_requested !== null ? true : false;
+            case 'rejected':
+                return $this->approve_requested_clock_out === 0 && $this->clock_out_requested !== null ? true : false;
+            case 'unapproved':
+                return $this->approve_requested_clock_out === null && $this->clock_out_requested != $this->clock_out_at ? true : false;
+        }
+
         return $this->clock_out_at != $this->clock_out_requested;
     }
 

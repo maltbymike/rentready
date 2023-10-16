@@ -21,7 +21,7 @@ class TimeClockEntryPolicy
      */
     public function view(User $user, TimeClockEntry $timeClockEntry): bool
     {
-        return $user->can('Manage Timeclock Entries');
+        return $user->can('Manage Timeclock Entries') || $user->hasRole('Timeclock User');
     }
 
     /**
@@ -37,7 +37,7 @@ class TimeClockEntryPolicy
      */
     public function update(User $user, TimeClockEntry $timeClockEntry): bool
     {
-        return $user->can('Manage Timeclock Entries');
+        return $user->can('Manage Timeclock Entries') || $user->hasRole('Timeclock User');
     }
 
     /**
