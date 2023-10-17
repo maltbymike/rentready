@@ -91,7 +91,13 @@ class TimeClockEntryResource extends Resource
                             ->options(['1' => 'Approve', '0' => 'Reject'])
                             ->label(__('Approve'))
                             ->placeholder('')
-                            ->hidden(fn (Get $get) => $get('clock_out_at') === $get('clock_out_requested'))
+                            ->hidden(function (Get $get) {
+                                if (! auth()->user()->can('Manage Timeclock Entries')) {
+                                    return true;
+                                }
+
+                                return $get('clock_out_at') === $get('clock_out_requested');
+                            })
                             ->columnSpan(2),
                     ])
                     ->columns(6)
