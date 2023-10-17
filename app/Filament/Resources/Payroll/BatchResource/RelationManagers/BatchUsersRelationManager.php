@@ -83,7 +83,7 @@ class BatchUsersRelationManager extends RelationManager
                         ->label('Employee')
                         ->disabledOn('edit'),
                     Forms\Components\Section::make('Timeclock Entries')
-                        ->collapsible()
+                        ->collapsed()
                         ->hiddenOn('create')
                         ->schema([
                             Actions::make([
@@ -98,16 +98,11 @@ class BatchUsersRelationManager extends RelationManager
                             Forms\Components\Repeater::make('timeClockEntriesWithUnassigned')
                                 ->label(false)
                                 ->relationship()
-                                ->columns(6)
+                                ->columns(16)
                                 ->addable(false)
                                 ->deletable(false)
                                 ->mutateRelationshipDataBeforeFillUsing(function (array $data, $get): array {
-                                    $clock_in_at = Carbon::parse($data['clock_in_at']);
-                                    $clock_out_at = Carbon::parse($data['clock_out_at']);
-                                    $data['clocked_hours'] = round($clock_out_at->floatDiffInHours($clock_in_at) - ($get('minutes_deducted') / 60), 2);
-                                    
                                     $data['pay_this_period'] = $data['payroll_batch_user_id'] == NULL ? FALSE : TRUE;
-
                                     return $data;
                                 })
                                 ->mutateRelationshipDataBeforeSaveUsing(function (TimeClockEntry $record, array $data, $get): array {
@@ -116,29 +111,37 @@ class BatchUsersRelationManager extends RelationManager
                                 })
                                 ->schema([
                                     Forms\Components\Checkbox::make('pay_this_period')
+                                        ->label(__('Pay'))
                                         ->live()
                                         ->inline(false),
-                                    Forms\Components\DateTimePicker::make('clock_in_at')
+                                    Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
+                                        ->label(__('Time In'))
                                         ->readonly()
-                                        ->columnSpan(2),
-                                    Forms\Components\DateTimePicker::make('clock_out_at')
+                                        ->columnSpan(4),
+                                    Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
+                                        ->label(__('Time Out'))
                                         ->readonly()
-                                        ->columnSpan(2),
-                                    Forms\Components\TextInput::make('clocked_hours')
-                                        ->readonly(),
+                                        ->columnSpan(4),
                                     Forms\Components\TextInput::make('minutes_deducted')
+                                        ->label(__('Deduct (Min)'))
                                         ->live()
-                                        ->numeric(),
+                                        ->numeric()
+                                        ->columnSpan(2),
                                     Forms\Components\TextInput::make('deduction_reason')
+                                        ->label(__('Reason'))
                                         ->string()
-                                        ->maxLength(255),
+                                        ->maxLength(255)
+                                        ->columnSpan(3),
+                                    Forms\Components\TextInput::make('clocked_or_approved_hours_with_deduction')
+                                        ->label(__('Hours'))
+                                        ->readonly()
+                                        ->columnSpan(2),
                                 ]),
                         ]),
                     Forms\Components\Section::make('Earnings')
                         ->extraAttributes(['class' => 'items-end-grid'])
-                        ->columns(6)
+                        ->columns(7)
                         ->hiddenOn('create')
-                        ->collapsible()
                         ->schema(array_merge(
                             [
                                 Forms\Components\Placeholder::make('Hours')
@@ -152,7 +155,7 @@ class BatchUsersRelationManager extends RelationManager
 
                                         foreach ($get('timeClockEntriesWithUnassigned') as $entry) {
                                             if ($entry['pay_this_period'] === true) {
-                                                $hours += $entry['clocked_hours'];
+                                                $hours += $entry['clocked_or_approved_hours_with_deduction'];
                                             }
                                         }
 
@@ -183,13 +186,11 @@ class BatchUsersRelationManager extends RelationManager
                         ->extraAttributes(['class' => 'items-end-grid'])
                         ->columns(6)
                         ->hiddenOn('create')
-                        ->collapsible()
                         ->schema($benefits),
                     Forms\Components\Section::make('Deductions')
                         ->extraAttributes(['class' => 'items-end-grid'])
                         ->columns(6)
                         ->hiddenOn('create')
-                        ->collapsible()
                         ->schema($deductions),
                 ],
             ));
@@ -212,6 +213,7 @@ class BatchUsersRelationManager extends RelationManager
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
+                    ->modalWidth('6xl')
                     ->mutateRecordDataUsing(function (BatchUser $record, array $data): array {
                         foreach ($record->payTypes as $payType) {
                             $data['payTypes'][$payType->id] = $payType->pivot->value;

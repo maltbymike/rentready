@@ -28,6 +28,7 @@ class TimeClockEntry extends Model
 
     protected $appends = [
         'clocked_hours',
+        'clocked_or_approved_hours_with_deduction',
     ];
 
     protected $casts = [
@@ -35,8 +36,8 @@ class TimeClockEntry extends Model
         'clock_out_at' => 'datetime:Y-m-d H:i:s',
         'clock_in_requested' => 'datetime:Y-m-d H:i:s',
         'clock_out_requested' => 'datetime:Y-m-d H:i:s',
-        'clock_in_approved' => 'datetime:Y-m-d H:i:s',
-        'clock_out_approved' => 'datetime:Y-m-d H:i:s',
+        'clocked_or_approved_time_in' => 'datetime:Y-m-d H:i:s',
+        'clocked_or_approved_time_out' => 'datetime:Y-m-d H:i:s',
         'payment_date' => 'date:Y-m-d H:i:s',
     ];
 
@@ -80,6 +81,14 @@ class TimeClockEntry extends Model
     protected function getClockedHoursAttribute(): Float|Null {
         if ($this->clock_out_at) {
             return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
+        }
+
+        return null;
+    }
+
+    protected function getClockedOrApprovedHoursWithDeductionAttribute(): Float|Null {
+        if ($this->clock_out_at) {
+            return round($this->clocked_or_approved_time_out->floatDiffInHours($this->clocked_or_approved_time_in) - ($this->minutes_deducted / 60), 2);
         }
 
         return null;
@@ -134,12 +143,6 @@ class TimeClockEntry extends Model
         }
 
         return $this->clock_out_at != $this->clock_out_requested;
-    }
-
-    public function hours(): string
-    {
-        $clock_out_at = $this->clock_out_at ?? $this->freshTimestamp();
-        return round($clock_out_at->floatDiffInHours($this->clock_in_at), 2);
     }
 
     public function payrollBatch(): BelongsToThrough {
