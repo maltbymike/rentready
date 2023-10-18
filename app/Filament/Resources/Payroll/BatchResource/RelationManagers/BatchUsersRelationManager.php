@@ -62,19 +62,6 @@ class BatchUsersRelationManager extends RelationManager
                                 ->hiddenOn('create');
                         })->all();
 
-        $timeClockSchema = [
-            Forms\Components\Checkbox::make('pay_this_period')
-                ->inline(false),
-            Forms\Components\DateTimePicker::make('clock_in_at')
-                ->readonly()
-                ->columnSpan(2),
-            Forms\Components\DateTimePicker::make('clock_out_at')
-                ->readonly()
-                ->columnSpan(2),
-            Forms\Components\TextInput::make('clocked_hours')
-                ->readonly(),
-        ];
-
         return $form
             ->schema(
                 array_merge([
