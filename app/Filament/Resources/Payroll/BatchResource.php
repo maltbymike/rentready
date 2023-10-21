@@ -266,14 +266,6 @@ class BatchResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-
-    public static function getRelations(): array
-    {
-        return [
-            RelationManagers\BatchUsersRelationManager::class,
-        ];
-    }
-    
     public static function getPages(): array
     {
         return [
