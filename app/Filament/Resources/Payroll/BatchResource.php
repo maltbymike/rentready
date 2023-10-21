@@ -5,23 +5,32 @@ namespace App\Filament\Resources\Payroll;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
+use App\Models\TimeClockEntry;
 use App\Models\Payroll\PayType;
 use Filament\Resources\Resource;
 use App\Models\Payroll\BatchUser;
+use App\Settings\PayrollSettings;
+use App\Enums\Payroll\PayTypeEnum;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Payroll\BatchResource\Pages;
 use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
@@ -38,6 +47,32 @@ class BatchResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $types = PayType::all();
+
+        $earnings = $types
+                        ->where('type', PayTypeEnum::Earning)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
+
+        $benefits = $types
+                        ->where('type', PayTypeEnum::Benefit)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
+
+        $deductions = $types
+                        ->where('type', PayTypeEnum::Deduction)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name)
+                                ->hiddenOn('create');
+                        })->all();
+
         return $form
             ->schema([
                 Grid::make(4)
@@ -70,7 +105,131 @@ class BatchResource extends Resource
                                         function(Builder $query) {
                                             return $query->where('name', 'Employee');
                                         }                                )
-                            ),    
+                            ),
+                        Repeater::make('batchUsers')
+                            ->columnSpanFull()
+                            ->relationship()
+                            ->schema([
+                                Forms\Components\Section::make('Timeclock Entries')
+                                    ->collapsed()
+                                    ->hiddenOn('create')
+                                    ->schema([
+                                        Actions::make([
+                                            Action::make('Select All')
+                                                ->icon('heroicon-m-check')
+                                                ->action(function (Get $get, Set $set) {
+                                                    foreach ($get('timeClockEntriesWithUnassigned') as $key => $value) {
+                                                        $set('timeClockEntriesWithUnassigned.' . $key . '.pay_this_period', true);
+                                                    }
+                                                }),
+                                        ]),
+                                        Forms\Components\Repeater::make('timeClockEntriesWithUnassigned')
+                                            ->label(false)
+                                            ->relationship()
+                                            ->columns(16)
+                                            ->addable(false)
+                                            ->deletable(false)
+                                            ->mutateRelationshipDataBeforeFillUsing(function (array $data, $get): array {
+                                                $data['pay_this_period'] = $data['payroll_batch_user_id'] == NULL ? FALSE : TRUE;
+                                                return $data;
+                                            })
+                                            ->mutateRelationshipDataBeforeSaveUsing(function (TimeClockEntry $record, array $data, $get): array {
+                                                $data['payroll_batch_user_id'] = $data['pay_this_period'] == TRUE ? $get('id') : NULL;
+                                                return $data;
+                                            })
+                                            ->schema([
+                                                Forms\Components\Checkbox::make('pay_this_period')
+                                                    ->label(__('Pay'))
+                                                    ->live()
+                                                    ->inline(false),
+                                                Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
+                                                    ->label(__('Time In'))
+                                                    ->readonly()
+                                                    ->columnSpan(4),
+                                                Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
+                                                    ->label(__('Time Out'))
+                                                    ->readonly()
+                                                    ->columnSpan(4),
+                                                Forms\Components\TextInput::make('minutes_deducted')
+                                                    ->label(__('Deduct (Min)'))
+                                                    ->live()
+                                                    ->numeric()
+                                                    ->columnSpan(2),
+                                                Forms\Components\TextInput::make('deduction_reason')
+                                                    ->label(__('Reason'))
+                                                    ->string()
+                                                    ->maxLength(255)
+                                                    ->columnSpan(3),
+                                                Forms\Components\TextInput::make('clocked_or_approved_hours_with_deduction')
+                                                    ->label(__('Hours'))
+                                                    ->readonly()
+                                                    ->columnSpan(2),
+                                            ]),
+                                    ]),
+                                Forms\Components\Section::make('Earnings')
+                                    ->extraAttributes(['class' => 'items-end-grid'])
+                                    ->columns(7)
+                                    ->hiddenOn('create')
+                                    ->schema(array_merge(
+                                        [
+                                            Forms\Components\Placeholder::make('Hours')
+                                                ->label('Hours Clocked')
+                                                ->extraAttributes([
+                                                    'class' => 'py-1.5 ps-3 pe-3 rounded-lg ring-1 sm:text-sm sm:leading-6 shadow-sm ring-1 bg-white dark:bg-white/5 ring-gray-950/10 dark:ring-white/20 overflow-hidden',
+                                                ])
+                                                ->content(function (Get $get, Set $set, PayrollSettings $settings) {
+            
+                                                    $hours = 0;
+            
+                                                    foreach ($get('timeClockEntriesWithUnassigned') as $entry) {
+                                                        if ($entry['pay_this_period'] === true) {
+                                                            $hours += $entry['clocked_or_approved_hours_with_deduction'];
+                                                        }
+                                                    }
+            
+                                                    if ($hours <= $settings->hours_before_overtime) {
+                                                        $regularHours = $hours;
+                                                        $overtimeHours = 0;
+                                                    } else {
+                                                        $regularHours = $settings->hours_before_overtime;
+                                                        $overtimeHours = $hours - $settings->hours_before_overtime;
+                                                    }
+            
+                                                    $set(
+                                                        'payTypes.' . $settings->regular_hours_pay_type, 
+                                                        number_format($regularHours, 2)
+                                                    );
+                                                    $set(
+                                                        'payTypes.' . $settings->overtime_hours_pay_type, 
+                                                        number_format($overtimeHours, 2)
+                                                    );
+            
+                                                    return $hours;
+            
+                                                }),
+                                        ],
+                                        $earnings
+                                    )),
+                                Forms\Components\Section::make('Benefits')
+                                    ->extraAttributes(['class' => 'items-end-grid'])
+                                    ->columns(6)
+                                    ->collapsed()
+                                    ->hiddenOn('create')
+                                    ->schema($benefits),
+                                Forms\Components\Section::make('Deductions')
+                                    ->extraAttributes(['class' => 'items-end-grid'])
+                                    ->columns(6)
+                                    ->collapsed()
+                                    ->hiddenOn('create')
+                                    ->schema($deductions),
+                            ])
+                            ->itemLabel(function (array $state): ?string {
+                                if (! array_key_exists('user_id', $state)) {
+                                    return null;
+                                }
+
+                                return User::find($state['user_id'])->name ?? null;
+                            }),
                     ])
             ]);
     }
@@ -107,7 +266,7 @@ class BatchResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [

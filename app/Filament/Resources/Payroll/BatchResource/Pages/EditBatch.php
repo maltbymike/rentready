@@ -20,4 +20,8 @@ class EditBatch extends EditRecord
         return $this->getResource()::getUrl('edit', ['record' => $this->getRecord()]);
     }
 
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
 }
