@@ -114,34 +114,13 @@ class BatchResource extends Resource
                                     ->collapsed()
                                     ->hiddenOn('create')
                                     ->schema([
-                                        Actions::make([
-                                            Action::make('Select All')
-                                                ->icon('heroicon-m-check')
-                                                ->action(function (Get $get, Set $set) {
-                                                    foreach ($get('timeClockEntriesWithUnassigned') as $key => $value) {
-                                                        $set('timeClockEntriesWithUnassigned.' . $key . '.pay_this_period', true);
-                                                    }
-                                                }),
-                                        ]),
-                                        Forms\Components\Repeater::make('timeClockEntriesWithUnassigned')
+                                        Forms\Components\Repeater::make('timeClockEntries')
                                             ->label(false)
                                             ->relationship()
                                             ->columns(16)
                                             ->addable(false)
                                             ->deletable(false)
-                                            ->mutateRelationshipDataBeforeFillUsing(function (array $data, $get): array {
-                                                $data['pay_this_period'] = $data['payroll_batch_user_id'] == NULL ? FALSE : TRUE;
-                                                return $data;
-                                            })
-                                            ->mutateRelationshipDataBeforeSaveUsing(function (TimeClockEntry $record, array $data, $get): array {
-                                                $data['payroll_batch_user_id'] = $data['pay_this_period'] == TRUE ? $get('id') : NULL;
-                                                return $data;
-                                            })
                                             ->schema([
-                                                Forms\Components\Checkbox::make('pay_this_period')
-                                                    ->label(__('Pay'))
-                                                    ->live()
-                                                    ->inline(false),
                                                 Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
                                                     ->label(__('Time In'))
                                                     ->readonly()
@@ -181,10 +160,8 @@ class BatchResource extends Resource
             
                                                     $hours = 0;
             
-                                                    foreach ($get('timeClockEntriesWithUnassigned') as $entry) {
-                                                        if ($entry['pay_this_period'] === true) {
-                                                            $hours += $entry['clocked_or_approved_hours_with_deduction'];
-                                                        }
+                                                    foreach ($get('timeClockEntries') as $entry) {
+                                                        $hours += $entry['clocked_or_approved_hours_with_deduction'];
                                                     }
             
                                                     if ($hours <= $settings->hours_before_overtime) {
@@ -266,6 +243,7 @@ class BatchResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
+
     public static function getPages(): array
     {
         return [
