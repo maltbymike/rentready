@@ -18,6 +18,12 @@ return new class extends Migration
             $table->string('deduction_reason')
                 ->nullable()
                 ->after('minutes_deducted');
+            $table->integer('minutes_added')
+                ->default(0)
+                ->after('minutes_deducted');
+            $table->string('addition_reason')
+                ->nullable()
+                ->after('minutes_added');
         });
     }
 
@@ -29,6 +35,8 @@ return new class extends Migration
         Schema::table('time_clock_entries', function (Blueprint $table) {
             $table->dropColumn('minutes_deducted');
             $table->dropColumn('deduction_reason');
+            $table->dropColumn('minutes_added');
+            $table->dropColumn('addition_reason');
         });
     }
 };

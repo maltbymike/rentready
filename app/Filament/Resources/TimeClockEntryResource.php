@@ -145,6 +145,12 @@ class TimeClockEntryResource extends Resource
                     ->rules(['integer', 'required']),
                 Tables\Columns\TextInputColumn::make('deduction_reason')
                     ->rules(['string', 'nullable', 'max:255']),
+                Tables\Columns\TextInputColumn::make('minutes_added')
+                    ->alignCenter()
+                    ->inputMode('numeric')
+                    ->rules(['integer', 'required']),
+                Tables\Columns\TextInputColumn::make('addition_reason')
+                    ->rules(['string', 'nullable', 'max:255']),
                 Tables\Columns\TextColumn::make('hours_clocked_with_deduction')
                     ->label('Hours')
                     ->alignRight()

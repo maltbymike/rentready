@@ -88,14 +88,18 @@ class TimeClockEntry extends Model
 
     protected function getClockedOrApprovedHoursWithDeductionAttribute(): Float|Null {
         if ($this->clock_out_at) {
-            return round($this->clocked_or_approved_time_out->floatDiffInHours($this->clocked_or_approved_time_in) - ($this->minutes_deducted / 60), 2);
+            return round(
+                $this->clocked_or_approved_time_out->floatDiffInHours($this->clocked_or_approved_time_in) 
+                - ($this->minutes_deducted / 60)
+                + ($this->minutes_added / 60)
+            , 2);
         }
 
         return null;
     }
 
     protected static function getClockedOrApprovedHoursWithDeductionAsRawSqlString(): String {
-        return "cast(TIMESTAMPDIFF(SECOND, clocked_or_approved_time_in, clocked_or_approved_time_out) / (60 * 60) - (minutes_deducted / 60) AS DECIMAL(10, 2)) AS hours_clocked_with_deduction";
+        return "cast(TIMESTAMPDIFF(SECOND, clocked_or_approved_time_in, clocked_or_approved_time_out) / (60 * 60) - (minutes_deducted / 60) + (minutes_added / 60) AS DECIMAL(10, 2)) AS hours_clocked_with_deduction";
     }
 
     public static function getClockedHoursAsRawSqlString(Bool $withDeductions = false): String {        
