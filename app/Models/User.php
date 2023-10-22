@@ -138,11 +138,6 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(Payroll\Batch::class, 'payroll_batch_user', 'user_id', 'payroll_batch_id');
     }
 
-    public function payrollDetails(): HasMany
-    {
-        return $this->hasMany(Payroll\Details::class);
-    }
-
     public function timeClockEntries() : HasMany {
         return $this->hasMany(TimeClockEntry::class);
     }

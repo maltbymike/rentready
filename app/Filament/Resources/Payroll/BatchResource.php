@@ -49,16 +49,16 @@ class BatchResource extends Resource
     {
         $types = PayType::all();
 
-        $earnings = $types
-                        ->where('type', PayTypeEnum::Earning)
+        $payHours = $types
+                        ->where('type', PayTypeEnum::Hour)
                         ->map(function (PayType $type) {
                             return TextInput::make('payTypes.' . $type->id)
                                 ->label($type->name)
                                 ->hiddenOn('create');
                         })->all();
 
-        $benefits = $types
-                        ->where('type', PayTypeEnum::Benefit)
+        $payDollars = $types
+                        ->where('type', PayTypeEnum::Dollar)
                         ->map(function (PayType $type) {
                             return TextInput::make('payTypes.' . $type->id)
                                 ->label($type->name)
@@ -145,9 +145,9 @@ class BatchResource extends Resource
                                                     ->columnSpan(2),
                                             ]),
                                     ]),
-                                Forms\Components\Section::make('Earnings')
+                                Forms\Components\Section::make('Hours')
                                     ->extraAttributes(['class' => 'items-end-grid'])
-                                    ->columns(7)
+                                    ->columns(6)
                                     ->hiddenOn('create')
                                     ->schema(array_merge(
                                         [
@@ -185,14 +185,14 @@ class BatchResource extends Resource
             
                                                 }),
                                         ],
-                                        $earnings
+                                        $payHours
                                     )),
-                                Forms\Components\Section::make('Benefits')
+                                Forms\Components\Section::make('Dollars')
                                     ->extraAttributes(['class' => 'items-end-grid'])
                                     ->columns(6)
                                     ->collapsed()
                                     ->hiddenOn('create')
-                                    ->schema($benefits),
+                                    ->schema($payDollars),
                                 Forms\Components\Section::make('Deductions')
                                     ->extraAttributes(['class' => 'items-end-grid'])
                                     ->columns(6)

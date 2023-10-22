@@ -24,39 +24,39 @@ return new class extends Migration
         $types = collect([
             [
                 'name' => 'Regular Hours',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Overtime Hours',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Hour,
             ],
             [
                 'name' => 'Public Holiday Hours',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Personal Hours',
-                'type' => PayTypeEnum::Benefit,
+                'type' => PayTypeEnum::Hour,
             ],
             [
                 'name' => 'Vacation Pay (Hours)',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Vacation Pay (Dollars)',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Dollar,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Bonus',
-                'type' => PayTypeEnum::Earning,
+                'type' => PayTypeEnum::Dollar,
             ],
             [
                 'name' => 'Advance',
-                'type' => PayTypeEnum::Benefit,
+                'type' => PayTypeEnum::Dollar,
             ],
             [
                 'name' => 'Advance Repayment',

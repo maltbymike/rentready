@@ -3,8 +3,8 @@
 namespace App\Enums\Payroll;
  
 enum PayTypeEnum:string {
-    case Earning = 'earning';
-    case Benefit = 'benefit';
+    case Hour = 'hour';
+    case Dollar = 'dollar';
     case Deduction = 'deduction';
     case Accrual = 'accrual';
 }
