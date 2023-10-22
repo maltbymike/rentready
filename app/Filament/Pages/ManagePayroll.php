@@ -14,6 +14,8 @@ class ManagePayroll extends SettingsPage
 {
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
+    protected static ?string $navigationGroup = 'Payroll';
+
     protected static string $settings = PayrollSettings::class;
 
     public function form(Form $form): Form

@@ -6,6 +6,8 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
@@ -16,6 +18,7 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Grouping\Group;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
+use Filament\Tables\Columns\TextColumn;
 use App\Filament\Tables\Columns\ClockIn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
@@ -130,33 +133,49 @@ class TimeClockEntryResource extends Resource
             ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
-                    ->label('Period Ending')
+                    ->label(__('Period Ending'))
                     ->sortable()
-                    ->date(),
+                    ->date()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('user.name')
-                    ->sortable(),
+                    ->label(__('Name'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 ClockIn::make('clock_in_at')
-                    ->alignCenter(),
+                    ->label(__('Clock In'))
+                    ->alignCenter()
+                    ->toggleable(),
                 ClockIn::make('clock_out_at')
-                    ->alignCenter(),
+                    ->label(__('Clock Out'))
+                    ->alignCenter()
+                    ->toggleable(),
                 Tables\Columns\TextInputColumn::make('minutes_deducted')
+                    ->label(__('Minutes Deducted'))
                     ->alignCenter()
                     ->inputMode('numeric')
-                    ->rules(['integer', 'required']),
+                    ->rules(['integer', 'required'])
+                    ->toggleable(),
                 Tables\Columns\TextInputColumn::make('deduction_reason')
-                    ->rules(['string', 'nullable', 'max:255']),
+                    ->label(__('Deduction Reason'))
+                    ->rules(['string', 'nullable', 'max:255'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextInputColumn::make('minutes_added')
+                    ->label(__('Minutes Added'))
                     ->alignCenter()
                     ->inputMode('numeric')
-                    ->rules(['integer', 'required']),
+                    ->rules(['integer', 'required'])
+                    ->toggleable(),
                 Tables\Columns\TextInputColumn::make('addition_reason')
-                    ->rules(['string', 'nullable', 'max:255']),
+                    ->label(__('Addition Reason'))
+                    ->rules(['string', 'nullable', 'max:255'])
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('hours_clocked_with_deduction')
                     ->label('Hours')
                     ->alignRight()
                     ->summarize(Sum::make()
                         ->label(false)
-                    ),
+                    )
+                    ->toggleable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('Employee')
@@ -195,10 +214,26 @@ class TimeClockEntryResource extends Resource
             layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(4)
             ->actions([
-                
+                ActionGroup::make([
+                    Action::make('deductLunch')
+                        ->label(__('Deduct Lunch'))
+                        ->action(function (TimeClockEntry $record) {
+                            $record->minutes_deducted = 45;
+                            $record->deduction_reason = "Lunch";
+                            $record->save();
+                        }),
+                    Action::make('addNoBreak')
+                        ->label(__('Add No Break'))
+                        ->action(function (TimeClockEntry $record) {
+                            $record->minutes_added = 10;
+                            $record->addition_reason = "No Break";
+                            $record->save();
+                        }),
+                ])
+                ->visible(auth()->user()->can('Manage Timeclock Entries'))
             ])
             ->bulkActions([
-                Tables\Actions\BulkAction::make('assignToPayrollBatch')
+                BulkAction::make('assignToPayrollBatch')
                     ->form([
                         Select::make('periodEnding')
                             ->options(function () {
@@ -230,7 +265,7 @@ class TimeClockEntryResource extends Resource
                         });
                     })
                     ->visible(auth()->user()->can('Manage Timeclock Entries')),
-                Tables\Actions\BulkAction::make('removeFromPayrollBatch')
+                BulkAction::make('removeFromPayrollBatch')
                     ->action(function (array $data, Collection $records): void {                        
                         $records->each(function (TimeClockEntry $record) {
                             $record->batchUser()->disassociate();
@@ -239,6 +274,26 @@ class TimeClockEntryResource extends Resource
                     })
                     ->visible(auth()->user()->can('Manage Timeclock Entries'))
                     ->requiresConfirmation(),
+                BulkAction::make('deductLunch')
+                    ->label(__('Deduct Lunch'))
+                    ->action(function (Collection $records): void {
+                        $records->each(function (TimeClockEntry $record) {
+                            $record->minutes_deducted = 45;
+                            $record->deduction_reason = "Lunch";
+                            $record->save();
+                        });
+                    })
+                    ->visible(auth()->user()->can('Manage Timeclock Entries')),
+                BulkAction::make('addNoBreak')
+                    ->label(__('Add No Break'))
+                    ->action(function (Collection $records): void {
+                        $records->each(function (TimeClockEntry $record) {
+                            $record->minutes_added = 10;
+                            $record->addition_reason = "No Break";
+                            $record->save();
+                        });
+                    })
+                    ->visible(auth()->user()->can('Manage Timeclock Entries')),
             ]);
     }
 
