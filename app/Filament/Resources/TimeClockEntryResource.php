@@ -120,13 +120,13 @@ class TimeClockEntryResource extends Resource
 
     public static function table(Table $table): Table {
         return $table
+            ->defaultPaginationPageOption(50)
             ->defaultGroup('clock_out_at')
             ->groups([
                 'user.name',
                 Group::make('clock_out_at')
                     ->label('Date')
-                    ->date()
-                    ->collapsible(),
+                    ->date(),
             ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
