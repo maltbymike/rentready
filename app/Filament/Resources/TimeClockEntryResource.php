@@ -207,8 +207,7 @@ class TimeClockEntryResource extends Resource
                                 fn (Builder $query, $date): Builder => $query->whereDate('clock_out_at', '<=', $date),
                             );
                     })
-            ], 
-            layout: FiltersLayout::AboveContent)
+            ])
             ->filtersFormColumns(4)
             ->actions([
                 ActionGroup::make([
