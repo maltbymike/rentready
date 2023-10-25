@@ -120,16 +120,13 @@ class TimeClockEntryResource extends Resource
 
     public static function table(Table $table): Table {
         return $table
-            ->defaultGroup('user.name')
+            ->defaultGroup('clock_out_at')
             ->groups([
                 'user.name',
                 Group::make('clock_out_at')
                     ->label('Date')
-                    ->getTitleFromRecordUsing(
-                        function (TimeClockEntry $record): string {
-                            return $record->clock_out_at->format('D n/j');
-                        }
-                    ),
+                    ->date()
+                    ->collapsible(),
             ])
             ->columns([
                 Columns\TextColumn::make('payrollBatch.period_ending')
