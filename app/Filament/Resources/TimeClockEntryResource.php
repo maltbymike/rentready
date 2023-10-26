@@ -105,11 +105,16 @@ class TimeClockEntryResource extends Resource
                     ])
                     ->columns(6)
                     ->columnSpan(4),
-                Forms\Components\Fieldset::make('Deductions')
+                Forms\Components\Fieldset::make('Deductions and Additions')
                     ->schema([
                         Forms\Components\TextInput::make('minutes_deducted')
                             ->numeric(),
                         Forms\Components\TextInput::make('deduction_reason')
+                            ->string()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('minutes_added')
+                            ->numeric(),
+                        Forms\Components\TextInput::make('addition_reason')
                             ->string()
                             ->maxLength(255),
                     ])
