@@ -4,7 +4,9 @@ namespace App\Filament\Resources\TimeClockEntryResource\Pages;
 
 use App\Models\User;
 use Filament\Pages\Actions;
+use App\Models\Payroll\Batch;
 use App\Models\TimeClockEntry;
+use Illuminate\Support\Collection;
 use Filament\Tables\Actions\Action;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -23,16 +25,28 @@ class ListTimeClockEntries extends ListRecords
     }
 
     public function getTabs(): array {
+        
         $users = User::whereHas('roles', function($q) {
             $q->where('name', 'Timeclock User');
         })->get();
 
+        $timeClockEntriesByUserIds = TimeClockEntry::select('user_id', \DB::raw('count(*) as user_entries_count'))
+            ->where('payroll_batch_user_id', null)
+            ->where('clock_out_at', '<=', Batch::getNextPayrollEndingDate())
+            ->groupBy('user_id')
+            ->pluck('user_entries_count', 'user_id');
+
         $tabs = $users->flatMap(fn ($user) => [
             $user->name => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', $user->id))
+                ->badge($timeClockEntriesByUserIds[$user->id])
         ]);
        
-        return $tabs->merge(['All' => Tab::make()])->toArray();
+        return $tabs->merge([
+                'All' => Tab::make()
+                    ->badge($timeClockEntriesByUserIds->sum())
+            ])
+            ->toArray();
     }
 
 }

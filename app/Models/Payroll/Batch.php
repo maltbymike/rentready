@@ -44,11 +44,14 @@ class Batch extends Model
         return $this->hasMany(BatchUser::class);
     }
 
-    public static function getLastPayrollEndingDate(): Carbon
+    public static function getLastPayrollEndingDate($onlyApproved = true): Carbon
     {
         return 
             Batch::select('period_ending')
                 ->orderByDesc('period_ending')
+                ->when($onlyApproved, function (Builder $query, bool $onlyApproved) {
+                    $query->whereNotNull('approved_at');
+                })
                 ->limit(1)
                 ->get()
                 ->pluck('period_ending')
@@ -56,17 +59,17 @@ class Batch extends Model
             ?? Carbon::parse('last ' . app(PayrollSettings::class)->period_ends_on_day);
     }
 
-    public static function getNextPayrollEndingDate(): Carbon
+    public static function getNextPayrollEndingDate($onlyApproved = true): Carbon
     {
-        return Batch::getLastPayrollEndingDate()
+        return Batch::getLastPayrollEndingDate($onlyApproved)
             ->next(
                 app(PayrollSettings::class)->period_ends_on_day
             );
     }
 
-    public static function getNextPayrollPaymentDate(): Carbon
+    public static function getNextPayrollPaymentDate($onlyApproved = true): Carbon
     {
-        return Batch::getNextPayrollEndingDate()->next(app(PayrollSettings::class)->period_paid_on_day);
+        return Batch::getNextPayrollEndingDate($onlyApproved)->next(app(PayrollSettings::class)->period_paid_on_day);
     }
 
     public function getForeignKey()

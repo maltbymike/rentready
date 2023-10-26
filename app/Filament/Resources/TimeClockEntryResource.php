@@ -242,7 +242,7 @@ class TimeClockEntryResource extends Resource
                                     ->reverse()
                                     ->toArray();
                             })
-                            ->placeholder('Create New: ' . Batch::getNextPayrollEndingDate()->toDateString())
+                            ->placeholder('Next Batch: ' . Batch::getNextPayrollEndingDate()->toDateString())
                             ->rules(['dateformat:Y-m-d']),
                     ])
                     ->action(function (array $data, Collection $records): void {                        
