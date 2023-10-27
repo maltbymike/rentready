@@ -97,6 +97,8 @@ class BatchResource extends Resource
                         CheckboxList::make('users')
                             ->label('Employees To Pay')
                             ->bulkToggleable()
+                            ->columnSpanFull()
+                            ->columns(6)
                             ->relationship(
                                 'Users', 
                                 titleAttribute: 'name',
@@ -109,6 +111,9 @@ class BatchResource extends Resource
                         Repeater::make('batchUsers')
                             ->columnSpanFull()
                             ->relationship()
+                            ->addable(false)
+                            ->deletable(false)
+                            ->collapsible()
                             ->schema([
                                 Forms\Components\Section::make('Timeclock Entries')
                                     ->collapsed()
@@ -160,7 +165,7 @@ class BatchResource extends Resource
             
                                                     $hours = 0;
             
-                                                    foreach ($get('timeClockEntries') as $entry) {
+                                                        foreach ($get('timeClockEntries') as $entry) {
                                                         $hours += $entry['clocked_or_approved_hours_with_deduction'];
                                                     }
             
