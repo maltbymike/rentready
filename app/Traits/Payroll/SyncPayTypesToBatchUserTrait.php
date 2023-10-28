@@ -6,7 +6,7 @@ use App\Models\Payroll\BatchUser;
 
 trait SyncPayTypesToBatchUserTrait
 {
-    protected function syncPayTypes (BatchUser $batchUser, array $payTypes): BatchUser 
+    protected static function syncPayTypes (BatchUser $batchUser, array $payTypes): BatchUser 
     {
         $payTypes = collect($payTypes)
                     ->filter()

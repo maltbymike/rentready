@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payroll;
 
+use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -37,6 +38,8 @@ use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
 class BatchResource extends Resource
 {
+    use SyncPayTypesToBatchUserTrait;
+
     protected static ?string $model = Batch::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -106,7 +109,8 @@ class BatchResource extends Resource
                                     $query->whereHas('roles', 
                                         function(Builder $query) {
                                             return $query->where('name', 'Employee');
-                                        }                                )
+                                        }
+                                    )
                             ),
                         Repeater::make('batchUsers')
                             ->columnSpanFull()
@@ -114,6 +118,17 @@ class BatchResource extends Resource
                             ->addable(false)
                             ->deletable(false)
                             ->collapsible()
+                            ->mutateRelationshipDataBeforeFillUsing(function (array $data, $record): array {
+                                foreach ($record->batchUsers->firstWhere('id', $data['id'])->payTypes as $payType) {
+                                    $data['payTypes'][$payType->id] = $payType->pivot->value;
+                                }
+
+                                return $data;
+                            })
+                            ->mutateRelationshipDataBeforeSaveUsing(function (BatchUser $record, array $data): array {
+                                static::syncPayTypes($record, $data['payTypes']);
+                                return [];
+                            })
                             ->schema([
                                 Forms\Components\Section::make('Timeclock Entries')
                                     ->collapsed()
@@ -247,6 +262,11 @@ class BatchResource extends Resource
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('batchUsers.payTypes');
     }
 
     public static function getPages(): array
