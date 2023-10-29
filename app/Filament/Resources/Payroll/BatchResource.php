@@ -58,7 +58,7 @@ class BatchResource extends Resource
                         ->where('type', PayTypeEnum::Hour)
                         ->map(function (PayType $type) {
                             return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name)
+                                ->label($type->name_label)
                                 ->hiddenOn('create');
                         })->all();
 
@@ -66,7 +66,7 @@ class BatchResource extends Resource
                         ->where('type', PayTypeEnum::Dollar)
                         ->map(function (PayType $type) {
                             return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name)
+                                ->label($type->name_label)
                                 ->hiddenOn('create');
                         })->all();
 
@@ -74,7 +74,7 @@ class BatchResource extends Resource
                         ->where('type', PayTypeEnum::Deduction)
                         ->map(function (PayType $type) {
                             return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name)
+                                ->label($type->name_label)
                                 ->hiddenOn('create');
                         })->all();
 
@@ -172,7 +172,13 @@ class BatchResource extends Resource
                                 Forms\Components\Section::make('Hours')
                                     ->extraAttributes(['class' => 'items-end-grid'])
                                     ->columnSpanFull()
-                                    ->columns(6)
+                                    ->columns([
+                                        'sm' => 3,
+                                        'md' => 4,
+                                        'lg' => 3,
+                                        'xl' => 6,
+                                        '2xl' => 7,
+                                    ])
                                     ->hiddenOn('create')
                                     ->schema(array_merge(
                                         [

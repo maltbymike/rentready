@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('payroll_pay_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('details')->nullable();
             $table->string('type');
             $table->boolean('is_used_for_stat_pay')->default(false);
             $table->timestamps();
@@ -24,11 +25,24 @@ return new class extends Migration
         $types = collect([
             [
                 'name' => 'Regular Hours',
+                'details' => 'Calculated',
                 'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Overtime Hours',
+                'details' => 'Calculated',
+                'type' => PayTypeEnum::Hour,
+            ],
+            [
+                'name' => 'Regular Hours',
+                'details' => 'Additional',
+                'type' => PayTypeEnum::Hour,
+                'is_used_for_stat_pay' => true,
+            ],
+            [
+                'name' => 'Overtime Hours',
+                'details' => 'Additional',
                 'type' => PayTypeEnum::Hour,
             ],
             [
@@ -41,12 +55,14 @@ return new class extends Migration
                 'type' => PayTypeEnum::Hour,
             ],
             [
-                'name' => 'Vacation Pay (Hours)',
+                'name' => 'Vacation Pay',
+                'details' => 'Hours',
                 'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
-                'name' => 'Vacation Pay (Dollars)',
+                'name' => 'Vacation Pay',
+                'details' => 'Dollars',
                 'type' => PayTypeEnum::Dollar,
                 'is_used_for_stat_pay' => true,
             ],
