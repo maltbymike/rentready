@@ -39,12 +39,12 @@ class ListTimeClockEntries extends ListRecords
         $tabs = $users->flatMap(fn ($user) => [
             $user->name => Tab::make()
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', $user->id))
-                ->badge($timeClockEntriesByUserIds[$user->id])
+                ->badge($timeClockEntriesByUserIds[$user->id] ?? 0)
         ]);
        
         return $tabs->merge([
                 'All' => Tab::make()
-                    ->badge($timeClockEntriesByUserIds->sum())
+                    ->badge($timeClockEntriesByUserIds->sum() ?? 0)
             ])
             ->toArray();
     }

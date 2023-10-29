@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payroll;
 
+use App\Traits\Payroll\HasCalculatedPayrollValuesTrait;
 use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
 use Filament\Forms;
 use App\Models\User;
@@ -39,6 +40,7 @@ use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 class BatchResource extends Resource
 {
     use SyncPayTypesToBatchUserTrait;
+    use HasCalculatedPayrollValuesTrait;
 
     protected static ?string $model = Batch::class;
 
@@ -114,6 +116,7 @@ class BatchResource extends Resource
                             ),
                         Repeater::make('batchUsers')
                             ->columnSpanFull()
+                            ->columns(2)
                             ->relationship()
                             ->addable(false)
                             ->deletable(false)
@@ -133,6 +136,7 @@ class BatchResource extends Resource
                                 Forms\Components\Section::make('Timeclock Entries')
                                     ->collapsed()
                                     ->hiddenOn('create')
+                                    ->columnSpanFull()
                                     ->schema([
                                         Forms\Components\Repeater::make('timeClockEntries')
                                             ->label(false)
@@ -167,6 +171,7 @@ class BatchResource extends Resource
                                     ]),
                                 Forms\Components\Section::make('Hours')
                                     ->extraAttributes(['class' => 'items-end-grid'])
+                                    ->columnSpanFull()
                                     ->columns(6)
                                     ->hiddenOn('create')
                                     ->schema(array_merge(
@@ -183,25 +188,19 @@ class BatchResource extends Resource
                                                         foreach ($get('timeClockEntries') as $entry) {
                                                         $hours += $entry['clocked_or_approved_hours_with_deduction'];
                                                     }
-            
-                                                    if ($hours <= $settings->hours_before_overtime) {
-                                                        $regularHours = $hours;
-                                                        $overtimeHours = 0;
-                                                    } else {
-                                                        $regularHours = $settings->hours_before_overtime;
-                                                        $overtimeHours = $hours - $settings->hours_before_overtime;
-                                                    }
+
+                                                    $splitHours = static::calculateRegularAndOvertimeHours($hours, $settings->hours_before_overtime);
             
                                                     $set(
                                                         'payTypes.' . $settings->regular_hours_pay_type, 
-                                                        number_format($regularHours, 2)
+                                                        number_format($splitHours['regular'], 2)
                                                     );
                                                     $set(
                                                         'payTypes.' . $settings->overtime_hours_pay_type, 
-                                                        number_format($overtimeHours, 2)
+                                                        number_format($splitHours['overtime'], 2)
                                                     );
             
-                                                    return $hours;
+                                                    return number_format($hours, 2);
             
                                                 }),
                                         ],
@@ -209,13 +208,15 @@ class BatchResource extends Resource
                                     )),
                                 Forms\Components\Section::make('Dollars')
                                     ->extraAttributes(['class' => 'items-end-grid'])
-                                    ->columns(6)
+                                    ->columnSpan(1)
+                                    ->columns(3)
                                     ->collapsed()
                                     ->hiddenOn('create')
                                     ->schema($payDollars),
                                 Forms\Components\Section::make('Deductions')
                                     ->extraAttributes(['class' => 'items-end-grid'])
-                                    ->columns(6)
+                                    ->columnSpan(1)
+                                    ->columns(3)
                                     ->collapsed()
                                     ->hiddenOn('create')
                                     ->schema($deductions),
