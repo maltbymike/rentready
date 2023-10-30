@@ -25,6 +25,10 @@ class ListTimeClockEntries extends ListRecords
     }
 
     public function getTabs(): array {
+
+        if (! auth()->user()->can('Manage Timeclock Entries')) {
+            return [];
+        }
         
         $users = User::whereHas('roles', function($q) {
             $q->where('name', 'Timeclock User');

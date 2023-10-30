@@ -154,22 +154,26 @@ class TimeClockEntryResource extends Resource
                 Tables\Columns\TextInputColumn::make('minutes_deducted')
                     ->label(__('Minutes Deducted'))
                     ->alignCenter()
+                    ->disabled(! auth()->user()->can('Manage Timeclock Entries'))
                     ->inputMode('numeric')
                     ->rules(['integer', 'required'])
                     ->toggleable(),
                 Tables\Columns\TextInputColumn::make('deduction_reason')
                     ->label(__('Deduction Reason'))
                     ->rules(['string', 'nullable', 'max:255'])
+                    ->disabled(! auth()->user()->can('Manage Timeclock Entries'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextInputColumn::make('minutes_added')
                     ->label(__('Minutes Added'))
                     ->alignCenter()
+                    ->disabled(! auth()->user()->can('Manage Timeclock Entries'))
                     ->inputMode('numeric')
                     ->rules(['integer', 'required'])
                     ->toggleable(),
                 Tables\Columns\TextInputColumn::make('addition_reason')
                     ->label(__('Addition Reason'))
                     ->rules(['string', 'nullable', 'max:255'])
+                    ->disabled(! auth()->user()->can('Manage Timeclock Entries'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('hours_clocked_with_deduction')
                     ->label('Hours')
