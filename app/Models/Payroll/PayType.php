@@ -15,6 +15,7 @@ class PayType extends Model
 
     protected $fillable = [
         'name',
+        'details',
         'type',
         'is_used_for_stat_pay',
     ];

@@ -52,7 +52,28 @@ class BatchResource extends Resource
 
     public static function form(Form $form): Form
     {
+        $fieldColumnArray = [
+            'default' => 2,
+            'sm' => 3,
+            'md' => 4,
+            'lg' => 2,
+            'xl' => 3,
+            '2xl' => 4,
+        ];
+
         $types = PayType::all();
+
+        $calculatedHours = $types
+                        ->where('type', PayTypeEnum::CalculatedHour)
+                        ->map(function (PayType $type) {
+                            return TextInput::make('payTypes.' . $type->id)
+                                ->label($type->name_label)
+                                ->hiddenOn('create')
+                                ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
+                                    $settings->regular_hours_pay_type,
+                                    $settings->overtime_hours_pay_type,
+                                ]));
+                        })->all();
 
         $payHours = $types
                         ->where('type', PayTypeEnum::Hour)
@@ -144,8 +165,8 @@ class BatchResource extends Resource
                                     ->schema([
                                         Forms\Components\Repeater::make('timeClockEntries')
                                             ->label(false)
-                                            ->relationship()
-                                            ->columns(16)
+                                            ->relationship(modifyQueryUsing: fn (Builder $query) => $query->orderBy('clocked_or_approved_time_in'))
+                                            ->columns(14)
                                             ->addable(false)
                                             ->deletable(false)
                                             ->schema([
@@ -159,74 +180,84 @@ class BatchResource extends Resource
                                                     ->columnSpan(4),
                                                 Forms\Components\TextInput::make('minutes_deducted')
                                                     ->label(__('Deduct (Min)'))
-                                                    ->live()
+                                                    ->helperText(function (TimeClockEntry $record) { 
+                                                        if ($record->deduction_reason) {
+                                                            return $record->deduction_reason;
+                                                        } else {
+                                                            return false;
+                                                        }
+                                                    })
+                                                    ->readonly()
                                                     ->numeric()
                                                     ->columnSpan(2),
-                                                Forms\Components\TextInput::make('deduction_reason')
-                                                    ->label(__('Reason'))
-                                                    ->string()
-                                                    ->maxLength(255)
-                                                    ->columnSpan(3),
+                                                Forms\Components\TextInput::make('minutes_added')
+                                                    ->label(__('Add (Min)'))
+                                                    ->helperText(function (TimeClockEntry $record) { 
+                                                            return $record->addition_reason ?? false;
+                                                    })
+                                                    ->readonly()
+                                                    ->numeric()
+                                                    ->columnSpan(2),
                                                 Forms\Components\TextInput::make('clocked_or_approved_hours_with_deduction')
                                                     ->label(__('Hours'))
                                                     ->readonly()
                                                     ->columnSpan(2),
                                             ]),
                                     ]),
-                                Forms\Components\Section::make('Hours')
+                                Forms\Components\Section::make('Calculated Hours')
                                     ->extraAttributes(['class' => 'items-end-grid'])
-                                    ->columnSpanFull()
-                                    ->columns([
-                                        'sm' => 3,
-                                        'md' => 4,
-                                        'lg' => 3,
-                                        'xl' => 6,
-                                        '2xl' => 7,
-                                    ])
+                                    ->columnSpan(1)
+                                    ->columns($fieldColumnArray)
                                     ->hiddenOn('create')
-                                    ->schema(array_merge(
-                                        [
-                                            Forms\Components\Placeholder::make('Hours')
-                                                ->label('Hours Clocked')
-                                                ->extraAttributes([
-                                                    'class' => 'py-1.5 ps-3 pe-3 rounded-lg ring-1 sm:text-sm sm:leading-6 shadow-sm ring-1 bg-white dark:bg-white/5 ring-gray-950/10 dark:ring-white/20 overflow-hidden',
-                                                ])
-                                                ->content(function (Get $get, Set $set, PayrollSettings $settings) {
-            
-                                                    $hours = 0;
-            
-                                                        foreach ($get('timeClockEntries') as $entry) {
-                                                        $hours += $entry['clocked_or_approved_hours_with_deduction'];
-                                                    }
+                                    ->schema(array_merge([
+                                        Forms\Components\Placeholder::make('Hours')
+                                            ->label('Hours Clocked')
+                                            ->extraAttributes([
+                                                'class' => 'py-1.5 ps-3 pe-3 rounded-lg ring-1 sm:text-sm sm:leading-6 shadow-sm ring-1 bg-white dark:bg-white/5 ring-gray-950/10 dark:ring-white/20 overflow-hidden',
+                                            ])
+                                            ->content(function (Get $get, Set $set, PayrollSettings $settings) {
+        
+                                                $hours = 0;
+        
+                                                    foreach ($get('timeClockEntries') as $entry) {
+                                                    $hours += $entry['clocked_or_approved_hours_with_deduction'];
+                                                }
 
-                                                    $splitHours = static::calculateRegularAndOvertimeHours($hours, $settings->hours_before_overtime);
-            
-                                                    $set(
-                                                        'payTypes.' . $settings->regular_hours_pay_type, 
-                                                        number_format($splitHours['regular'], 2)
-                                                    );
-                                                    $set(
-                                                        'payTypes.' . $settings->overtime_hours_pay_type, 
-                                                        number_format($splitHours['overtime'], 2)
-                                                    );
-            
-                                                    return number_format($hours, 2);
-            
-                                                }),
-                                        ],
-                                        $payHours
+                                                $splitHours = static::calculateRegularAndOvertimeHours($hours, $settings->hours_before_overtime);
+        
+                                                $set(
+                                                    'payTypes.' . $settings->regular_hours_pay_type, 
+                                                    number_format($splitHours['regular'], 2)
+                                                );
+                                                $set(
+                                                    'payTypes.' . $settings->overtime_hours_pay_type, 
+                                                    number_format($splitHours['overtime'], 2)
+                                                );
+        
+                                                return number_format($hours, 2);
+        
+                                            }),                                        
+                                    ],
+                                    $calculatedHours,
                                     )),
+                                Forms\Components\Section::make('Additional Hours')
+                                    ->extraAttributes(['class' => 'items-end-grid'])
+                                    ->columnSpan(1)
+                                    ->columns($fieldColumnArray)
+                                    ->collapsed()
+                                    ->hiddenOn('create')
+                                    ->schema($payHours),
                                 Forms\Components\Section::make('Dollars')
                                     ->extraAttributes(['class' => 'items-end-grid'])
                                     ->columnSpan(1)
-                                    ->columns(3)
+                                    ->columns($fieldColumnArray)
                                     ->collapsed()
                                     ->hiddenOn('create')
                                     ->schema($payDollars),
                                 Forms\Components\Section::make('Deductions')
                                     ->extraAttributes(['class' => 'items-end-grid'])
                                     ->columnSpan(1)
-                                    ->columns(3)
+                                    ->columns($fieldColumnArray)
                                     ->collapsed()
                                     ->hiddenOn('create')
                                     ->schema($deductions),

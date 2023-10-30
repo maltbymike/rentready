@@ -52,6 +52,8 @@ class TimeClockEntry extends Model
         'approve_requested_clock_out',
         'minutes_deducted',
         'deduction_reason',
+        'minutes_added',
+        'addition_reason',
         'approved_by',
         'approved_at',
     ];

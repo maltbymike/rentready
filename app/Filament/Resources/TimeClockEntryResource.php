@@ -235,6 +235,7 @@ class TimeClockEntryResource extends Resource
             ])
             ->bulkActions([
                 BulkAction::make('assignToPayrollBatch')
+                    ->deselectRecordsAfterCompletion()
                     ->form([
                         Select::make('periodEnding')
                             ->options(function () {
@@ -267,6 +268,7 @@ class TimeClockEntryResource extends Resource
                     })
                     ->visible(auth()->user()->can('Manage Timeclock Entries')),
                 BulkAction::make('removeFromPayrollBatch')
+                    ->deselectRecordsAfterCompletion()
                     ->action(function (array $data, Collection $records): void {                        
                         $records->each(function (TimeClockEntry $record) {
                             $record->batchUser()->disassociate();
@@ -276,6 +278,7 @@ class TimeClockEntryResource extends Resource
                     ->visible(auth()->user()->can('Manage Timeclock Entries'))
                     ->requiresConfirmation(),
                 BulkAction::make('deductLunch')
+                    ->deselectRecordsAfterCompletion()
                     ->label(__('Deduct Lunch'))
                     ->action(function (Collection $records): void {
                         $records->each(function (TimeClockEntry $record) {
@@ -286,6 +289,7 @@ class TimeClockEntryResource extends Resource
                     })
                     ->visible(auth()->user()->can('Manage Timeclock Entries')),
                 BulkAction::make('addNoBreak')
+                    ->deselectRecordsAfterCompletion()
                     ->label(__('Add No Break'))
                     ->action(function (Collection $records): void {
                         $records->each(function (TimeClockEntry $record) {
