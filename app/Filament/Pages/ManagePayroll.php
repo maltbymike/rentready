@@ -20,6 +20,16 @@ class ManagePayroll extends SettingsPage
 
     protected static string $settings = PayrollSettings::class;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()->can('Manage Payroll Settings');
+    }
+
+    public function mount(): void
+    {
+        abort_unless(auth()->user()->can('Manage Payroll Settings'), 403);
+    }
+
     public function form(Form $form): Form
     {
         $fieldColumns = [

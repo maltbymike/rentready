@@ -25,11 +25,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Permissions
         $accessAdminPanel = Permission::create(['name' => 'Access Admin Panel']);
-
-        $manageUsers = Permission::create(['name' => 'Manage Users']);
+        $approvePayroll = Permission::create(['name'=> 'Approve Payroll']);
+        $managePayrollSettings = Permission::create(['name'=> 'Manage Payroll Settings']);
         $manageRoles = Permission::create(['name' => 'Manage Roles']);
-
         $manageTimeclockEntries = Permission::create(['name' => 'Manage Timeclock Entries']);
+        $manageUsers = Permission::create(['name' => 'Manage Users']);
         
         // Create Roles
         $adminRole = Role::create(['name' => 'Administrator'])->syncPermissions([
@@ -42,6 +42,10 @@ class RolesAndPermissionsSeeder extends Seeder
             $accessAdminPanel,
             $manageUsers,
             $manageTimeclockEntries,
+        ]);
+        $payrollManagerRole = Role::create(['name'=> 'Payroll Manager'])->syncPermissions([
+            $manageTimeclockEntries,
+            $approvePayroll,
         ]);
         $timeclockUserRole = Role::create(['name' => 'Timeclock User']);
 
@@ -75,6 +79,17 @@ class RolesAndPermissionsSeeder extends Seeder
         ])->assignRole([
             $employeeRole,
             $timeclockUserRole,
+        ]);
+        User::create([
+            'name' => 'Payroll Clerk',
+            'email' => 'payroll@admin.com',
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'pin' => '1234',
+            'remember_token' => Str::random(10),
+        ])->assignRole([
+            $employeeRole,
+            $payrollManagerRole,
         ]);
         User::create([
             'name' => 'Unprivileged User',
