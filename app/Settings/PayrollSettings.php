@@ -11,6 +11,8 @@ class PayrollSettings extends Settings
     public string $period_paid_on_day;
     public int $regular_hours_pay_type;
     public int $overtime_hours_pay_type;
+    public array $timeclock_additions;
+    public array $timeclock_deductions;
 
     public static function group(): string
     {
