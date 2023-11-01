@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Filament\Resources\TimeClockEntryResource\Pages;
+namespace App\Filament\Resources\Payroll\TimeClockEntryResource\Pages;
 
 use App\Models\User;
 use Filament\Pages\Actions;
 use App\Models\Payroll\Batch;
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use Illuminate\Support\Collection;
 use Filament\Tables\Actions\Action;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\TimeClockEntryResource;
+use App\Filament\Resources\Payroll\TimeClockEntryResource;
 
 class ListTimeClockEntries extends ListRecords
 {

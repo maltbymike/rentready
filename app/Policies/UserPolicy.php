@@ -48,6 +48,14 @@ class UserPolicy
     }
 
     /**
+     * Determine whether the user can bulk delete the model.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('Manage Users');
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, User $model): bool

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Tables\Columns;
 
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use Filament\Tables\Columns\Column;
 
 class ClockIn extends Column

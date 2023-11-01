@@ -13,7 +13,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use App\Models\Payroll\PayType;
 use Filament\Resources\Resource;
 use App\Models\Payroll\BatchUser;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Payroll;
 
 use App\Settings\PayrollSettings;
 use Filament\Forms;
@@ -12,7 +12,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use Filament\Forms\Components;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
@@ -28,8 +28,8 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TimeClockEntryResource\Pages;
-use App\Filament\Resources\TimeClockEntryResource\RelationManagers;
+use App\Filament\Resources\Payroll\TimeClockEntryResource\Pages;
+use App\Filament\Resources\Payroll\TimeClockEntryResource\RelationManagers;
 
 class TimeClockEntryResource extends Resource
 {

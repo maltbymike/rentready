@@ -49,6 +49,14 @@ class RolePolicy
     }
 
     /**
+     * Determine whether the user can bulk delete the model.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('Manage Roles');
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Role $role): bool

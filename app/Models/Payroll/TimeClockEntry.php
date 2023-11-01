@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Payroll;
 
+use App\Models\User;
 use App\Models\Payroll\Batch;
 use Illuminate\Support\Carbon;
 use App\Models\Payroll\BatchUser;

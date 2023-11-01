@@ -2,7 +2,7 @@
 
 namespace App\Models\Payroll;
 
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use App\Settings\PayrollSettings;
 use Carbon\Carbon;
 use App\Models\User;

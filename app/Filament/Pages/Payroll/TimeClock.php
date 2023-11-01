@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\Payroll;
 
 use Filament\Forms;
 use App\Models\User;

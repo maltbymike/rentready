@@ -3,7 +3,7 @@
 namespace App\Models\Payroll;
 
 use App\Models\User;
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\HasOne;

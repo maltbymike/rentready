@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Policies;
+namespace App\Models\Payroll\Policies;
 
-use App\Models\TimeClockEntry;
+use App\Models\Payroll\TimeClockEntry;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
