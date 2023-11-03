@@ -126,9 +126,11 @@ class BatchResource extends Resource
                             ->disabledOn('create'),
                         CheckboxList::make('users')
                             ->label('Employees To Pay')
+                            ->helperText('Form must be saved before changes to Employees will be reflected')
                             ->bulkToggleable()
                             ->columnSpanFull()
                             ->columns(6)
+                            ->live()
                             ->relationship(
                                 'Users', 
                                 titleAttribute: 'name',
@@ -161,6 +163,7 @@ class BatchResource extends Resource
                                 Forms\Components\Section::make('Timeclock Entries')
                                     ->collapsed()
                                     ->hiddenOn('create')
+                                    ->hidden(fn (BatchUser $record, Get $get) => ! in_array($record->user_id, $get('../../users')))
                                     ->columnSpanFull()
                                     ->schema([
                                         Forms\Components\Repeater::make('timeClockEntries')
@@ -172,11 +175,11 @@ class BatchResource extends Resource
                                             ->schema([
                                                 Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
                                                     ->label(__('Time In'))
-                                                    ->readonly()
+                                                    ->disabled()
                                                     ->columnSpan(4),
-                                                Forms\Components\DateTimePicker::make('clocked_or_approved_time_in')
+                                                Forms\Components\DateTimePicker::make('clocked_or_approved_time_out')
                                                     ->label(__('Time Out'))
-                                                    ->readonly()
+                                                    ->disabled()
                                                     ->columnSpan(4),
                                                 Forms\Components\TextInput::make('minutes_deducted')
                                                     ->label(__('Deduct (Min)'))
@@ -187,7 +190,7 @@ class BatchResource extends Resource
                                                             return false;
                                                         }
                                                     })
-                                                    ->readonly()
+                                                    ->disabled()
                                                     ->numeric()
                                                     ->columnSpan(2),
                                                 Forms\Components\TextInput::make('minutes_added')
@@ -195,12 +198,12 @@ class BatchResource extends Resource
                                                     ->helperText(function (TimeClockEntry $record) { 
                                                             return $record->addition_reason ?? false;
                                                     })
-                                                    ->readonly()
+                                                    ->disabled()
                                                     ->numeric()
                                                     ->columnSpan(2),
                                                 Forms\Components\TextInput::make('clocked_or_approved_hours_with_deduction')
                                                     ->label(__('Hours'))
-                                                    ->readonly()
+                                                    ->disabled()
                                                     ->columnSpan(2),
                                             ]),
                                     ]),

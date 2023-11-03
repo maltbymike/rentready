@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('payroll_batch_user_id')
                 ->nullable()
                 ->after('user_id');
-            $table->foreign('payroll_batch_user_id')->references('id')->on('payroll_batch_user');
+            $table->foreign('payroll_batch_user_id')->references('id')->on('payroll_batch_user')->nullOnDelete();
         });
     }
 
