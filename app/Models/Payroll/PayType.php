@@ -6,10 +6,12 @@ use App\Enums\Payroll\PayTypeEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PayType extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'payroll_pay_types';
 

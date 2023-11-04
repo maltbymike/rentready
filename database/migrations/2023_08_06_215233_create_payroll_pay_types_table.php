@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('type');
             $table->boolean('is_used_for_stat_pay')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
 
         $types = collect([
