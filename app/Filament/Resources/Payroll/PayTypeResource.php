@@ -40,10 +40,13 @@ class PayTypeResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name'),
+                TextInput::make('details'),
                 Select::make('type')
                     ->options(PayTypeEnum::class),
                 Toggle::make('is_used_for_stat_pay')
-                    ->label(__('Include in Stat Pay Calculation')),
+                    ->label('Include in Stat Pay Calculation')
+                    ->translateLabel()
+                    ->inline(false),
             ]);
     }
 
@@ -55,12 +58,11 @@ class PayTypeResource extends Resource
                 'name',
             ])
             ->columns([
-                TextColumn::make('id')
-                    ->label('ID')
-                    ->sortable(),
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('details')
+                    ->sortable(),
                 TextColumn::make('type')
                     ->sortable(),
                 IconColumn::make('is_used_for_stat_pay')
