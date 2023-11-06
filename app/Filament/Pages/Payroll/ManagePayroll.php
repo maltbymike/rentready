@@ -2,18 +2,25 @@
 
 namespace App\Filament\Pages\Payroll;
 
-use App\Models\Payroll\PayType;
-use App\Settings\PayrollSettings;
 use Filament\Forms;
+use Filament\Forms\Form;
+use App\Models\Payroll\PayType;
+use Filament\Pages\SettingsPage;
+use App\Settings\PayrollSettings;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
-use Filament\Pages\SettingsPage;
+use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
+use AymanAlhattami\FilamentPageWithSidebar\PageNavigationItem;
+use AymanAlhattami\FilamentPageWithSidebar\FilamentPageSidebar;
+use AymanAlhattami\FilamentPageWithSidebar\Traits\HasPageSidebar;
 
 class ManagePayroll extends SettingsPage
 {
+    use HasPageSidebar;
+    use HasSidebarPayrollSettingsTrait;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?string $navigationGroup = 'Payroll';
