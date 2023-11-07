@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Panel;
+use App\Models\Payroll\PayType;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use App\Models\Payroll\TimeClockEntry;
@@ -110,6 +111,12 @@ class User extends Authenticatable implements FilamentUser
             ->update([
                 'clock_out_at' => $now->format('Y-m-d H:i'),
             ]);
+    }
+
+    public function defaultPayTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(PayType::class, 'payroll_pay_type_user')
+            ->withPivot('default_value', 'effective_date');
     }
 
     public function getActivitylogOptions(): LogOptions
