@@ -45,7 +45,7 @@ class DefaultPayTypesRelationManager extends RelationManager
             ->groups([
                 'type',
             ])
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('name_label')
             ->columns([
                 TextColumn::make('name_label'),
                 TextColumn::make('default_value'),

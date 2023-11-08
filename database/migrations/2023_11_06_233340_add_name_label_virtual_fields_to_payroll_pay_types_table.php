@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('payroll_pay_types', function (Blueprint $table) {
             $table->string('name_label')
-                ->virtualAs("CONCAT(name, ' (', details, ')')")
+                ->virtualAs("IFNULL(CONCAT(name, ' (', details, ')'), name)")
                 ->after('details');
         });
     }
