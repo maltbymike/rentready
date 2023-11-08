@@ -116,7 +116,7 @@ class User extends Authenticatable implements FilamentUser
     public function defaultPayTypes(): BelongsToMany
     {
         return $this->belongsToMany(PayType::class, 'payroll_pay_type_user')
-            ->withPivot('default_value', 'effective_date');
+            ->withPivot('id', 'default_value', 'effective_date');
     }
 
     public function getActivitylogOptions(): LogOptions

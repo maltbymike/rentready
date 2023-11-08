@@ -9,9 +9,12 @@ use Filament\Tables\Table;
 use App\Models\Payroll\PayType;
 use App\Enums\Payroll\PayTypeEnum;
 use Filament\Forms\Components\Select;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\AttachAction;
+use Filament\Tables\Actions\DetachAction;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -19,6 +22,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 
 class DefaultPayTypesRelationManager extends RelationManager
 {
+    protected bool $allowsDuplicates = true;
+
     protected static string $relationship = 'defaultPayTypes';
 
     public function form(Form $form): Form
@@ -41,6 +46,7 @@ class DefaultPayTypesRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->allowDuplicates()
             ->defaultGroup('type')
             ->groups([
                 'type',
@@ -56,13 +62,23 @@ class DefaultPayTypesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make()
-                    ->preloadRecordSelect(),
+                    ->preloadRecordSelect()
+                    ->label('Add')
+                    ->form(fn (AttachAction $action): array => [
+                        $action->getRecordSelect()
+                            ->required(),
+                        TextInput::make('default_value')
+                            ->required()
+                            ->numeric(),
+                        DatePicker::make('effective_date')
+                            ->default(now())
+                            ->required(),
+                    ]),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                EditAction::make(),
+                DetachAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

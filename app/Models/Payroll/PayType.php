@@ -41,6 +41,6 @@ class PayType extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'payroll_pay_type_user')
-            ->withPivot('default_value', 'effective_date');
+            ->withPivot('id', 'default_value', 'effective_date');
     }
 }
