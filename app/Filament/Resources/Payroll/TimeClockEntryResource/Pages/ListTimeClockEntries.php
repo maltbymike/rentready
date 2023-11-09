@@ -30,9 +30,7 @@ class ListTimeClockEntries extends ListRecords
             return [];
         }
         
-        $users = User::whereHas('roles', function($q) {
-            $q->where('name', 'Timeclock User');
-        })->get();
+        $users = User::timeclockUsers()->get();
 
         $timeClockEntriesByUserIds = TimeClockEntry::select('user_id', \DB::raw('count(*) as user_entries_count'))
             ->where('payroll_batch_user_id', null)

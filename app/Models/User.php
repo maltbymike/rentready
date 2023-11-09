@@ -10,6 +10,7 @@ use App\Models\Payroll\TimeClockEntry;
 use Laravel\Jetstream\HasProfilePhoto;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Models\Contracts\FilamentUser;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -144,6 +145,19 @@ class User extends Authenticatable implements FilamentUser
     public function payrollBatches(): BelongsToMany
     {
         return $this->belongsToMany(Payroll\Batch::class, 'payroll_batch_user', 'user_id', 'payroll_batch_id');
+    }
+
+    public function scopeEmployees(Builder $query): void {
+        $query->whereHas('roles', function(Builder $query) {
+                return $query->where('name', 'Employee');
+            }
+        );
+    }
+
+    public function scopeTimeclockUsers(Builder $query): void {
+        $query->whereHas('roles', function(Builder $query) {
+            $query->where('name', 'Timeclock User');
+        });
     }
 
     public function timeClockEntries() : HasMany {

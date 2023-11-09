@@ -69,13 +69,10 @@ class UserResource extends Resource
             ]);
     }
     
-    public static function getRelations(): array
-    {
-        return [
-            RelationManagers\DefaultPayTypesRelationManager::class,
-        ];
+    public static function getEloquentQuery(): Builder {
+        return parent::getEloquentQuery()->employees();
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -83,5 +80,12 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
+    
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\DefaultPayTypesRelationManager::class,
+        ];
+    }
 }

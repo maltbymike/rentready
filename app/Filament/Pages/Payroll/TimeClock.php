@@ -29,9 +29,7 @@ class TimeClock extends Page implements HasTable
     protected function getTableQuery(): Builder 
     {
         if (auth()->user()->can('Manage Timeclock Entries')) {
-            return User::whereHas('roles', function($q) {
-                $q->where('name', 'Timeclock User');
-            });
+            return User::timeclockUsers();
         }
 
         return User::where('id', auth()->user()->id);

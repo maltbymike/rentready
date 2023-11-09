@@ -135,11 +135,7 @@ class BatchResource extends Resource
                                 'Users', 
                                 titleAttribute: 'name',
                                 modifyQueryUsing: fn (Builder $query) => 
-                                    $query->whereHas('roles', 
-                                        function(Builder $query) {
-                                            return $query->where('name', 'Employee');
-                                        }
-                                    )
+                                    $query->employees()
                             ),
                         Repeater::make('batchUsers')
                             ->columnSpanFull()
