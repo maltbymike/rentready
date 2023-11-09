@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Payroll\UserResource\RelationManagers;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Actions\DetachBulkAction;
 use Filament\Tables\Table;
 use App\Models\Payroll\PayType;
 use App\Enums\Payroll\PayTypeEnum;
@@ -82,7 +83,7 @@ class DefaultPayTypesRelationManager extends RelationManager
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    DetachBulkAction::make(),
                 ]),
             ]);
     }

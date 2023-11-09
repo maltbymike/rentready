@@ -16,6 +16,7 @@ use Filament\Panel\Concerns\HasSidebar;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Payroll\UserResource\Pages;
 use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
@@ -30,6 +31,16 @@ class UserResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $modelLabel = 'Employee';
+
+    protected static bool $shouldRegisterNavigation = false;
+
+    public static function canCreate(): bool {
+       return false;
+    }
+
+    public static function canDelete(Model $record): bool {
+        return false;
+    }
 
     public static function form(Form $form): Form
     {
