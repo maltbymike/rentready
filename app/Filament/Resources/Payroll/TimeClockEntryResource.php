@@ -310,9 +310,7 @@ class TimeClockEntryResource extends Resource
                             ['payment_date' => Batch::getNextPayrollPaymentDate()]
                         );
                         
-                        $batch->users()->syncWithoutDetaching($records->pluck('user_id')->unique()->toArray());
-
-                        $batch = static::attachDefaultPayTypesToAllUsers($batch);
+                        static::addUsersToPayrollBatch($batch, $records->pluck('user_id')->unique()->toArray());
 
                         // Associate TimeClockEntries with BatchUser
                         $records->each(function (TimeClockEntry $record) use (&$batch) {
