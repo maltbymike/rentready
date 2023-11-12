@@ -130,7 +130,6 @@ class BatchResource extends Resource
                             ->bulkToggleable()
                             ->columnSpanFull()
                             ->columns(6)
-                            ->live()
                             ->relationship(
                                 'Users', 
                                 titleAttribute: 'name',
@@ -151,8 +150,12 @@ class BatchResource extends Resource
 
                                 return $data;
                             })
-                            ->mutateRelationshipDataBeforeSaveUsing(function (BatchUser $record, array $data): array {
-                                static::syncPayTypes($record, $data['payTypes']);
+                            ->mutateRelationshipDataBeforeSaveUsing(function (BatchUser $record, array $data, Get $get): array {
+                        
+                                if (in_array($record->user_id, $get('users'))) {
+                                    static::syncPayTypes($record, $data['payTypes']);
+                                }
+
                                 return [];
                             })
                             ->schema([

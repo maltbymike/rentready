@@ -2,25 +2,28 @@
 
 namespace App\Filament\Resources\Payroll;
 
-use App\Settings\PayrollSettings;
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Table;
 use Filament\Tables\Columns;
 use App\Models\Payroll\Batch;
-use App\Models\Payroll\TimeClockEntry;
 use Filament\Forms\Components;
+use App\Models\Payroll\PayType;
 use Filament\Resources\Resource;
+use App\Models\Payroll\BatchUser;
+use App\Settings\PayrollSettings;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Grouping\Group;
 use Filament\Forms\Components\Select;
 use Filament\Support\Enums\Alignment;
+use App\Models\Payroll\TimeClockEntry;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use App\Filament\Tables\Columns\ClockIn;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,11 +31,13 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Tables\Columns\Summarizers\Summarizer;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Traits\Payroll\AttachDefaultPayTypesToBatchUserTrait;
 use App\Filament\Resources\Payroll\TimeClockEntryResource\Pages;
 use App\Filament\Resources\Payroll\TimeClockEntryResource\RelationManagers;
 
 class TimeClockEntryResource extends Resource
 {
+    use AttachDefaultPayTypesToBatchUserTrait;
     protected static ?string $model = TimeClockEntry::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
@@ -304,11 +309,12 @@ class TimeClockEntryResource extends Resource
                             ['period_ending' => $data['periodEnding'] ?? Batch::getNextPayrollEndingDate()],
                             ['payment_date' => Batch::getNextPayrollPaymentDate()]
                         );
-
+                        
                         $batch->users()->syncWithoutDetaching($records->pluck('user_id')->unique()->toArray());
 
-                        $batch->load('users');
+                        $batch = static::attachDefaultPayTypesToAllUsers($batch);
 
+                        // Associate TimeClockEntries with BatchUser
                         $records->each(function (TimeClockEntry $record) use (&$batch) {
                             $record->batchUser()->associate($batch->users->find($record->user_id)->pivot->id);
                             $record->save();

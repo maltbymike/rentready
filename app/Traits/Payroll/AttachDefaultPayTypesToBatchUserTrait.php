@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Traits\Payroll;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Payroll\Batch;
+use App\Models\Payroll\PayType;
+use App\Models\Payroll\BatchUser;
+use App\Settings\PayrollSettings;
+use Illuminate\Database\Eloquent\Collection;
+
+trait AttachDefaultPayTypesToBatchUserTrait {
+
+    protected static function attachDefaultPayTypesToAllUsers(Batch $batch): Batch {
+
+        $batch->load('users.defaultPayTypes');
+
+        $batch->users->each(function (User $user) use ($batch){
+            $batchUser = BatchUser::find($user->pivot->id);
+            static::attachDefaultPayTypesToBatchUser($batchUser, $batch->payment_date);
+        });
+
+        return $batch;
+    }
+
+    protected static function attachDefaultPayTypesToBatchUser(BatchUser $batchUser, Carbon $payrollDate): void {
+
+        $paytypes = static::getCurrentPayTypes($batchUser->user->defaultPayTypes, $payrollDate)
+            ->mapWithKeys(function (PayType $defaultPayType) {
+                return [$defaultPayType->id => ['value' => $defaultPayType->pivot->default_value]];
+            });
+
+        $batchUser->payTypes()->attach($paytypes->toArray());
+
+    }
+
+    protected static function getCurrentPayTypes(Collection $payTypes, Carbon $payrollDate) {
+
+        $payTypes = $payTypes->sortBy('pivot.effective_date');
+
+        return $payTypes->map(function (PayType $payType) use ($payrollDate) {
+            return $payType->pivot->effective_date <= $payrollDate ? $payType : null;
+        })->filter();
+
+    }
+
+}
