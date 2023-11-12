@@ -11,9 +11,11 @@ use Illuminate\Database\Eloquent\Collection;
 
 trait AttachDefaultPayTypesToBatchUserTrait {
 
-    protected static function addUsersToPayrollBatch(Batch $batch, array $usersToAdd): void {
+    protected static function addUsersToPayrollBatch(Batch $batch, array $users, bool $addOnly = true): void {
 
-        $resultOfSync = $batch->users()->syncWithoutDetaching($usersToAdd);
+        $resultOfSync = $addOnly == true 
+            ? $batch->users()->syncWithoutDetaching($users) 
+            : $batch->users()->sync($users);
 
         $batch = static::attachDefaultPayTypesToAllUsers($batch, $resultOfSync['attached']);
 

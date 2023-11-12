@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Payroll;
 
+use App\Traits\Payroll\AttachDefaultPayTypesToBatchUserTrait;
 use App\Traits\Payroll\HasCalculatedPayrollValuesTrait;
 use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
 use Filament\Forms;
@@ -39,6 +40,7 @@ use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
 
 class BatchResource extends Resource
 {
+    use AttachDefaultPayTypesToBatchUserTrait;
     use SyncPayTypesToBatchUserTrait;
     use HasCalculatedPayrollValuesTrait;
 
@@ -126,7 +128,7 @@ class BatchResource extends Resource
                             ->disabledOn('create'),
                         CheckboxList::make('users')
                             ->label('Employees To Pay')
-                            ->helperText('Form must be saved before changes to Employees will be reflected')
+                            ->helperText('Must be updated before changes to Employees will be reflected')
                             ->bulkToggleable()
                             ->columnSpanFull()
                             ->columns(6)
@@ -135,8 +137,23 @@ class BatchResource extends Resource
                                 titleAttribute: 'name',
                                 modifyQueryUsing: fn (Builder $query) => 
                                     $query->employees()
+                            )
+                            ->hintAction(
+                                Action::make('updateEmployeesAction')
+                                    ->label('Update Employees in Batch')
+                                    ->button()
+                                    ->action(function ($record, $state, $livewire) {
+                                        static::addUsersToPayrollBatch(
+                                            batch: $record, 
+                                            users: $state,
+                                            addOnly: false,
+                                        );
+
+                                        $livewire->refreshForm();
+                                    })
                             ),
                         Repeater::make('batchUsers')
+                            ->label(__('Employees'))
                             ->columnSpanFull()
                             ->columns(2)
                             ->relationship()

@@ -13,6 +13,7 @@ use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
 class EditBatch extends EditRecord
 {
     use SyncPayTypesToBatchUserTrait;
+
     protected static string $resource = BatchResource::class;
 
     protected function getRedirectUrl(): string
@@ -23,5 +24,10 @@ class EditBatch extends EditRecord
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return true;
+    }
+
+    public function refreshForm()
+    {
+        $this->fillForm();
     }
 }
