@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Payroll\UserResource\RelationManagers;
+namespace App\Filament\Resources\Payroll\EmployeeResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Tables;

@@ -14,15 +14,15 @@ use App\Enums\Payroll\PayTypeEnum;
 use Filament\Forms\Components\Grid;
 use Filament\Panel\Concerns\HasSidebar;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\Payroll\UserResource\Pages;
 use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
-use App\Filament\Resources\Payroll\UserResource\RelationManagers;
+use App\Filament\Resources\Payroll\EmployeeResource\Pages;
+use App\Filament\Resources\Payroll\EmployeeResource\RelationManagers;
 
-class UserResource extends Resource
+class EmployeeResource extends Resource
 {
     use HasSidebarPayrollSettingsTrait;
 
@@ -46,7 +46,10 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('name')
+                    ->disabled(),
+                TextInput::make('email')
+                    ->disabled(),
             ]);
     }
 

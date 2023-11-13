@@ -4,7 +4,7 @@ namespace App\Traits\Payroll;
 
 use App\Filament\Pages\Payroll\ManagePayroll;
 use App\Filament\Resources\Payroll\PayTypeResource\Pages\ManagePayTypes;
-use App\Filament\Resources\Payroll\UserResource\Pages\ListUsers;
+use App\Filament\Resources\Payroll\EmployeeResource\Pages\ListUsers;
 use AymanAlhattami\FilamentPageWithSidebar\PageNavigationItem;
 use AymanAlhattami\FilamentPageWithSidebar\FilamentPageSidebar;
 
