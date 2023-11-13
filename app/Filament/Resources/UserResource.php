@@ -2,25 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Resources\Pages\Page;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Tabs;
-use Illuminate\Support\Facades\Hash;
-use Filament\Forms\Components\Toggle;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\UserResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Form;
+use Filament\Resources\Pages\Page;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -49,14 +42,11 @@ class UserResource extends Resource
                                     ->schema([
                                         Forms\Components\TextInput::make('password')
                                             ->password()
-                                            ->dehydrateStateUsing(static fn (null|string $state):
-                                                null|string => Hash::make($state))
-                                            ->dehydrated(static fn (null|string $state):
-                                                bool => filled($state))
+                                            ->dehydrateStateUsing(static fn (?string $state): ?string => Hash::make($state))
+                                            ->dehydrated(static fn (?string $state): bool => filled($state))
                                             ->required(fn (string $context): bool => $context === 'create')
                                             ->maxLength(255)
-                                            ->label(static fn(Page $livewire): string =>
-                                                ($livewire instanceOf EditUser) ? "New Password" : "Password"
+                                            ->label(static fn (Page $livewire): string => ($livewire instanceof EditUser) ? 'New Password' : 'Password'
                                             ),
                                         Forms\Components\TextInput::make('pin')
                                             ->required()
@@ -75,10 +65,10 @@ class UserResource extends Resource
                                         'lg' => 3,
                                         'xl' => 4,
                                         '2xl' => 5,
-                                    ])
-                                
+                                    ]),
+
                             ]),
-                        
+
                     ]),
 
             ])
@@ -114,14 +104,14 @@ class UserResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             // RolesRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -129,5 +119,5 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }    
+    }
 }

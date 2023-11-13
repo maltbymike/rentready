@@ -2,29 +2,25 @@
 
 namespace App\Filament\Resources\Payroll;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Payroll\PayType;
-use Filament\Resources\Resource;
 use App\Enums\Payroll\PayTypeEnum;
+use App\Filament\Resources\Payroll\PayTypeResource\Pages;
+use App\Models\Payroll\PayType;
+use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
-use App\Filament\Resources\Payroll\PayTypeResource\Pages;
-use App\Filament\Resources\Payroll\PayTypeResource\RelationManagers;
+use Filament\Tables\Table;
 
 class PayTypeResource extends Resource
 {
     use HasSidebarPayrollSettingsTrait;
-    
+
     protected static ?string $model = PayType::class;
 
     protected static ?string $navigationGroup = 'Payroll';
@@ -88,11 +84,11 @@ class PayTypeResource extends Resource
                 ]),
             ]);
     }
-    
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ManagePayTypes::route('/'),
         ];
-    }    
+    }
 }

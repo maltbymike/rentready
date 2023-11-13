@@ -3,22 +3,15 @@
 namespace App\Models\Payroll;
 
 use App\Models\User;
-use App\Models\Payroll\Batch;
-use Illuminate\Support\Carbon;
-use App\Models\Payroll\BatchUser;
-use Illuminate\Support\Collection;
-use Spatie\Activitylog\LogOptions;
-use SebastianBergmann\Type\VoidType;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Znck\Eloquent\Relations\BelongsToThrough;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Znck\Eloquent\Relations\BelongsToThrough;
 
 class TimeClockEntry extends Model
 {
@@ -59,29 +52,29 @@ class TimeClockEntry extends Model
         'approved_at',
     ];
 
-    public function batchUser(): BelongsTo {
+    public function batchUser(): BelongsTo
+    {
         return $this->belongsTo(BatchUser::class, 'payroll_batch_user_id');
     }
 
-    protected function clockInRequested(): Attribute {
+    protected function clockInRequested(): Attribute
+    {
         return Attribute::make(
-            get: fn (Mixed $value) 
-                => $this->getTimestampOrFallback($value, $this->clock_in_at),
-            set: fn (Mixed $value, Array $attributes) 
-                => $this->setTimestampOrFallback($value, $attributes['clock_in_at'])
+            get: fn (mixed $value) => $this->getTimestampOrFallback($value, $this->clock_in_at),
+            set: fn (mixed $value, array $attributes) => $this->setTimestampOrFallback($value, $attributes['clock_in_at'])
         );
     }
 
-    protected function clockOutRequested(): Attribute {
+    protected function clockOutRequested(): Attribute
+    {
         return Attribute::make(
-            get: fn (Mixed $value) 
-                => $this->getTimestampOrFallback($value, $this->clock_out_at),
-            set: fn (Mixed $value, Array $attributes) 
-                => $this->setTimestampOrFallback($value, $attributes['clock_out_at'])
+            get: fn (mixed $value) => $this->getTimestampOrFallback($value, $this->clock_out_at),
+            set: fn (mixed $value, array $attributes) => $this->setTimestampOrFallback($value, $attributes['clock_out_at'])
         );
     }
 
-    protected function getClockedHoursAttribute(): Float|Null {
+    protected function getClockedHoursAttribute(): ?float
+    {
         if ($this->clock_out_at) {
             return round($this->clock_out_at->floatDiffInHours($this->clock_in_at), 2);
         }
@@ -89,34 +82,38 @@ class TimeClockEntry extends Model
         return null;
     }
 
-    protected function getClockedOrApprovedHoursWithDeductionAttribute(): Float|Null {
+    protected function getClockedOrApprovedHoursWithDeductionAttribute(): ?float
+    {
         if ($this->clock_out_at) {
             return round(
-                $this->clocked_or_approved_time_out->floatDiffInHours($this->clocked_or_approved_time_in) 
+                $this->clocked_or_approved_time_out->floatDiffInHours($this->clocked_or_approved_time_in)
                 - ($this->minutes_deducted / 60)
-                + ($this->minutes_added / 60)
-            , 2);
+                + ($this->minutes_added / 60), 2);
         }
 
         return null;
     }
 
-    protected static function getClockedOrApprovedHoursWithDeductionAsRawSqlString(): String {
-        return "cast(TIMESTAMPDIFF(SECOND, clocked_or_approved_time_in, clocked_or_approved_time_out) / (60 * 60) - (minutes_deducted / 60) + (minutes_added / 60) AS DECIMAL(10, 2)) AS hours_clocked_with_deduction";
+    protected static function getClockedOrApprovedHoursWithDeductionAsRawSqlString(): string
+    {
+        return 'cast(TIMESTAMPDIFF(SECOND, clocked_or_approved_time_in, clocked_or_approved_time_out) / (60 * 60) - (minutes_deducted / 60) + (minutes_added / 60) AS DECIMAL(10, 2)) AS hours_clocked_with_deduction';
     }
 
-    public static function getClockedHoursAsRawSqlString(Bool $withDeductions = false): String {        
+    public static function getClockedHoursAsRawSqlString(bool $withDeductions = false): string
+    {
         $deductionString = $withDeductions ? '- (minutes_deducted / 60)' : '';
+
         return "cast(TIMESTAMPDIFF(SECOND, clock_in_at, clock_out_at) / (60 * 60) $deductionString AS DECIMAL(10, 2)) AS hours_clocked";
     }
 
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*']);
+            ->logOnly(['*']);
     }
 
-    protected function getTimestampOrFallback(Mixed $value, ?Carbon $fallback) {
+    protected function getTimestampOrFallback(mixed $value, ?Carbon $fallback)
+    {
         if ($value) {
             return Carbon::parse($value);
         } else {
@@ -152,17 +149,20 @@ class TimeClockEntry extends Model
         return $this->clock_out_at != $this->clock_out_requested;
     }
 
-    public function payrollBatch(): BelongsToThrough {
+    public function payrollBatch(): BelongsToThrough
+    {
         return $this->belongsToThrough(
-            Batch::class, 
+            Batch::class,
             BatchUser::class,
         );
     }
 
-    protected function setTimestampOrFallback(Mixed $value, ?String $fallback) {
+    protected function setTimestampOrFallback(mixed $value, ?string $fallback)
+    {
         if ($value != Carbon::parse($fallback)) {
             return $value;
         }
+
         return null;
     }
 

@@ -3,13 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -25,12 +24,12 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Permissions
         $accessAdminPanel = Permission::create(['name' => 'Access Admin Panel']);
-        $approvePayroll = Permission::create(['name'=> 'Approve Payroll']);
-        $managePayrollSettings = Permission::create(['name'=> 'Manage Payroll Settings']);
+        $approvePayroll = Permission::create(['name' => 'Approve Payroll']);
+        $managePayrollSettings = Permission::create(['name' => 'Manage Payroll Settings']);
         $manageRoles = Permission::create(['name' => 'Manage Roles']);
         $manageTimeclockEntries = Permission::create(['name' => 'Manage Timeclock Entries']);
         $manageUsers = Permission::create(['name' => 'Manage Users']);
-        
+
         // Create Roles
         $adminRole = Role::create(['name' => 'Administrator'])->syncPermissions([
             $accessAdminPanel,
@@ -43,7 +42,7 @@ class RolesAndPermissionsSeeder extends Seeder
             $manageUsers,
             $manageTimeclockEntries,
         ]);
-        $payrollManagerRole = Role::create(['name'=> 'Payroll Manager'])->syncPermissions([
+        $payrollManagerRole = Role::create(['name' => 'Payroll Manager'])->syncPermissions([
             $manageTimeclockEntries,
             $approvePayroll,
         ]);

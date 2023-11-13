@@ -4,7 +4,6 @@ namespace App\Models\Payroll\Policies;
 
 use App\Models\Payroll\TimeClockEntry;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class TimeClockEntryPolicy
 {

@@ -2,13 +2,9 @@
 
 namespace App\Filament\Resources\Payroll\BatchResource\Pages;
 
-use Filament\Pages\Actions;
-use App\Models\Payroll\Batch;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Resources\Payroll\BatchResource;
 use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
+use Filament\Resources\Pages\EditRecord;
 
 class EditBatch extends EditRecord
 {

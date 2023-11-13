@@ -1,37 +1,38 @@
 <?php
 
 namespace App\Traits\Payroll;
-use Carbon\Carbon;
-use App\Models\User;
+
 use App\Models\Payroll\Batch;
-use App\Models\Payroll\PayType;
 use App\Models\Payroll\BatchUser;
-use App\Settings\PayrollSettings;
+use App\Models\Payroll\PayType;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
-trait AttachDefaultPayTypesToBatchUserTrait {
+trait AttachDefaultPayTypesToBatchUserTrait
+{
+    protected static function addUsersToPayrollBatch(Batch $batch, array $users, bool $addOnly = true): void
+    {
 
-    protected static function addUsersToPayrollBatch(Batch $batch, array $users, bool $addOnly = true): void {
-
-        $resultOfSync = $addOnly == true 
-            ? $batch->users()->syncWithoutDetaching($users) 
+        $resultOfSync = $addOnly == true
+            ? $batch->users()->syncWithoutDetaching($users)
             : $batch->users()->sync($users);
 
         $batch = static::attachDefaultPayTypesToAllUsers($batch, $resultOfSync['attached']);
 
     }
 
-    protected static function attachDefaultPayTypesToAllUsers(Batch $batch, array $newlyAddedUsers = null): void {
+    protected static function attachDefaultPayTypesToAllUsers(Batch $batch, array $newlyAddedUsers = null): void
+    {
 
         $batch->load('users.defaultPayTypes');
 
         if ($newlyAddedUsers) {
 
-            $attachDefaultPayTypesToUsers = $batch->users->map(fn (User $user) =>
-                in_array($user->id, $newlyAddedUsers) ? $user : null
+            $attachDefaultPayTypesToUsers = $batch->users->map(fn (User $user) => in_array($user->id, $newlyAddedUsers) ? $user : null
             )->filter();
 
-            $attachDefaultPayTypesToUsers->each(function (User $user) use ($batch){
+            $attachDefaultPayTypesToUsers->each(function (User $user) use ($batch) {
                 $batchUser = BatchUser::find($user->pivot->id);
                 static::attachDefaultPayTypesToBatchUser($batchUser, $batch->payment_date);
             });
@@ -40,7 +41,8 @@ trait AttachDefaultPayTypesToBatchUserTrait {
 
     }
 
-    protected static function attachDefaultPayTypesToBatchUser(BatchUser $batchUser, Carbon $payrollDate): void {
+    protected static function attachDefaultPayTypesToBatchUser(BatchUser $batchUser, Carbon $payrollDate): void
+    {
 
         $paytypes = static::getCurrentPayTypes($batchUser->user->defaultPayTypes, $payrollDate)
             ->mapWithKeys(function (PayType $defaultPayType) {
@@ -51,7 +53,8 @@ trait AttachDefaultPayTypesToBatchUserTrait {
 
     }
 
-    protected static function getCurrentPayTypes(Collection $payTypes, Carbon $payrollDate) {
+    protected static function getCurrentPayTypes(Collection $payTypes, Carbon $payrollDate)
+    {
 
         $payTypes = $payTypes->sortBy('pivot.effective_date');
 
@@ -60,5 +63,4 @@ trait AttachDefaultPayTypesToBatchUserTrait {
         })->filter();
 
     }
-
 }

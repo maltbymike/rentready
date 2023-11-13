@@ -10,7 +10,8 @@ class EditTimeClockEntry extends EditRecord
 {
     protected static string $resource = TimeClockEntryResource::class;
 
-    protected function getHeaderActions(): array {
+    protected function getHeaderActions(): array
+    {
         return [
             Actions\DeleteAction::make(),
         ];

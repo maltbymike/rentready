@@ -2,22 +2,22 @@
 
 namespace App\Filament\Pages\Payroll;
 
-use Filament\Forms;
 use App\Models\User;
+use Filament\Forms;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Contracts\HasTable;
-use Illuminate\Validation\Rules\Exists;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rules\Exists;
 
 class TimeClock extends Page implements HasTable
 {
     use InteractsWithTable;
-    
+
     protected static ?string $navigationIcon = 'heroicon-o-clock';
 
     protected static ?string $navigationGroup = 'Time Clock';
@@ -26,7 +26,7 @@ class TimeClock extends Page implements HasTable
 
     protected static string $view = 'filament.pages.time-clock';
 
-    protected function getTableQuery(): Builder 
+    protected function getTableQuery(): Builder
     {
         if (auth()->user()->can('Manage Timeclock Entries')) {
             return User::timeclockUsers();
@@ -54,7 +54,7 @@ class TimeClock extends Page implements HasTable
             Action::make('Clock In')
                 ->icon('heroicon-o-arrow-left-on-rectangle')
                 ->action(fn (User $record) => $record->clockIn())
-                ->visible(fn (User $record) : bool => $record->isClockedIn() === false)
+                ->visible(fn (User $record): bool => $record->isClockedIn() === false)
                 ->form([
                     Forms\Components\TextInput::make('pin')
                         ->autofocus()
@@ -62,13 +62,13 @@ class TimeClock extends Page implements HasTable
                         ->disableAutocomplete()
                         ->exists(table: User::class, column: 'pin', modifyRuleUsing: function (Exists $rule, User $record) {
                             return $rule->where('id', $record->id);
-                        })
+                        }),
 
                 ]),
             Action::make('Clock Out')
                 ->icon('heroicon-o-arrow-right-on-rectangle')
                 ->action(fn (User $record) => $record->clockOut())
-                ->visible(fn (User $record) : bool => $record->isClockedIn() === true)
+                ->visible(fn (User $record): bool => $record->isClockedIn() === true)
                 ->form([
                     Forms\Components\TextInput::make('pin')
                         ->autofocus()
@@ -76,7 +76,7 @@ class TimeClock extends Page implements HasTable
                         ->disableAutocomplete()
                         ->exists(table: User::class, column: 'pin', modifyRuleUsing: function (Exists $rule, User $record) {
                             return $rule->where('id', $record->id);
-                        })
+                        }),
                 ]),
         ];
     }
@@ -87,11 +87,10 @@ class TimeClock extends Page implements HasTable
             return [
                 Filter::make('onlyOwnRecords')
                     ->query(fn (Builder $query): Builder => $query->where('id', auth()->user()->id))
-                    ->default(! auth()->user()->can('Manage Timeclock Entries'))
+                    ->default(! auth()->user()->can('Manage Timeclock Entries')),
             ];
         }
 
         return [];
     }
-    
 }

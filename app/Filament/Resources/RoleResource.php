@@ -2,22 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\Role;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\MultiSelect;
-use Filament\Forms\Components\CheckboxList;
 use App\Filament\Resources\RoleResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\RoleResource\RelationManagers;
+use App\Models\Role;
+use Filament\Forms\Components\Card;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class RoleResource extends Resource
 {
@@ -26,6 +21,7 @@ class RoleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-cog';
 
     protected static ?string $navigationGroup = 'User Management';
+
     public static function form(Form $form): Form
     {
         return $form
@@ -45,7 +41,7 @@ class RoleResource extends Resource
                                 'xl' => 4,
                                 '2xl' => 5,
                             ]),
-                    ])
+                    ]),
             ]);
     }
 
@@ -71,14 +67,14 @@ class RoleResource extends Resource
                 Tables\Actions\DeleteBulkAction::make(),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             // RelationManagers\PermissionsRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -86,5 +82,5 @@ class RoleResource extends Resource
             'create' => Pages\CreateRole::route('/create'),
             'edit' => Pages\EditRole::route('/{record}/edit'),
         ];
-    }    
+    }
 }

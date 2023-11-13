@@ -2,24 +2,23 @@
 
 namespace App\Models;
 
-use Filament\Panel;
 use App\Models\Payroll\PayType;
+use App\Models\Payroll\TimeClockEntry;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
-use App\Models\Payroll\TimeClockEntry;
-use Laravel\Jetstream\HasProfilePhoto;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Models\Contracts\FilamentUser;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -27,10 +26,10 @@ class User extends Authenticatable implements FilamentUser
     use HasFactory;
     use HasProfilePhoto;
     use HasRoles;
+    use LogsActivity;
     use Notifiable;
     use SoftDeletes;
     use TwoFactorAuthenticatable;
-    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -74,12 +73,13 @@ class User extends Authenticatable implements FilamentUser
         'profile_photo_url',
     ];
 
-    public function canAccessPanel(Panel $panel): bool {
+    public function canAccessPanel(Panel $panel): bool
+    {
 
         if ($this->hasRole('Administrator')) {
             return true;
-        } 
-        
+        }
+
         if ($this->can('Access Admin Panel')) {
             return true;
         }
@@ -88,7 +88,8 @@ class User extends Authenticatable implements FilamentUser
 
     }
 
-    public function clockIn() {
+    public function clockIn()
+    {
 
         if (! $this->isClockedIn()) {
 
@@ -103,7 +104,8 @@ class User extends Authenticatable implements FilamentUser
 
     }
 
-    public function clockOut() {
+    public function clockOut()
+    {
         $now = $this->freshTimestamp();
 
         return $this->timeClockEntries()
@@ -123,10 +125,11 @@ class User extends Authenticatable implements FilamentUser
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-        ->logOnly(['*']);
+            ->logOnly(['*']);
     }
 
-    public function isClockedIn() : bool {
+    public function isClockedIn(): bool
+    {
         $lastTimeClock = $this->timeClockEntries()->orderBy('clock_in_at', 'desc')->firstOrNew();
 
         // User has no timeclock entries
@@ -147,25 +150,29 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(Payroll\Batch::class, 'payroll_batch_user', 'user_id', 'payroll_batch_id');
     }
 
-    public function scopeEmployees(Builder $query): void {
-        $query->whereHas('roles', function(Builder $query) {
-                return $query->where('name', 'Employee');
-            }
+    public function scopeEmployees(Builder $query): void
+    {
+        $query->whereHas('roles', function (Builder $query) {
+            return $query->where('name', 'Employee');
+        }
         );
     }
 
-    public function scopeTimeclockUsers(Builder $query): void {
-        $query->whereHas('roles', function(Builder $query) {
+    public function scopeTimeclockUsers(Builder $query): void
+    {
+        $query->whereHas('roles', function (Builder $query) {
             $query->where('name', 'Timeclock User');
         });
     }
 
-    public function timeClockEntries() : HasMany {
+    public function timeClockEntries(): HasMany
+    {
         return $this->hasMany(TimeClockEntry::class);
     }
 
-    public function timeClockEntriesWithUnassigned(): HasMany {
+    public function timeClockEntriesWithUnassigned(): HasMany
+    {
         return $this->hasMany(TimeClockEntry::class)
-            ->where('payroll_batch_user_id', NULL);
+            ->where('payroll_batch_user_id', null);
     }
 }

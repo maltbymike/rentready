@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
@@ -38,9 +37,9 @@ class UserPolicy
     {
         if ($user->can('Manage Users')) {
             return true;
-        } 
+        }
 
-        if ($user->can('Manage Payroll Settings') 
+        if ($user->can('Manage Payroll Settings')
             && $model->hasRole('Employee')
         ) {
             return true;

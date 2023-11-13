@@ -2,24 +2,19 @@
 
 namespace App\Filament\Resources\Payroll\EmployeeResource\RelationManagers;
 
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Actions\DetachBulkAction;
-use Filament\Tables\Table;
-use App\Models\Payroll\PayType;
 use App\Enums\Payroll\PayTypeEnum;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DetachAction;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\TextInputColumn;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Actions\DetachBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class DefaultPayTypesRelationManager extends RelationManager
 {

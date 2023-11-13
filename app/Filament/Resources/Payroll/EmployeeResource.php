@@ -2,25 +2,18 @@
 
 namespace App\Filament\Resources\Payroll;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use App\Models\Payroll\PayType;
-use Filament\Resources\Resource;
-use App\Settings\PayrollSettings;
-use App\Enums\Payroll\PayTypeEnum;
-use Filament\Forms\Components\Grid;
-use Filament\Panel\Concerns\HasSidebar;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
 use App\Filament\Resources\Payroll\EmployeeResource\Pages;
 use App\Filament\Resources\Payroll\EmployeeResource\RelationManagers;
+use App\Models\User;
+use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeResource extends Resource
 {
@@ -34,11 +27,13 @@ class EmployeeResource extends Resource
 
     protected static bool $shouldRegisterNavigation = false;
 
-    public static function canCreate(): bool {
-       return false;
+    public static function canCreate(): bool
+    {
+        return false;
     }
 
-    public static function canDelete(Model $record): bool {
+    public static function canDelete(Model $record): bool
+    {
         return false;
     }
 
@@ -71,8 +66,9 @@ class EmployeeResource extends Resource
                 ]),
             ]);
     }
-    
-    public static function getEloquentQuery(): Builder {
+
+    public static function getEloquentQuery(): Builder
+    {
         return parent::getEloquentQuery()->employees();
     }
 
@@ -84,7 +80,7 @@ class EmployeeResource extends Resource
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getRelations(): array
     {
         return [

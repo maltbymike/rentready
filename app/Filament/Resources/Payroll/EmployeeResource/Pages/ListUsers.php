@@ -2,17 +2,17 @@
 
 namespace App\Filament\Resources\Payroll\EmployeeResource\Pages;
 
+use App\Filament\Resources\Payroll\EmployeeResource;
 use App\Models\User;
+use AymanAlhattami\FilamentPageWithSidebar\Traits\HasPageSidebar;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use App\Filament\Resources\Payroll\EmployeeResource;
-use AymanAlhattami\FilamentPageWithSidebar\Traits\HasPageSidebar;
 
 class ListUsers extends ListRecords
 {
     use HasPageSidebar;
 
-    public ?User $record = NULL;
+    public ?User $record = null;
 
     protected static string $resource = EmployeeResource::class;
 

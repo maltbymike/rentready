@@ -4,7 +4,6 @@ namespace App\Models\Payroll\Policies;
 
 use App\Models\Payroll\Batch;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class BatchPolicy
 {

@@ -2,19 +2,16 @@
 
 namespace App\Models\Payroll;
 
-use App\Models\Payroll\TimeClockEntry;
+use App\Models\User;
 use App\Settings\PayrollSettings;
 use Carbon\Carbon;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Batch extends Model
 {
@@ -46,7 +43,7 @@ class Batch extends Model
 
     public static function getLastPayrollEndingDate($onlyApproved = true): Carbon
     {
-        return 
+        return
             Batch::select('period_ending')
                 ->orderByDesc('period_ending')
                 ->when($onlyApproved, function (Builder $query, bool $onlyApproved) {
@@ -56,7 +53,7 @@ class Batch extends Model
                 ->get()
                 ->pluck('period_ending')
                 ->first()
-            ?? Carbon::parse('last ' . app(PayrollSettings::class)->period_ends_on_day);
+            ?? Carbon::parse('last '.app(PayrollSettings::class)->period_ends_on_day);
     }
 
     public static function getNextPayrollEndingDate($onlyApproved = true): Carbon

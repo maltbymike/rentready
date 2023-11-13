@@ -3,15 +3,11 @@
 namespace App\Models\Payroll;
 
 use App\Models\User;
-use App\Models\Payroll\TimeClockEntry;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class BatchUser extends Pivot
 {
@@ -36,7 +32,6 @@ class BatchUser extends Pivot
         return 'payroll_batch_user_id';
     }
 
- 
     public function payrollBatch(): BelongsTo
     {
         return $this->belongsTo(Batch::class, 'payroll_batch_id');
@@ -57,5 +52,4 @@ class BatchUser extends Pivot
     {
         return $this->belongsTo(User::class);
     }
-
 }

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class TimeClockEntrySeeder extends Seeder
 {
@@ -34,9 +33,9 @@ class TimeClockEntrySeeder extends Seeder
                         [
                             'clock_out_at' => now()->subDays($i)->subHours(7)->format('Y-m-d H:i'),
                             'clock_in_at' => now()->subDays($i)->subHours(9)->format('Y-m-d H:i'),
-                        ]
+                        ],
                     ]);
-                } elseif ($i % 3 == 0) {                     
+                } elseif ($i % 3 == 0) {
                     $user->timeClockEntries()->createMany([
                         [
                             'clock_out_at' => now()->subDays($i)->format('Y-m-d H:i'),
@@ -51,7 +50,7 @@ class TimeClockEntrySeeder extends Seeder
                     $user->timeClockEntries()->create([
                         'clock_out_at' => now()->subDays($i)->format('Y-m-d H:i'),
                         'clock_in_at' => now()->subDays($i)->subHours(9)->format('Y-m-d H:i'),
-                    ]);        
+                    ]);
                 }
             }
         });

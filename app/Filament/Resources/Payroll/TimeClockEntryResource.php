@@ -2,49 +2,42 @@
 
 namespace App\Filament\Resources\Payroll;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Tables\Columns;
-use App\Models\Payroll\Batch;
-use Filament\Forms\Components;
-use App\Models\Payroll\PayType;
-use Filament\Resources\Resource;
-use App\Models\Payroll\BatchUser;
-use App\Settings\PayrollSettings;
-use Filament\Tables\Actions\Action;
-use Filament\Tables\Grouping\Group;
-use Filament\Forms\Components\Select;
-use Filament\Support\Enums\Alignment;
-use App\Models\Payroll\TimeClockEntry;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Columns\TextColumn;
-use App\Filament\Tables\Columns\ClockIn;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\Summarizers\Sum;
-use Illuminate\Database\Eloquent\Collection;
-use Filament\Tables\Columns\Summarizers\Summarizer;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Traits\Payroll\AttachDefaultPayTypesToBatchUserTrait;
 use App\Filament\Resources\Payroll\TimeClockEntryResource\Pages;
-use App\Filament\Resources\Payroll\TimeClockEntryResource\RelationManagers;
+use App\Filament\Tables\Columns\ClockIn;
+use App\Models\Payroll\Batch;
+use App\Models\Payroll\BatchUser;
+use App\Models\Payroll\TimeClockEntry;
+use App\Settings\PayrollSettings;
+use App\Traits\Payroll\AttachDefaultPayTypesToBatchUserTrait;
+use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Columns;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class TimeClockEntryResource extends Resource
 {
     use AttachDefaultPayTypesToBatchUserTrait;
+
     protected static ?string $model = TimeClockEntry::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Payroll';
 
-    public static function form(Form $form): Form {
+    public static function form(Form $form): Form
+    {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
@@ -129,32 +122,33 @@ class TimeClockEntryResource extends Resource
             ->columns(12);
     }
 
-    public static function table(Table $table): Table {
-        $settings = New PayrollSettings;
+    public static function table(Table $table): Table
+    {
+        $settings = new PayrollSettings;
         $addAndDeductActions = [];
         $addAndDeductBulkActions = [];
 
         foreach ($settings->timeclock_additions as $description => $minutesToAdd) {
-            
-            $addAndDeductActions[] = Action::make('add' . $description)
-                ->label('Add ' . $description)
+
+            $addAndDeductActions[] = Action::make('add'.$description)
+                ->label('Add '.$description)
                 ->action(function (TimeClockEntry $record) use ($description, $minutesToAdd) {
                     $record->minutes_added += $minutesToAdd;
-                    $record->addition_reason = $record->addition_reason == '' 
-                        ? $description 
-                        : $record->addition_reason . ", " . $description;
+                    $record->addition_reason = $record->addition_reason == ''
+                        ? $description
+                        : $record->addition_reason.', '.$description;
                     $record->save();
                 });
-            
-            $addAndDeductBulkActions[] = BulkAction::make('add' . $description)
+
+            $addAndDeductBulkActions[] = BulkAction::make('add'.$description)
                 ->deselectRecordsAfterCompletion()
-                ->label('Add ' . $description)
+                ->label('Add '.$description)
                 ->action(function (Collection $records) use ($description, $minutesToAdd): void {
                     $records->each(function (TimeClockEntry $record) use ($description, $minutesToAdd) {
                         $record->minutes_added += $minutesToAdd;
-                        $record->addition_reason = $record->addition_reason == '' 
-                            ? $description 
-                            : $record->addition_reason . ", " . $description;
+                        $record->addition_reason = $record->addition_reason == ''
+                            ? $description
+                            : $record->addition_reason.', '.$description;
                         $record->save();
                     });
                 })
@@ -163,31 +157,31 @@ class TimeClockEntryResource extends Resource
 
         foreach ($settings->timeclock_deductions as $description => $minutesToDeduct) {
 
-            $addAndDeductActions[] = Action::make('deduct' . $description)
-                ->label('Deduct ' . $description)
+            $addAndDeductActions[] = Action::make('deduct'.$description)
+                ->label('Deduct '.$description)
                 ->action(function (TimeClockEntry $record) use ($description, $minutesToDeduct) {
                     $record->minutes_deducted += $minutesToDeduct;
-                    $record->deduction_reason = $record->deduction_reason == '' 
-                        ? $description 
-                        : $record->deduction_reason . ", " . $description;
+                    $record->deduction_reason = $record->deduction_reason == ''
+                        ? $description
+                        : $record->deduction_reason.', '.$description;
                     $record->save();
                 });
 
-            $addAndDeductBulkActions[] = BulkAction::make('deduct' . $description)
+            $addAndDeductBulkActions[] = BulkAction::make('deduct'.$description)
                 ->deselectRecordsAfterCompletion()
-                ->label('Deduct ' . $description)
+                ->label('Deduct '.$description)
                 ->action(function (Collection $records) use ($description, $minutesToDeduct): void {
                     $records->each(function (TimeClockEntry $record) use ($description, $minutesToDeduct) {
                         $record->minutes_deducted += $minutesToDeduct;
-                        $record->deduction_reason = $record->deduction_reason == '' 
-                            ? $description 
-                            : $record->deduction_reason . ", " . $description;
+                        $record->deduction_reason = $record->deduction_reason == ''
+                            ? $description
+                            : $record->deduction_reason.', '.$description;
                         $record->save();
                     });
                 })
                 ->visible(auth()->user()->can('Manage Timeclock Entries'));
         }
-        
+
         return $table
             ->defaultPaginationPageOption(50)
             ->defaultGroup('clock_out_at')
@@ -271,7 +265,7 @@ class TimeClockEntryResource extends Resource
                             return null;
                         }
 
-                        return 'Cutoff Date: ' . $data['cutoff_date'];
+                        return 'Cutoff Date: '.$data['cutoff_date'];
                     })
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -279,7 +273,7 @@ class TimeClockEntryResource extends Resource
                                 $data['cutoff_date'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('clock_out_at', '<=', $date),
                             );
-                    })
+                    }),
             ])
             ->filtersFormColumns(4)
             ->actions([
@@ -296,20 +290,21 @@ class TimeClockEntryResource extends Resource
                                     ->get()
                                     ->mapWithKeys(function ($batch, $key) {
                                         $dateString = $batch->period_ending->toDateString();
+
                                         return [$dateString => $batch->period_ending->toDateString()];
                                     })
                                     ->reverse()
                                     ->toArray();
                             })
-                            ->placeholder('Next Batch: ' . Batch::getNextPayrollEndingDate()->toDateString())
+                            ->placeholder('Next Batch: '.Batch::getNextPayrollEndingDate()->toDateString())
                             ->rules(['dateformat:Y-m-d']),
                     ])
-                    ->action(function (array $data, Collection $records): void {                        
+                    ->action(function (array $data, Collection $records): void {
                         $batch = Batch::firstOrCreate(
                             ['period_ending' => $data['periodEnding'] ?? Batch::getNextPayrollEndingDate()],
                             ['payment_date' => Batch::getNextPayrollPaymentDate()]
                         );
-                        
+
                         static::addUsersToPayrollBatch($batch, $records->pluck('user_id')->unique()->toArray());
 
                         // Associate TimeClockEntries with BatchUser
@@ -321,7 +316,7 @@ class TimeClockEntryResource extends Resource
                     ->visible(auth()->user()->can('Manage Timeclock Entries')),
                 BulkAction::make('removeFromPayrollBatch')
                     ->deselectRecordsAfterCompletion()
-                    ->action(function (array $data, Collection $records): void {                        
+                    ->action(function (array $data, Collection $records): void {
                         $records->each(function (TimeClockEntry $record) {
                             $record->batchUser()->disassociate();
                             $record->save();
@@ -330,10 +325,11 @@ class TimeClockEntryResource extends Resource
                     ->visible(auth()->user()->can('Manage Timeclock Entries'))
                     ->requiresConfirmation(),
             ],
-            $addAndDeductBulkActions));
+                $addAndDeductBulkActions));
     }
 
-    public static function getEloquentQuery(): Builder {
+    public static function getEloquentQuery(): Builder
+    {
 
         $query = parent::getEloquentQuery();
 
@@ -346,18 +342,19 @@ class TimeClockEntryResource extends Resource
         return $query;
     }
 
-    public static function getRelations(): array {
+    public static function getRelations(): array
+    {
         return [
             //
         ];
     }
-    
-    public static function getPages(): array {
+
+    public static function getPages(): array
+    {
         return [
             'index' => Pages\ListTimeClockEntries::route('/'),
             'create' => Pages\CreateTimeClockEntry::route('/create'),
             'edit' => Pages\EditTimeClockEntry::route('/{record}/edit'),
         ];
-    }    
-
+    }
 }

@@ -2,19 +2,16 @@
 
 namespace App\Filament\Pages\Payroll;
 
-use Filament\Forms;
-use Filament\Forms\Form;
 use App\Models\Payroll\PayType;
-use Filament\Pages\SettingsPage;
 use App\Settings\PayrollSettings;
-use Filament\Forms\Components\Select;
+use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
+use AymanAlhattami\FilamentPageWithSidebar\Traits\HasPageSidebar;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use App\Traits\Payroll\HasSidebarPayrollSettingsTrait;
-use AymanAlhattami\FilamentPageWithSidebar\PageNavigationItem;
-use AymanAlhattami\FilamentPageWithSidebar\FilamentPageSidebar;
-use AymanAlhattami\FilamentPageWithSidebar\Traits\HasPageSidebar;
+use Filament\Forms\Form;
+use Filament\Pages\SettingsPage;
 
 class ManagePayroll extends SettingsPage
 {
@@ -72,7 +69,7 @@ class ManagePayroll extends SettingsPage
                                 'Friday' => 'Friday',
                                 'Saturday' => 'Saturday',
                             ])
-                            ->required(),    
+                            ->required(),
                     ]),
                 Fieldset::make('Timeclock Overtime Calculations')
                     ->columns($fieldColumns)
@@ -101,7 +98,7 @@ class ManagePayroll extends SettingsPage
                             ->addActionLabel('New Deduction')
                             ->keyLabel('Description')
                             ->valueLabel('Minutes to Deduct'),
-                    ])
+                    ]),
 
             ]);
     }

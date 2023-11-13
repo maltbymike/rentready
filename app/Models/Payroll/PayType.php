@@ -2,13 +2,12 @@
 
 namespace App\Models\Payroll;
 
-use App\Models\User;
 use App\Enums\Payroll\PayTypeEnum;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PayType extends Model
 {
@@ -28,13 +27,14 @@ class PayType extends Model
         'type' => PayTypeEnum::class,
     ];
 
-    public function getForeignKey() {
+    public function getForeignKey()
+    {
         return 'payroll_pay_type_id';
     }
 
     // public function getNameLabelAttribute(): String {
     //     return $this->details
-    //     ? "$this->name ($this->details)" 
+    //     ? "$this->name ($this->details)"
     //     : $this->name;;
     // }
 

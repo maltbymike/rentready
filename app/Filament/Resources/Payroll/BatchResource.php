@@ -2,47 +2,41 @@
 
 namespace App\Filament\Resources\Payroll;
 
+use App\Enums\Payroll\PayTypeEnum;
+use App\Filament\Resources\Payroll\BatchResource\Pages;
+use App\Models\Payroll\Batch;
+use App\Models\Payroll\BatchUser;
+use App\Models\Payroll\PayType;
+use App\Models\Payroll\TimeClockEntry;
+use App\Models\User;
+use App\Settings\PayrollSettings;
 use App\Traits\Payroll\AttachDefaultPayTypesToBatchUserTrait;
 use App\Traits\Payroll\HasCalculatedPayrollValuesTrait;
 use App\Traits\Payroll\SyncPayTypesToBatchUserTrait;
 use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Tables\Columns;
-use App\Models\Payroll\Batch;
-use App\Models\Payroll\TimeClockEntry;
-use App\Models\Payroll\PayType;
 use Filament\Resources\Resource;
-use App\Models\Payroll\BatchUser;
-use App\Settings\PayrollSettings;
-use App\Enums\Payroll\PayTypeEnum;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Actions;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Repeater;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\DatePicker;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables;
+use Filament\Tables\Columns;
 use Filament\Tables\Filters\TrashedFilter;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Actions\Action;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\Payroll\BatchResource\Pages;
-use App\Filament\Resources\Payroll\BatchResource\RelationManagers;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class BatchResource extends Resource
 {
     use AttachDefaultPayTypesToBatchUserTrait;
-    use SyncPayTypesToBatchUserTrait;
     use HasCalculatedPayrollValuesTrait;
+    use SyncPayTypesToBatchUserTrait;
 
     protected static ?string $model = Batch::class;
 
@@ -66,44 +60,44 @@ class BatchResource extends Resource
         $types = PayType::all();
 
         $calculatedHours = $types
-                        ->where('type', PayTypeEnum::CalculatedHour)
-                        ->map(function (PayType $type) {
-                            return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name_label)
-                                ->hiddenOn('create')
-                                ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
-                                    $settings->regular_hours_pay_type,
-                                    $settings->overtime_hours_pay_type,
-                                ]));
-                        })->all();
+            ->where('type', PayTypeEnum::CalculatedHour)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.'.$type->id)
+                    ->label($type->name_label)
+                    ->hiddenOn('create')
+                    ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
+                        $settings->regular_hours_pay_type,
+                        $settings->overtime_hours_pay_type,
+                    ]));
+            })->all();
 
         $payHours = $types
-                        ->where('type', PayTypeEnum::Hour)
-                        ->map(function (PayType $type) {
-                            return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name_label)
-                                ->hiddenOn('create')
-                                ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
-                                    $settings->regular_hours_pay_type,
-                                    $settings->overtime_hours_pay_type,
-                                ]));
-                        })->all();
+            ->where('type', PayTypeEnum::Hour)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.'.$type->id)
+                    ->label($type->name_label)
+                    ->hiddenOn('create')
+                    ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
+                        $settings->regular_hours_pay_type,
+                        $settings->overtime_hours_pay_type,
+                    ]));
+            })->all();
 
         $payDollars = $types
-                        ->where('type', PayTypeEnum::Dollar)
-                        ->map(function (PayType $type) {
-                            return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name_label)
-                                ->hiddenOn('create');
-                        })->all();
+            ->where('type', PayTypeEnum::Dollar)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.'.$type->id)
+                    ->label($type->name_label)
+                    ->hiddenOn('create');
+            })->all();
 
         $deductions = $types
-                        ->where('type', PayTypeEnum::Deduction)
-                        ->map(function (PayType $type) {
-                            return TextInput::make('payTypes.' . $type->id)
-                                ->label($type->name_label)
-                                ->hiddenOn('create');
-                        })->all();
+            ->where('type', PayTypeEnum::Deduction)
+            ->map(function (PayType $type) {
+                return TextInput::make('payTypes.'.$type->id)
+                    ->label($type->name_label)
+                    ->hiddenOn('create');
+            })->all();
 
         return $form
             ->schema([
@@ -134,10 +128,9 @@ class BatchResource extends Resource
                             ->columnSpanFull()
                             ->columns(6)
                             ->relationship(
-                                'Users', 
+                                'Users',
                                 titleAttribute: 'name',
-                                modifyQueryUsing: fn (Builder $query) => 
-                                    $query->employees()
+                                modifyQueryUsing: fn (Builder $query) => $query->employees()
                             )
                             ->hintAction(
                                 Action::make('updateEmployeesAction')
@@ -145,7 +138,7 @@ class BatchResource extends Resource
                                     ->button()
                                     ->action(function ($record, $state, $livewire) {
                                         static::addUsersToPayrollBatch(
-                                            batch: $record, 
+                                            batch: $record,
                                             users: $state,
                                             addOnly: false,
                                         );
@@ -170,7 +163,7 @@ class BatchResource extends Resource
                                 return $data;
                             })
                             ->mutateRelationshipDataBeforeSaveUsing(function (BatchUser $record, array $data, Get $get): array {
-                        
+
                                 if (in_array($record->user_id, $get('users'))) {
                                     static::syncPayTypes($record, $data['payTypes']);
                                 }
@@ -201,7 +194,7 @@ class BatchResource extends Resource
                                                     ->columnSpan(4),
                                                 Forms\Components\TextInput::make('minutes_deducted')
                                                     ->label(__('Deduct (Min)'))
-                                                    ->helperText(function (TimeClockEntry $record) { 
+                                                    ->helperText(function (TimeClockEntry $record) {
                                                         if ($record->deduction_reason) {
                                                             return $record->deduction_reason;
                                                         } else {
@@ -213,8 +206,8 @@ class BatchResource extends Resource
                                                     ->columnSpan(2),
                                                 Forms\Components\TextInput::make('minutes_added')
                                                     ->label(__('Add (Min)'))
-                                                    ->helperText(function (TimeClockEntry $record) { 
-                                                            return $record->addition_reason ?? false;
+                                                    ->helperText(function (TimeClockEntry $record) {
+                                                        return $record->addition_reason ?? false;
                                                     })
                                                     ->disabled()
                                                     ->numeric()
@@ -237,29 +230,29 @@ class BatchResource extends Resource
                                                 'class' => 'py-1.5 ps-3 pe-3 rounded-lg ring-1 sm:text-sm sm:leading-6 shadow-sm ring-1 bg-white dark:bg-white/5 ring-gray-950/10 dark:ring-white/20 overflow-hidden',
                                             ])
                                             ->content(function (Get $get, Set $set, PayrollSettings $settings) {
-        
+
                                                 $hours = 0;
-        
-                                                    foreach ($get('timeClockEntries') as $entry) {
+
+                                                foreach ($get('timeClockEntries') as $entry) {
                                                     $hours += $entry['clocked_or_approved_hours_with_deduction'];
                                                 }
 
                                                 $splitHours = static::calculateRegularAndOvertimeHours($hours, $settings->hours_before_overtime);
-        
+
                                                 $set(
-                                                    'payTypes.' . $settings->regular_hours_pay_type, 
+                                                    'payTypes.'.$settings->regular_hours_pay_type,
                                                     number_format($splitHours['regular'], 2)
                                                 );
                                                 $set(
-                                                    'payTypes.' . $settings->overtime_hours_pay_type, 
+                                                    'payTypes.'.$settings->overtime_hours_pay_type,
                                                     number_format($splitHours['overtime'], 2)
                                                 );
-        
+
                                                 return number_format($hours, 2);
-        
-                                            }),                                        
+
+                                            }),
                                     ],
-                                    $calculatedHours,
+                                        $calculatedHours,
                                     )),
                                 Forms\Components\Section::make('Additional Hours')
                                     ->extraAttributes(['class' => 'items-end-grid'])
@@ -290,7 +283,7 @@ class BatchResource extends Resource
 
                                 return User::find($state['user_id'])->name ?? null;
                             }),
-                    ])
+                    ]),
             ]);
     }
 
@@ -340,5 +333,4 @@ class BatchResource extends Resource
             'edit' => Pages\EditBatch::route('/{record}/edit'),
         ];
     }
-    
 }
