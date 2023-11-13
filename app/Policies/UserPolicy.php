@@ -36,7 +36,17 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->can('Manage Users');
+        if ($user->can('Manage Users')) {
+            return true;
+        } 
+
+        if ($user->can('Manage Payroll Settings') 
+            && $model->hasRole('Employee')
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
