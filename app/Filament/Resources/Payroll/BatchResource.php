@@ -128,6 +128,7 @@ class BatchResource extends Resource
                             ->disabledOn('create'),
                         CheckboxList::make('users')
                             ->label('Employees To Pay')
+                            ->hiddenOn('create')
                             ->helperText('Must be updated before changes to Employees will be reflected')
                             ->bulkToggleable()
                             ->columnSpanFull()
@@ -153,7 +154,8 @@ class BatchResource extends Resource
                                     })
                             ),
                         Repeater::make('batchUsers')
-                            ->label(__('Employees'))
+                            ->label('Employees')
+                            ->hiddenOn('create')
                             ->columnSpanFull()
                             ->columns(2)
                             ->relationship()
@@ -179,7 +181,7 @@ class BatchResource extends Resource
                                 Forms\Components\Section::make('Timeclock Entries')
                                     ->collapsed()
                                     ->hiddenOn('create')
-                                    ->hidden(fn (BatchUser $record, Get $get) => ! in_array($record->user_id, $get('../../users')))
+                                    ->hidden(fn (?BatchUser $record, Get $get) => ! $record || ! in_array($record->user_id, $get('../../users')))
                                     ->columnSpanFull()
                                     ->schema([
                                         Forms\Components\Repeater::make('timeClockEntries')
