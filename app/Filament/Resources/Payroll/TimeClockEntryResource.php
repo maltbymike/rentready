@@ -41,8 +41,9 @@ class TimeClockEntryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
+                    ->required()
                     ->relationship('user', 'name')
-                    ->disabled()
+                    ->disabledOn('edit')
                     ->columnSpan(12),
                 Forms\Components\Fieldset::make('Time In')
                     ->schema([
@@ -50,7 +51,7 @@ class TimeClockEntryResource extends Resource
                             ->label(__('Clock In'))
                             ->displayFormat('D Y-m-d h:i A')
                             ->withoutSeconds()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_in_requested')
                             ->label(__('Clock In Requested'))
@@ -80,7 +81,7 @@ class TimeClockEntryResource extends Resource
                             ->label(__('Clock Out'))
                             ->displayFormat('D Y-m-d h:i A')
                             ->withoutSeconds()
-                            ->disabled()
+                            ->disabledOn('edit')
                             ->columnSpan(6),
                         Forms\Components\DateTimePicker::make('clock_out_requested')
                             ->label(__('Clock Out Requested'))
@@ -107,12 +108,16 @@ class TimeClockEntryResource extends Resource
                 Forms\Components\Fieldset::make('Deductions and Additions')
                     ->schema([
                         Forms\Components\TextInput::make('minutes_deducted')
-                            ->numeric(),
+                            ->numeric()
+                            ->required()
+                            ->default(0),
                         Forms\Components\TextInput::make('deduction_reason')
                             ->string()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('minutes_added')
-                            ->numeric(),
+                            ->numeric()
+                            ->required()
+                            ->default(0),
                         Forms\Components\TextInput::make('addition_reason')
                             ->string()
                             ->maxLength(255),
