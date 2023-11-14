@@ -32,6 +32,8 @@ class ManagePayroll extends SettingsPage
     public function mount(): void
     {
         abort_unless(auth()->user()->can('Manage Payroll Settings'), 403);
+        parent::mount();
+
     }
 
     public function form(Form $form): Form
