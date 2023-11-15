@@ -65,7 +65,7 @@ class BatchResource extends Resource
                 return TextInput::make('payTypes.'.$type->id)
                     ->label($type->name_label)
                     ->hiddenOn('create')
-                    ->disabled(fn (PayrollSettings $settings) => in_array($type->id, [
+                    ->readonly(fn (PayrollSettings $settings) => in_array($type->id, [
                         $settings->regular_hours_pay_type,
                         $settings->overtime_hours_pay_type,
                     ]));

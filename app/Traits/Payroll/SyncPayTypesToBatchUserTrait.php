@@ -9,7 +9,9 @@ trait SyncPayTypesToBatchUserTrait
     protected static function syncPayTypes(BatchUser $batchUser, array $payTypes): BatchUser
     {
         $payTypes = collect($payTypes)
-            ->filter()
+            ->filter(function ($value, $key) {
+                return $value != 0;
+            })
             ->map(function ($value, $key) {
                 return ['value' => $value];
             })
