@@ -331,6 +331,7 @@ class BatchResource extends Resource
             'index' => Pages\ListBatches::route('/'),
             'create' => Pages\CreateBatch::route('/create'),
             'edit' => Pages\EditBatch::route('/{record}/edit'),
+            'review' => Pages\ReviewBatch::route('/{record}/review'),
         ];
     }
 }
