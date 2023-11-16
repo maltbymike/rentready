@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Payroll\BatchResource\Pages;
 
 use Closure;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Table;
 use App\Models\Payroll\Batch;
 use App\Models\Payroll\PayType;
@@ -63,19 +64,22 @@ class ReviewBatch extends Page implements HasForms, HasInfolists, HasTable
             ->columns(
                 array_merge(
                     [
-                        TextColumn::make('user.name'),
+                        TextColumn::make('user.name')
+                            ->label('Employee')
+                            ->translateLabel(),
                     ], 
-                    PayType::all()->map(function (PayType $type) {
+                    PayType::all()->map(function (PayType $type) {                        
                         return TextColumn::make($type->name_label)
                             ->alignment(Alignment::Center)
                             ->label(
                                 fn () => $type->details 
-                                    ? new HtmlString($type->name.'<br />('.$type->details.')') 
-                                    : $type->name
+                                    ? new HtmlString(__($type->name).'<br />('.__($type->details).')') 
+                                    : __($type->name)
                             )
                             ->state(fn (BatchUser $record) => 
                                 $record->payTypes->where('id', $type->id)->first()->pivot->value ?? null
-                            );
+                            )
+                            ->toggleable(isToggledHiddenByDefault: ! $type->is_visible_on_batch_review);
                     })->toArray(),
                 )
             )

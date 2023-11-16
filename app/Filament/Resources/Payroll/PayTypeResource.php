@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
@@ -53,6 +54,7 @@ class PayTypeResource extends Resource
                 'type',
                 'name',
             ])
+            ->defaultGroup('type')
             ->columns([
                 TextColumn::make('name')
                     ->sortable()
@@ -61,9 +63,13 @@ class PayTypeResource extends Resource
                     ->sortable(),
                 TextColumn::make('type')
                     ->sortable(),
-                IconColumn::make('is_used_for_stat_pay')
+                ToggleColumn::make('is_used_for_stat_pay')
                     ->label(__('Stat Pay Input'))
-                    ->boolean()
+                    ->alignCenter()
+                    ->sortable(),
+                ToggleColumn::make('is_visible_on_batch_review')
+                    ->label('Visible On Review')
+                    ->alignCenter()
                     ->sortable(),
             ])
             ->defaultSort('name')
