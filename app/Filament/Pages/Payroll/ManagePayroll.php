@@ -82,11 +82,11 @@ class ManagePayroll extends SettingsPage
                             ->required(),
                         Select::make('regular_hours_pay_type')
                             ->label('Regular Hours Pay Type')
-                            ->options(PayType::all()->pluck('name', 'id'))
+                            ->options(PayType::all()->pluck('name_label', 'id'))
                             ->required(),
                         Select::make('overtime_hours_pay_type')
                             ->label('Overtime Hours Pay Type')
-                            ->options(PayType::all()->pluck('name', 'id'))
+                            ->options(PayType::all()->pluck('name_label', 'id'))
                             ->required(),
                     ]),
                 Fieldset::make('Additions and Deductions')
