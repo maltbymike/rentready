@@ -37,13 +37,13 @@ return new class extends Migration
             ],
             [
                 'name' => 'Regular Hours',
-                'details' => 'Additional',
+                'details' => 'Hours',
                 'type' => PayTypeEnum::Hour,
                 'is_used_for_stat_pay' => true,
             ],
             [
                 'name' => 'Overtime Hours',
-                'details' => 'Additional',
+                'details' => 'Hours',
                 'type' => PayTypeEnum::Hour,
             ],
             [

@@ -65,10 +65,16 @@ class BatchResource extends Resource
                 return TextInput::make('payTypes.'.$type->id)
                     ->label($type->name_label)
                     ->hiddenOn('create')
-                    ->readonly(fn (PayrollSettings $settings) => in_array($type->id, [
-                        $settings->regular_hours_pay_type,
-                        $settings->overtime_hours_pay_type,
-                    ]));
+                    ->numeric()
+                    ->minValue(function (PayrollSettings $settings, Get $get) use ($type) {
+                        if ($type->id === $settings->regular_hours_pay_type) {
+                            return $get('timeclock_hours');
+                        }
+                        if ($type->id === $settings->overtime_hours_pay_type) {
+                            return $get('timeclock_overtime_hours');
+                        }
+                        return false;
+                    });
             })->all();
 
         $payHours = $types
@@ -243,10 +249,12 @@ class BatchResource extends Resource
                                                     'payTypes.'.$settings->regular_hours_pay_type,
                                                     number_format($splitHours['regular'], 2)
                                                 );
+                                                $set('timeclock_hours', number_format($splitHours['regular'], 2));
                                                 $set(
                                                     'payTypes.'.$settings->overtime_hours_pay_type,
                                                     number_format($splitHours['overtime'], 2)
                                                 );
+                                                $set('timeclock_overtime_hours', number_format($splitHours['overtime'], 2));
 
                                                 return number_format($hours, 2);
 
