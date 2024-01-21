@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.items-end-grid .grid {
+    align-items: end;
+}
