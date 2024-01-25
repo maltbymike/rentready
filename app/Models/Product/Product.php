@@ -11,14 +11,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'reference',
-        'model',
-        'model_type',
-        'serial_number',
-        'model_year',
-    ];
+    protected $guarded = [];
 
     public function children(): HasMany
     {

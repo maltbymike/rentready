@@ -10,9 +10,7 @@ class Manufacturer extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-    ];
+    protected $guarded = [];
 
     protected $table = 'product_manufacturers';
 

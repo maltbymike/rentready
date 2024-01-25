@@ -33,6 +33,8 @@ return new class extends Migration
                 ->nullable();
             $table->integer('model_year')
                 ->nullable();
+            $table->boolean('is_header')
+                ->default(false);
             $table->timestamps();
         });
     }
