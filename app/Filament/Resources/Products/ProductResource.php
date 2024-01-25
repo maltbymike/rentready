@@ -33,6 +33,7 @@ class ProductResource extends Resource
                     ->columnSpanFull()
                     ->label('Product Name')
                     ->string()
+                    ->autofocus()
                     ->required(),
                 TextInput::make('reference')
                     ->label('Reference')
@@ -57,6 +58,7 @@ class ProductResource extends Resource
                                     ->preload()
                                     ->createOptionForm([
                                         TextInput::make('name')
+                                            ->autofocus()
                                             ->required(),
                                     ]),
                                 TextInput::make('model')
@@ -67,8 +69,7 @@ class ProductResource extends Resource
                                     ->string(),
                                 TextInput::make('serial_number')
                                     ->label('Serial Number')
-                                    ->string()
-                                    ->required(),
+                                    ->string(),
                                 TextInput::make('model_year')
                                     ->label('Model Year')
                                     ->numeric(),
@@ -81,8 +82,12 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('sku'),
+                TextColumn::make('reference'),
                 TextColumn::make('name'),
+                TextColumn::make('manufacturer.name'),
+                TextColumn::make('model'),
+                TextColumn::make('serial_number')
+                    ->label('Serial Number'),
             ])
             ->filters([
                 //
