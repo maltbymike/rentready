@@ -10,6 +10,10 @@ class Manufacturer extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+    ];
+
     protected $table = 'product_manufacturers';
 
     public function products(): HasMany
