@@ -48,7 +48,11 @@ class ProductResource extends Resource
                     ->required(),
                 Select::make('parent_id')
                     ->label('Parent Item')
-                    ->relationship(name: 'parent', titleAttribute: 'name')
+                    ->relationship(
+                        name: 'parent', 
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('is_header', true),
+                    )
                     ->searchable(['name', 'reference'])
                     ->getOptionLabelFromRecordUsing(fn (Product $record) => "{$record->reference} - {$record->name}")
                     ->preload(),
