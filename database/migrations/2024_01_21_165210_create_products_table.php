@@ -15,19 +15,22 @@ return new class extends Migration
             $table->id();
             $table->string('reference', 30);
             $table->string('name', 255);
-            $table->foreignId('parent_id')->constrained(table: 'products')
+            $table->foreignId('parent_id')
+                ->nullable()
+                ->constrained(table: 'products')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->nullable();
-            $table->foreignId('manufacturer_id')->constrained(table: 'product_manufacturers')
+                ->restrictOnDelete();
+            $table->foreignId('manufacturer_id')
+                ->nullable()
+                ->constrained(table: 'product_manufacturers')
                 ->cascadeOnUpdate()
-                ->restrictOnDelete()
-                ->nullable();
+                ->restrictOnDelete();
             $table->string('model', 50)
                 ->nullable();
             $table->string('model_type')
                 ->nullable();
-            $table->string('serial_number', 50);
+            $table->string('serial_number', 50)
+                ->nullable();
             $table->integer('model_year')
                 ->nullable();
             $table->timestamps();
