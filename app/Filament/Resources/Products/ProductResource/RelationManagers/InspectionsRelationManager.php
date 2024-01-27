@@ -3,6 +3,9 @@
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -20,10 +23,13 @@ class InspectionsRelationManager extends RelationManager
     {
         return $form
             ->schema([
-                TextInput::make('procedure.name'),
-                TextInput::make('completed_at')
-                    ->required()
-                    ->maxLength(255),
+                Select::make('schedule_id')
+                    ->relationship(name: 'schedule', titleAttribute: 'procedure_id'),
+                Select::make('status_id')
+                    ->relationship(name: 'status', titleAttribute: 'name'),   
+                DateTimePicker::make('created_at')
+                    ->disabled(),                 
+                DateTimePicker::make('completed_at'),
             ]);
     }
 
@@ -34,6 +40,7 @@ class InspectionsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('schedule.procedure.name'),
                 TextColumn::make('status.name'),
+                TextColumn::make('created_at'),
                 TextColumn::make('completed_at'),
             ])
             ->filters([
