@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Product extends Model
 {
@@ -27,6 +28,11 @@ class Product extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Product::class, 'parent_id');
+    }
+
+    public function inspections(): HasManyThrough
+    {
+        return $this->hasManyThrough(Inspections::class, InspectionSchedule::class, 'product_id', 'schedule_id');
     }
 
     public function inspectionSchedules(): BelongsToMany

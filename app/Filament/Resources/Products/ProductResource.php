@@ -133,6 +133,7 @@ class ProductResource extends Resource
     {
         return [
             RelationManagers\InspectionSchedulesRelationManager::class,
+            RelationManagers\InspectionsRelationManager::class,
         ];
     }
 

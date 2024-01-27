@@ -3,10 +3,12 @@
 namespace App\Models\Product;
 
 use App\Models\Timeclock\TimeclockEntry;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class InspectionSchedule extends Pivot
 {
@@ -16,9 +18,9 @@ class InspectionSchedule extends Pivot
 
     protected $table = 'product_inspection_schedules';
 
-    public function status(): BelongsTo 
+    public function inspections(): HasMany
     {
-        return $this->belongsTo(InspectionStatus::class);
+        return $this->hasMany(Inspections::class);
     }
 
     public function procedure(): BelongsTo
@@ -29,6 +31,11 @@ class InspectionSchedule extends Pivot
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function status(): BelongsTo 
+    {
+        return $this->belongsTo(InspectionStatus::class);
     }
 
     public function timeclockEntries(): MorphMany 
