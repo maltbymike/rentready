@@ -37,6 +37,7 @@ class Product extends Model
 
     public function inspectionSchedules(): BelongsToMany
     {
-        return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id');
+        return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id')
+            ->withPivot(['id']);
     }
 }
