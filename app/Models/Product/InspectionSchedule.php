@@ -8,13 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Inspection extends Pivot
+class InspectionSchedule extends Pivot
 {
     use HasFactory;
 
     protected $guarded = [];
 
-    protected $table = 'product_inspections';
+    protected $table = 'product_inspection_schedules';
 
     public function status(): BelongsTo 
     {

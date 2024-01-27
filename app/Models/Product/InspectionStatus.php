@@ -14,8 +14,8 @@ class InspectionStatus extends Model
 
     protected $table = 'product_inspection_statuses';
 
-    public function inspections(): HasMany 
+    public function inspectionSchedule(): HasMany 
     {
-        return $this->hasMany(Inspection::class);
+        return $this->hasMany(InspectionSchedule::class);
     }
 }

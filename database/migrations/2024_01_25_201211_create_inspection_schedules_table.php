@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('product_inspections', function (Blueprint $table) {
+        Schema::create('product_inspection_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')
                 ->constrained(table: 'products')
@@ -21,11 +21,11 @@ return new class extends Migration
                 ->constrained(table: 'product_inspection_procedures')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('status_id')
-                ->nullable()
-                ->constrained(table: 'product_inspection_statuses')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
+            // $table->foreignId('status_id')
+            //     ->nullable()
+            //     ->constrained(table: 'product_inspection_statuses')
+            //     ->cascadeOnUpdate()
+            //     ->restrictOnDelete();
             $table->timestamps();
         });
     }
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('product_inspections');
+        Schema::dropIfExists('product_inspection_schedules');
     }
 };

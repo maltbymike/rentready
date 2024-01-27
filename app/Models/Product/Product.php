@@ -19,11 +19,6 @@ class Product extends Model
         return $this->hasMany(Product::class, 'parent_id');
     }
 
-    public function inspections(): HasMany
-    {
-        return $this->hasMany(Inspection::class);
-    }
-
     public function manufacturer(): BelongsTo
     {
         return $this->belongsTo(Manufacturer::class);
@@ -34,8 +29,8 @@ class Product extends Model
         return $this->belongsTo(Product::class, 'parent_id');
     }
 
-    public function procedures(): BelongsToMany
+    public function inspectionSchedules(): BelongsToMany
     {
-        return $this->belongsToMany(InspectionProcedure::class, 'product_inspections', 'product_id', 'procedure_id');
+        return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id');
     }
 }

@@ -16,6 +16,6 @@ class InspectionProcedure extends Model
 
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'product_inspections', 'procedure_id', 'product_id');
+        return $this->belongsToMany(Product::class, 'product_inspection_schedules', 'procedure_id', 'product_id');
     }
 }
