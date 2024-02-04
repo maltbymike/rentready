@@ -24,12 +24,27 @@ class InspectionsRelationManager extends RelationManager
         return $form
             ->schema([
                 Select::make('schedule_id')
-                    ->relationship(name: 'schedule', titleAttribute: 'procedure_id'),
+                    ->relationship(name: 'procedure', titleAttribute: 'name')
+                    ->disabled(),
                 Select::make('status_id')
-                    ->relationship(name: 'status', titleAttribute: 'name'),   
+                    ->relationship(name: 'status', titleAttribute: 'name'),
                 DateTimePicker::make('created_at')
-                    ->disabled(),                 
-                DateTimePicker::make('completed_at'),
+                    ->disabled()
+                    ->hiddenOn('create'),
+                Select::make('assigned_to_id')
+                    ->relationship(name: 'assignedTo', titleAttribute: 'name'),
+                DateTimePicker::make('started_at')
+                    ->hiddenOn('create'),
+                Select::make('completed_by_id')
+                    ->relationship(name: 'completedBy', titleAttribute: 'name')
+                    ->hiddenOn('create'),
+                DateTimePicker::make('completed_at')
+                    ->hiddenOn('create'),
+                Select::make('approved_by_id')
+                    ->relationship(name: 'approvedBy', titleAttribute: 'name')
+                    ->hiddenOn('create'),
+                DateTimePicker::make('approved_at')
+                    ->hiddenOn('create'),
             ]);
     }
 
@@ -41,13 +56,18 @@ class InspectionsRelationManager extends RelationManager
                 TextColumn::make('schedule.procedure.name'),
                 TextColumn::make('status.name'),
                 TextColumn::make('created_at'),
+                TextColumn::make('assignedTo.name'),
+                TextColumn::make('started_at'),
+                TextColumn::make('completedBy.name'),
                 TextColumn::make('completed_at'),
+                TextColumn::make('approvedBy.name'),
+                TextColumn::make('approved_at')
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

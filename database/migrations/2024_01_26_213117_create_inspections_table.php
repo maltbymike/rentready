@@ -22,7 +22,26 @@ return new class extends Migration
                 ->constrained(table: 'product_inspection_statuses')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
+            $table->foreignId('assigned_to_id')
+                ->nullable()
+                ->constrained(table: 'users')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $table->foreignId('completed_by_id')
+                ->nullable()
+                ->constrained(table: 'users')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $table->foreignId('approved_by_id')
+                ->nullable()
+                ->constrained(table: 'users')
+                ->cascadeOnUpdate()
+                ->restrictOnDelete();
+            $table->timestamp('started_at')
+                ->nullable();
             $table->timestamp('completed_at')
+                ->nullable();
+            $table->timestamp('approved_at')
                 ->nullable();
             $table->timestamps();
         });
