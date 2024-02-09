@@ -15,6 +15,12 @@ class Inspections extends Model
     use HasFactory;
     use \Znck\Eloquent\Traits\BelongsToThrough;
 
+    protected $casts = [
+        'started_at' => 'datetime:Y-m-d H:i:s',
+        'completed_at' => 'datetime:Y-m-d H:i:s',
+        'approved_at' => 'datetime:Y-m-d H:i:s',
+    ];
+
     protected $guarded = [];
 
     protected $table = 'product_inspections';

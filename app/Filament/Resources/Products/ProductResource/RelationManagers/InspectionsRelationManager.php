@@ -76,12 +76,9 @@ class InspectionsRelationManager extends RelationManager
                 Action::make('Edit')
                     ->icon('heroicon-m-pencil-square')
                     ->url(fn (Inspections $inspection): string => InspectionsResource::getUrl('edit', ['record' => $inspection])),
-                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                //
             ]);
     }
 }
