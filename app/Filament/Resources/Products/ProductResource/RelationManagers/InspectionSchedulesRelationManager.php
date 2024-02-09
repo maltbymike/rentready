@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
 use App\Filament\Resources\Products\InspectionProcedureResource;
+use App\Filament\Resources\Products\InspectionsResource;
 use App\Models\Product\InspectionProcedure;
 use App\Models\Product\Inspections;
 use App\Models\Product\InspectionSchedule;
@@ -36,6 +37,7 @@ class InspectionSchedulesRelationManager extends RelationManager
                         $inspection = Inspections::create([
                             'schedule_id' => $record->pivot_id,
                         ]);
+                        redirect(InspectionsResource::getUrl('edit', ['record' => $inspection]));
                     }),
             ])
             ->headerActions([

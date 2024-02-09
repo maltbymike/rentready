@@ -39,7 +39,22 @@ class Inspections extends Model
         return $this->belongsToThrough(
             InspectionProcedure::class,
             InspectionSchedule::class,
-            foreignKeyLookup: [InspectionProcedure::class => 'procedure_id']
+            foreignKeyLookup: [
+                InspectionProcedure::class => 'procedure_id',
+                InspectionSchedule::class => 'schedule_id',
+            ]
+        );
+    }
+
+    public function product(): BelongsToThrough
+    {
+        return $this->belongsToThrough(
+            Product::class,
+            InspectionSchedule::class,
+            foreignKeyLookup: [
+                Product::class => 'product_id',
+                InspectionSchedule::class => 'schedule_id',
+            ]
         );
     }
 

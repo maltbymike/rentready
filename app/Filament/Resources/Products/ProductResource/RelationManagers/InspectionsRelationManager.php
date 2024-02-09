@@ -2,17 +2,20 @@
 
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
+use App\Models\Product\Inspections;
 use Filament\Forms;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Select;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\Products\InspectionsResource;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class InspectionsRelationManager extends RelationManager
@@ -70,13 +73,15 @@ class InspectionsRelationManager extends RelationManager
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Action::make('Edit')
+                    ->icon('heroicon-m-pencil-square')
+                    ->url(fn (Inspections $inspection): string => InspectionsResource::getUrl('edit', ['record' => $inspection])),
+                // Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                // Tables\Actions\BulkActionGroup::make([
+                //     Tables\Actions\DeleteBulkAction::make(),
+                // ]),
             ]);
     }
 }
