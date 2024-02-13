@@ -8,6 +8,7 @@ use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Tables\Columns\IconColumn;
 use Livewire\Component;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -124,9 +125,20 @@ class InspectionsResource extends Resource
             ->columns([
                 TextColumn::make('product.name'),
                 TextColumn::make('procedure.name'),
+                TextColumn::make('assignedTo.name')
+                    ->label('Assigned To'),
+                TextColumn::make('started_at')
+                    ->label('Started'),
+                TextColumn::make('completed_at')
+                    ->label('Completed'),
+                TextColumn::make('completedBy.name')
+                    ->label('Completed By'),
+                IconColumn::make('approved_at')
+                    ->label('Approved')
+                    ->boolean(),
             ])
             ->filters([
-                //
+                
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
