@@ -51,10 +51,11 @@ class InspectionsResource extends Resource
                 //     ->readonly(),
                 Placeholder::make('started_at')
                     ->label('Started At')
-                    ->content(fn (Inspections $record): string => $record->started_at),
-                Placeholder::make('inspected_by')
-                    ->label('Inspected By')
-                    ->content(fn (Inspections $record): string => $record->completedBy->name)
+                    ->content(fn (Inspections $record): ?string => $record->started_at)
+                    ->hidden(fn (Get $get) => $get('started_at') === null),
+                Placeholder::make('assigned_to')
+                    ->label('Assigned To')
+                    ->content(fn (Inspections $record): ?string => $record->assignedTo->name ?? '')
                     ->hidden(fn (Get $get) => $get('started_at') === null),
                 Actions::make([
                     Action::make('startInspection')
@@ -65,6 +66,39 @@ class InspectionsResource extends Resource
                         ->size(ActionSize::ExtraLarge)
                         ->hidden(fn (Get $get) => $get('started_at') !== null)
                         ->fillForm(fn (Inspections $record): array => [
+                            'assignedTo' => Auth::user()->id,
+                        ])
+                        ->form([
+                            Select::make('assignedTo')
+                                ->label('Inspected By')
+                                ->options(User::query()->pluck('name', 'id'))
+                                ->required(),
+                        ])
+                        ->action(function (array $data, Inspections $record, Request $request): void {
+                            $record->started_at = now()->format('Y-m-d H:i:s');
+                            $record->assignedTo()->associate($data['assignedTo']);
+                            $record->save();
+                            redirect(InspectionsResource::getUrl('edit', ['record' => $record]));
+                        })
+                ])
+                ->columnSpanFull(),
+                Placeholder::make('completed_at')
+                    ->label('Completed At')
+                    ->content(fn (Inspections $record): ?string => $record->completed_at)
+                    ->hidden(fn (Get $get) => $get('completed_at') === null),
+                Placeholder::make('completed_by')
+                    ->label('Completed By')
+                    ->content(fn (Inspections $record): string => $record->completedBy->name ?? '')
+                    ->hidden(fn (Get $get) => $get('completed_at') === null),
+                Actions::make([
+                    Action::make('completeInspection')
+                        ->label('Complete Inspection')
+                        ->extraAttributes([
+                            'class' => 'w-full',
+                        ])
+                        ->size(ActionSize::ExtraLarge)
+                        ->hidden(fn (Get $get) => $get('completed_at') !== null || $get('started_at') === null)
+                        ->fillForm(fn (Inspections $record): array => [
                             'completedBy' => Auth::user()->id,
                         ])
                         ->form([
@@ -74,7 +108,7 @@ class InspectionsResource extends Resource
                                 ->required(),
                         ])
                         ->action(function (array $data, Inspections $record, Request $request): void {
-                            $record->started_at = now()->format('Y-m-d H:i:s');
+                            $record->completed_at = now()->format('Y-m-d H:i:s');
                             $record->completedBy()->associate($data['completedBy']);
                             $record->save();
                             redirect(InspectionsResource::getUrl('edit', ['record' => $record]));
