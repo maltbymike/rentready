@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Models\Product\Product;
 use Closure;
 use Filament\Forms;
 use App\Models\User;
@@ -9,6 +10,7 @@ use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Livewire\Component;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -43,21 +45,21 @@ class InspectionsResource extends Resource
         return $form
             ->schema([
                 Placeholder::make('product')
-                    ->content(fn (Inspections $record): string => $record->product->name),
+                    ->content(fn (Inspections $record): string => $record->product->name)
+                    ->visibleOn('edit'),
                 Placeholder::make('procedure')
-                    ->content(fn (Inspections $record): string => $record->procedure->name),
-                // DateTimePicker::make('started_at')
-                //     ->hidden(fn (Get $get) => $get('started_at') === null)
-                //     ->reactive()
-                //     ->readonly(),
+                    ->content(fn (Inspections $record): string => $record->procedure->name)
+                    ->visibleOn('edit'),
                 Placeholder::make('started_at')
                     ->label('Started At')
                     ->content(fn (Inspections $record): ?string => $record->started_at)
-                    ->hidden(fn (Get $get) => $get('started_at') === null),
+                    ->hidden(fn (Get $get) => $get('started_at') === null)
+                    ->visibleOn('edit'),
                 Placeholder::make('assigned_to')
                     ->label('Assigned To')
                     ->content(fn (Inspections $record): ?string => $record->assignedTo->name ?? '')
-                    ->hidden(fn (Get $get) => $get('started_at') === null),
+                    ->hidden(fn (Get $get) => $get('started_at') === null)
+                    ->visibleOn('edit'),
                 Actions::make([
                     Action::make('startInspection')
                         ->label('Start Inspection')
@@ -138,7 +140,10 @@ class InspectionsResource extends Resource
                     ->boolean(),
             ])
             ->filters([
-                
+                TernaryFilter::make('completed_at')
+                    ->nullable()
+                    ->label('Completed')
+                    ->default(false),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
