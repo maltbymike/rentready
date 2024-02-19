@@ -105,12 +105,22 @@ class ProductResource extends Resource
                     ->titlePrefixedWithLabel(false),
             ])
             ->columns([
-                TextColumn::make('reference'),
-                TextColumn::make('name'),
-                TextColumn::make('manufacturer.name'),
-                TextColumn::make('model'),
+                TextColumn::make('reference')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('manufacturer.name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('model')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('serial_number')
-                    ->label('Serial Number'),
+                    ->label('Serial Number')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 Filter::make('is_header')
