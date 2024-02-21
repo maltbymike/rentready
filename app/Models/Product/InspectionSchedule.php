@@ -33,11 +33,6 @@ class InspectionSchedule extends Pivot
         return $this->belongsTo(Product::class);
     }
 
-    public function status(): BelongsTo 
-    {
-        return $this->belongsTo(InspectionStatus::class);
-    }
-
     public function timeclockEntries(): MorphMany 
     {
         return $this->morphMany(TimeclockEntry::class, 'clockable');
