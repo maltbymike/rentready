@@ -17,11 +17,6 @@ return new class extends Migration
                 ->constrained(table: 'product_inspection_schedules')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            $table->foreignId('status_id')
-                ->nullable()
-                ->constrained(table: 'product_inspection_statuses')
-                ->cascadeOnUpdate()
-                ->restrictOnDelete();
             $table->foreignId('assigned_to_id')
                 ->nullable()
                 ->constrained(table: 'users')

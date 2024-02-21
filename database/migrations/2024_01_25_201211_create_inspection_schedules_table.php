@@ -21,11 +21,6 @@ return new class extends Migration
                 ->constrained(table: 'product_inspection_procedures')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            // $table->foreignId('status_id')
-            //     ->nullable()
-            //     ->constrained(table: 'product_inspection_statuses')
-            //     ->cascadeOnUpdate()
-            //     ->restrictOnDelete();
             $table->timestamps();
         });
     }

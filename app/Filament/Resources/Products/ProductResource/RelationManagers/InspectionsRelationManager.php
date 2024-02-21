@@ -6,6 +6,7 @@ use App\Models\Product\Inspections;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -29,8 +30,6 @@ class InspectionsRelationManager extends RelationManager
                 Select::make('schedule_id')
                     ->relationship(name: 'procedure', titleAttribute: 'name')
                     ->disabled(),
-                Select::make('status_id')
-                    ->relationship(name: 'status', titleAttribute: 'name'),
                 DateTimePicker::make('created_at')
                     ->disabled()
                     ->hiddenOn('create'),
@@ -57,14 +56,17 @@ class InspectionsRelationManager extends RelationManager
             ->recordTitleAttribute('completed_at')
             ->columns([
                 TextColumn::make('schedule.procedure.name'),
-                TextColumn::make('status.name'),
                 TextColumn::make('created_at'),
                 TextColumn::make('assignedTo.name'),
-                TextColumn::make('started_at'),
-                TextColumn::make('completedBy.name'),
-                TextColumn::make('completed_at'),
-                TextColumn::make('approvedBy.name'),
-                TextColumn::make('approved_at')
+                IconColumn::make('started_at')
+                    ->label('Started')
+                    ->boolean(),
+                IconColumn::make('completed_at')
+                    ->label('Completed')
+                    ->boolean(),
+                IconColumn::make('approved_at')
+                    ->label('Approved')
+                    ->boolean(),
             ])
             ->filters([
                 //

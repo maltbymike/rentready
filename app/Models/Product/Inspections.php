@@ -68,9 +68,4 @@ class Inspections extends Model
     {
         return $this->belongsTo(InspectionSchedule::class);
     }
-
-    public function status(): BelongsTo
-    {
-        return $this->belongsTo(InspectionStatus::class);
-    }
 }
