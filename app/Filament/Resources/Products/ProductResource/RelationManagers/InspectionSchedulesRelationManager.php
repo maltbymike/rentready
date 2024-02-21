@@ -41,7 +41,8 @@ class InspectionSchedulesRelationManager extends RelationManager
                     }),
             ])
             ->headerActions([
-                Tables\Actions\AttachAction::make(),
+                Tables\Actions\AttachAction::make()
+                    ->preloadRecordSelect(),
             ]);
     }
 }
