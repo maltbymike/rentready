@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products;
 
+use App\Filament\Resources\Products\ProductResource\RelationManagers\InspectionsRelationManager;
 use App\Models\Product\Product;
 use Closure;
 use Filament\Forms;
@@ -125,16 +126,21 @@ class InspectionsResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('product.name'),
+                TextColumn::make('product.name')
+                    ->hiddenOn(InspectionsRelationManager::class),
                 TextColumn::make('procedure.name'),
+                TextColumn::make('created_at'),
                 TextColumn::make('assignedTo.name')
                     ->label('Assigned To'),
-                TextColumn::make('started_at')
-                    ->label('Started'),
-                TextColumn::make('completed_at')
-                    ->label('Completed'),
-                TextColumn::make('completedBy.name')
-                    ->label('Completed By'),
+                IconColumn::make('started_at')
+                    ->label('Started')
+                    ->boolean(),
+                IconColumn::make('completed_at')
+                    ->label('Completed')
+                    ->boolean(),
+                IconColumn::make('approved_at')
+                    ->label('Approved')
+                    ->boolean(),
                 IconColumn::make('approved_at')
                     ->label('Approved')
                     ->boolean(),
@@ -149,9 +155,7 @@ class InspectionsResource extends Resource
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                //
             ]);
     }
 

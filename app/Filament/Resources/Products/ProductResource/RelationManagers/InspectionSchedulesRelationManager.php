@@ -21,6 +21,8 @@ class InspectionSchedulesRelationManager extends RelationManager
 {
     protected static string $relationship = 'inspectionSchedules';
 
+    protected static ?string $title = 'Inspections';
+
     public function form(Form $form): Form
     {
         return InspectionProcedureResource::form($form);
