@@ -34,6 +34,7 @@ class InspectionsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return InspectionsResource::table($table)
+            ->defaultGroup('procedure.name')
             ->filters([
                 TernaryFilter::make('completed_at')
                     ->nullable()

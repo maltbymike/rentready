@@ -2,36 +2,37 @@
 
 namespace App\Filament\Resources\Products;
 
-use App\Filament\Resources\Products\ProductResource\RelationManagers\InspectionsRelationManager;
-use App\Models\Product\Product;
 use Closure;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Filters\TernaryFilter;
 use Livewire\Component;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Http\Request;
+use App\Models\Product\Product;
 use Filament\Resources\Resource;
 use App\Models\Product\Inspections;
+use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Actions;
 use Filament\Support\Enums\ActionSize;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use phpDocumentor\Reflection\Types\Void_;
 use Filament\Forms\Components\Placeholder;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Products\InspectionsResource\Pages;
 use App\Filament\Resources\Products\InspectionsResource\RelationManagers;
+use App\Filament\Resources\Products\ProductResource\RelationManagers\InspectionsRelationManager;
 
 class InspectionsResource extends Resource
 {
@@ -125,23 +126,46 @@ class InspectionsResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->groups([
+                Group::make('product.reference')
+                    ->collapsible(),
+                Group::make('procedure.name')
+                    ->collapsible(),
+            ])
+            ->defaultGroup('product.name')
             ->columns([
-                TextColumn::make('product.name')
+                TextColumn::make('product.reference')
+                    ->label('Reference')
+                    ->sortable()
+                    ->searchable()
                     ->hiddenOn(InspectionsRelationManager::class),
-                TextColumn::make('procedure.name'),
-                TextColumn::make('created_at'),
+                TextColumn::make('product.name')
+                    ->sortable()
+                    ->searchable()
+                    ->hiddenOn(InspectionsRelationManager::class),
+                TextColumn::make('procedure.name')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('created_at')
+                    ->sortable()
+                    ->label('Created At'),
                 TextColumn::make('assignedTo.name')
+                    ->sortable()
+                    ->searchable()
                     ->label('Assigned To'),
                 IconColumn::make('started_at')
                     ->label('Started')
+                    ->sortable()
                     ->boolean()
                     ->alignCenter(),
                 IconColumn::make('completed_at')
                     ->label('Completed')
+                    ->sortable()
                     ->boolean()
                     ->alignCenter(),
                 IconColumn::make('approved_at')
                     ->label('Approved')
+                    ->sortable()
                     ->boolean()
                     ->alignCenter(),
             ])
