@@ -134,16 +134,16 @@ class InspectionsResource extends Resource
                     ->label('Assigned To'),
                 IconColumn::make('started_at')
                     ->label('Started')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
                 IconColumn::make('completed_at')
                     ->label('Completed')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
                 IconColumn::make('approved_at')
                     ->label('Approved')
-                    ->boolean(),
-                IconColumn::make('approved_at')
-                    ->label('Approved')
-                    ->boolean(),
+                    ->boolean()
+                    ->alignCenter(),
             ])
             ->filters([
                 TernaryFilter::make('completed_at')
