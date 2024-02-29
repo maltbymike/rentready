@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use Filament\Pages;
 use Filament\Panel;
+use Filament\SpatieLaravelTranslatablePlugin;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -20,6 +21,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Tapp\FilamentSurvey\FilamentSurveyPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +31,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->plugins([
+                FilamentSurveyPlugin::make(),
+                SpatieLaravelTranslatablePlugin::make(),
+            ])
             ->login()
             // ->colors([
             //     'danger' => Color::Rose,
