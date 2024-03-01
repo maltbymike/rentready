@@ -33,6 +33,11 @@ class InspectionSchedule extends Pivot
         return $this->belongsTo(Product::class);
     }
 
+    public function questions(): HasMany
+    {
+        return $this->hasMany(InspectionQuestion::class, 'schedule_id');
+    }
+
     public function timeclockEntries(): MorphMany 
     {
         return $this->morphMany(TimeclockEntry::class, 'clockable');

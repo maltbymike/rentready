@@ -35,9 +35,14 @@ class Product extends Model
         return $this->hasManyThrough(Inspections::class, InspectionSchedule::class, 'product_id', 'schedule_id');
     }
 
-    public function inspectionSchedules(): BelongsToMany
+    public function inspectionSchedules(): HasMany
     {
-        return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id')
-            ->withPivot(['id']);
+        return $this->hasMany(InspectionSchedule::class)
+            ->with('procedure');
+    }
+
+    public function inspectionProcedures(): BelongsToMany
+    {
+        return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id');
     }
 }

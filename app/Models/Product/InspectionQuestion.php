@@ -11,5 +11,6 @@ class InspectionQuestion extends Model
 
     protected $guarded = [];
 
-    protected $table = 'product_inspection_procedures';
+    protected $table = 'product_inspection_schedule_questions';
+
 }
