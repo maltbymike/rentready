@@ -55,8 +55,8 @@ class ProductResource extends Resource
                         titleAttribute: 'name',
                         modifyQueryUsing: fn (Builder $query) => $query->where('is_header', true),
                     )
-                    ->searchable(['name', 'reference'])
-                    ->getOptionLabelFromRecordUsing(fn (Product $record) => "{$record->reference} - {$record->name}")
+                    ->searchable(Product::searchFields())
+                    ->getOptionLabelFromRecordUsing(fn (Product $record) => $record->searchString())
                     ->preload(),
                 Tabs::make('Tabs')
                     ->columnSpanFull()

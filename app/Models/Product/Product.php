@@ -45,4 +45,21 @@ class Product extends Model
     {
         return $this->belongsToMany(InspectionProcedure::class, 'product_inspection_schedules', 'product_id', 'procedure_id');
     }
+
+    public static function searchFields(): array
+    {
+        return [
+            'reference',
+            'name',
+        ];
+    }
+    public function searchString(): string
+    {
+        return implode(' - ', 
+            array_map(
+                fn ($field): string => $this->{$field}, 
+                $this->searchFields()
+            )
+        );
+    }
 }
