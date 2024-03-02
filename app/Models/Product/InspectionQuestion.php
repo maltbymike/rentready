@@ -9,6 +9,10 @@ class InspectionQuestion extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'options' => 'array',
+    ];
+
     protected $guarded = [];
 
     protected $table = 'product_inspection_schedule_questions';
