@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\ProductResource\RelationManagers;
 
+use App\Filament\Resources\Products\InspectionScheduleResource;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
@@ -20,23 +21,7 @@ class InspectionSchedulesRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Select::make('procedure_id')
-                    ->relationship(
-                        name: 'procedure',
-                        titleAttribute: 'name',
-                    )
-                    ->required(),
-                Repeater::make('questions')
-                    ->relationship()
-                    ->schema([
-                        TextInput::make('question'),
-                        RichEditor::make('description'),
-
-                    ])
-                    ->orderColumn('order')
-            ]);
+        return InspectionScheduleResource::form($form);
     }
 
     public function table(Table $table): Table
