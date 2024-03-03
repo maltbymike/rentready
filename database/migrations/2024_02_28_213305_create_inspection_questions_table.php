@@ -17,7 +17,7 @@ return new class extends Migration
                 ->constrained(table: 'product_inspection_schedules')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-            $table->string('question');
+            $table->string('question')->nullable();
             $table->mediumText('description')->nullable();
             $table->string('type')->default('text');
             $table->json('options')->nullable();
