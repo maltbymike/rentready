@@ -71,6 +71,7 @@ class InspectionScheduleResource extends Resource
             Repeater::make('questions')
                 ->columnSpanFull()
                 ->collapsible()
+                ->collapsed()
                 ->relationship()
                 ->schema([
                     TextInput::make('question'),
