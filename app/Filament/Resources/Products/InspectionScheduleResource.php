@@ -2,23 +2,27 @@
 
 namespace App\Filament\Resources\Products;
 
-use App\Models\Product\Product;
 use Filament\Forms;
-use Filament\Forms\Components\Fieldset;
-use Filament\Forms\Components\Group;
 use Filament\Tables;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\Product\Product;
 use Filament\Resources\Resource;
+use Illuminate\Support\Collection;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\Product\InspectionSchedule;
+use App\Models\Product\InspectionProcedure;
 use App\Enums\Product\InspectionQuestionTypeEnum;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\Products\InspectionScheduleResource\Pages;
@@ -35,6 +39,7 @@ class InspectionScheduleResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+        ->columns(3)
         ->schema([
             Select::make('product_id')
                 ->relationship(
@@ -46,9 +51,15 @@ class InspectionScheduleResource extends Resource
                 ->getOptionLabelFromRecordUsing(fn (Product $record): string => $record->searchString())
                 ->visibleOn('create'),
             Group::make()
+                ->columnSpan(2)
+                ->columns(3)
                 ->relationship('product')
                 ->schema([
+                    TextInput::make('reference')
+                        ->label('Reference')
+                        ->readOnly(),
                     TextInput::make('name')
+                        ->columnSpan(2)
                         ->label('Product')
                         ->readOnly(),
                 ])
@@ -74,10 +85,28 @@ class InspectionScheduleResource extends Resource
                 ->collapsed()
                 ->relationship()
                 ->schema([
-                    TextInput::make('question'),
                     Select::make('type')
                         ->options(InspectionQuestionTypeEnum::class)
                         ->live(),
+                    TextInput::make('question')
+                        ->hidden(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::FromTemplate->value),
+                    Select::make('options.templateProduct')
+                        ->label('Get Inspection Template From')
+                        ->options(
+                            Product::selectRaw("id, concat(" . Product::searchFieldsAsCommaSeperatedStringWithDelimiter() . ") as searchString")
+                                ->whereHas('inspectionSchedules')
+                                ->pluck('searchString', 'id')
+                        )
+                        ->visible(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::FromTemplate->value)
+                        ->live(),
+                    Select::make('options.templateSchedule')
+                        ->label('Inspection Schedule Template')
+                        ->options(fn (Get $get): Collection => 
+                            InspectionSchedule::where('product_id', $get('options.templateProduct'))
+                                ->join('product_inspection_procedures', 'product_inspection_procedures.id', '=', 'product_inspection_schedules.procedure_id')
+                                ->pluck('product_inspection_procedures.name', 'product_inspection_schedules.id')
+                        )
+                        ->visible(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::FromTemplate->value),
                     TextInput::make('options.placeholderText')
                         ->label('Placeholder Text')
                         ->visible(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::Text->value),
@@ -87,7 +116,8 @@ class InspectionScheduleResource extends Resource
                         ->onColor('success')
                         ->offColor('danger')
                         ->visible(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::Toggle->value),
-                    RichEditor::make('description'),
+                    RichEditor::make('description')
+                        ->hidden(fn (Get $get): bool => $get('type') === InspectionQuestionTypeEnum::FromTemplate->value),
                 ])
                 ->itemLabel(fn (array $state): ?string => $state['question'] ?? null)
                 ->orderColumn('order')

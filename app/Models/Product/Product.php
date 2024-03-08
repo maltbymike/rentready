@@ -53,13 +53,28 @@ class Product extends Model
             'name',
         ];
     }
+
+    public static function searchFieldsAsCommaSeperatedStringWithDelimiter(): string
+    {
+        return '`' . implode(
+            '`, "' . static::searchStringFieldDelimiter() . '", `', 
+            static::searchFields()
+        ) . '`';
+    }
+
     public function searchString(): string
     {
-        return implode(' - ', 
+        return implode(
+            $this->searchStringFieldDelimiter(), 
             array_map(
                 fn ($field): string => $this->{$field}, 
                 $this->searchFields()
             )
         );
+    }
+
+    public static function searchStringFieldDelimiter(): string
+    {
+        return ' - ';
     }
 }
