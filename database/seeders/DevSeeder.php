@@ -17,6 +17,7 @@ class DevSeeder extends Seeder
         $this->call([
             RolesAndPermissionsSeeder::class,
             TimeClockEntrySeeder::class,
+            ProductSeeder::class,
         ]);
     }
 }
