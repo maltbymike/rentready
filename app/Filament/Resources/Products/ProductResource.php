@@ -102,7 +102,8 @@ class ProductResource extends Resource
             ->defaultGroup('parent.name')
             ->groups([
                 Group::make('parent.name')
-                    ->titlePrefixedWithLabel(false),
+                    ->titlePrefixedWithLabel(false)
+                    ->collapsible(),
             ])
             ->columns([
                 TextColumn::make('reference')
