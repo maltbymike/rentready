@@ -26,14 +26,7 @@ class InspectionProceduresRelationManager extends RelationManager
 
     public function form(Form $form): Form
     {
-        // return InspectionProcedureResource::form($form);
-        return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('test'),
-            ]);
+        return InspectionProcedureResource::form($form);
     }
 
     public function table(Table $table): Table
@@ -51,6 +44,7 @@ class InspectionProceduresRelationManager extends RelationManager
                     }),
             ])
             ->headerActions([
+                Tables\Actions\CreateAction::make(),
                 Tables\Actions\AttachAction::make()
                     ->preloadRecordSelect(),
             ]);
