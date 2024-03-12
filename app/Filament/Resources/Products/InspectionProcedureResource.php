@@ -29,6 +29,7 @@ class InspectionProcedureResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->unique()
                     ->required()
                     ->maxLength(255),
             ]);
