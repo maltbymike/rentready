@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('product_inspection_schedules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')
+                ->nullable()
                 ->constrained(table: 'products')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
