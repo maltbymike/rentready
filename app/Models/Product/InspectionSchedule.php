@@ -16,6 +16,8 @@ class InspectionSchedule extends Pivot
 
     protected $guarded = [];
 
+    public $incrementing = true;
+    
     protected $table = 'product_inspection_schedules';
 
     public function inspections(): HasMany
